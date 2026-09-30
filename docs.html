@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ziiui — Documentation</title>
+    <meta name="description" content="How to use ziiui: pick a component, tweak it live, and copy standalone production-ready code.">
+
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0a0a'/%3E%3Cpath d='M10 11h12L11 21h11' stroke='%23d4ff4f' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+
+    <style>
+        /* ================================================================
+           TOKENS
+           ================================================================ */
+        :root {
+            --bg: #f8f9fb;
+            --surface: #ffffff;
+            --surface-2: #f1f3f7;
+            --border: #e4e7ed;
+            --border-2: #d1d5de;
+            --fg: #14171d;
+            --fg-2: #4a5160;
+            --fg-3: #89909e;
+            --acc: #2f6fe4;
+            --acc-soft: #e8f0fe;
+            --acc-dark: #1d5cd1;
+            --code-bg: #0f1117;
+            --code-fg: #d3d7df;
+            --code-key: #c594ff;
+            --code-str: #a8e26e;
+            --code-com: #5a6270;
+            --code-fn: #6bb8ff;
+            --code-tag: #ffb26b;
+            --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            --sidebar-w: 240px;
+            --header-h: 56px;
+            --maxw: 1200px;
+            --radius: 8px;
+            --radius-lg: 12px;
+            color-scheme: light;
+        }
+
+        * { box-sizing: border-box }
+        *::before, *::after { box-sizing: border-box }
+
+        html, body { margin: 0; padding: 0 }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--header-h) + 24px);
+            background: var(--bg);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: var(--sans);
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            overflow-wrap: anywhere;
+        }
+
+        a {
+            color: var(--acc);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        a:hover { color: var(--acc-dark) }
+
+        img { display: block; max-width: 100% }
+
+        ::selection {
+            background: var(--acc);
+            color: #fff;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px }
+        ::-webkit-scrollbar-track { background: transparent }
+        ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 8px }
+        ::-webkit-scrollbar-thumb:hover { background: var(--fg-3) }
+
+        /* ================================================================
+           TOP BAR
+           ================================================================ */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-h);
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: saturate(180%) blur(12px);
+            -webkit-backdrop-filter: saturate(180%) blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 1.25rem;
+            gap: 1rem;
+        }
+
+        .topbar__brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 650;
+            font-size: 1rem;
+            color: var(--fg);
+            text-decoration: none;
+            flex: none;
+            letter-spacing: -0.01em;
+        }
+
+        .topbar__brand:hover { color: var(--fg) }
+
+        .topbar__mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: var(--fg);
+            display: grid;
+            place-items: center;
+            color: #d4ff4f;
+            font-weight: 800;
+            font-size: 0.95rem;
+            line-height: 1;
+            padding-bottom: 1px;
+        }
+
+        .topbar__beta {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--acc);
+            background: var(--acc-soft);
+            border: 1px solid rgba(47, 111, 228, 0.25);
+            border-radius: 999px;
+            padding: 0.12rem 0.5rem;
+            line-height: 1;
+            margin-left: 0.15rem;
+        }
+
+        .topbar__nav {
+            display: flex;
+            align-items: center;
+            gap: 0.15rem;
+            margin-left: auto;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .topbar__nav a {
+            color: var(--fg-2);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .topbar__nav a:hover {
+            background: var(--surface-2);
+            color: var(--fg);
+        }
+
+        .topbar__nav a.is-active {
+            color: var(--acc);
+            background: var(--acc-soft);
+        }
+
+        .topbar__nav a:focus-visible {
+            outline: 2px solid var(--acc);
+            outline-offset: 2px;
+        }
+
+        .topbar__cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.9rem;
+            background: var(--fg);
+            color: #fff;
+            border-radius: 7px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            flex: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .topbar__cta:hover {
+            background: var(--acc);
+            color: #fff;
+        }
+
+        /* ================================================================
+           SHELL — sidebar + main
+           ================================================================ */
+        .shell {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+            max-width: var(--maxw);
+            margin: 0 auto;
+            padding-top: var(--header-h);
+            min-height: 100vh;
+        }
+
+        /* ---- Sidebar ---- */
+        .sidebar {
+            position: sticky;
+            top: var(--header-h);
+            align-self: start;
+            height: calc(100vh - var(--header-h));
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            border-right: 1px solid var(--border);
+            padding: 1.75rem 1rem 3rem;
+            background: var(--bg);
+            scrollbar-width: thin;
+        }
+
+        .sidebar__group {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar__label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--fg-3);
+            padding: 0 0.75rem;
+            margin: 0 0 0.5rem;
+        }
+
+        .sidebar__list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 1px;
+        }
+
+        .sidebar__item {}
+
+        .sidebar__link {
+            display: block;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: var(--fg-2);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            line-height: 1.4;
+        }
+
+        .sidebar__link:hover {
+            background: var(--surface-2);
+            color: var(--fg);
+        }
+
+        .sidebar__link.is-active {
+            color: var(--acc);
+            background: var(--acc-soft);
+            font-weight: 600;
+        }
+
+        .sidebar__link:focus-visible {
+            outline: 2px solid var(--acc);
+            outline-offset: -2px;
+        }
+
+        /* Collapsible category header */
+        .sidebar__toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font: inherit;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--fg-3);
+            background: none;
+            border: 0;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            border-radius: 6px;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .sidebar__toggle:hover {
+            background: var(--surface-2);
+            color: var(--fg);
+        }
+
+        .sidebar__toggle:focus-visible {
+            outline: 2px solid var(--acc);
+            outline-offset: -2px;
+        }
+
+        .sidebar__toggle i {
+            font-size: 0.95rem;
+            transition: transform 0.2s ease;
+            line-height: 1;
+            flex: none;
+        }
+
+        .sidebar__toggle[aria-expanded="false"] i {
+            transform: rotate(-90deg);
+        }
+
+        .sidebar__sublist {
+            list-style: none;
+            padding: 0.25rem 0 0 0.6rem;
+            margin: 0;
+            display: grid;
+            gap: 1px;
+        }
+
+        .sidebar__sublist[hidden] { display: none }
+
+        /* ---- Main ---- */
+        .main {
+            min-width: 0;
+            padding: 3rem 2.5rem 6rem;
+            max-width: 780px;
+        }
+
+        .main > * + * { margin-top: 1.25rem }
+
+        /* ================================================================
+           TYPOGRAPHY
+           ================================================================ */
+        .eyebrow {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--acc);
+            margin: 0;
+        }
+
+        h1 {
+            font-size: clamp(1.85rem, 3.5vw, 2.35rem);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            margin: 0;
+            color: var(--fg);
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 650;
+            letter-spacing: -0.015em;
+            line-height: 1.3;
+            margin: 0;
+            padding-top: 0.5rem;
+            color: var(--fg);
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            font-weight: 650;
+            letter-spacing: -0.01em;
+            margin: 0;
+            color: var(--fg);
+        }
+
+        h4 {
+            font-size: 0.9rem;
+            font-weight: 650;
+            margin: 0;
+            color: var(--fg);
+        }
+
+        p {
+            margin: 0;
+            color: var(--fg-2);
+            line-height: 1.7;
+        }
+
+        .lead {
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: var(--fg-2);
+        }
+
+        strong { color: var(--fg); font-weight: 650 }
+
+        code:not(pre code) {
+            font-family: var(--mono);
+            font-size: 0.85em;
+            background: var(--surface-2);
+            color: var(--acc-dark);
+            padding: 0.1em 0.35em;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 2.5rem 0;
+        }
+
+        /* ================================================================
+           LISTS
+           ================================================================ */
+        .list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .list li {
+            position: relative;
+            padding-left: 1.5rem;
+            color: var(--fg-2);
+            line-height: 1.65;
+        }
+
+        .list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--acc);
+        }
+
+        .list--num {
+            counter-reset: n;
+        }
+
+        .list--num li {
+            counter-increment: n;
+            padding-left: 2rem;
+        }
+
+        .list--num li::before {
+            content: counter(n);
+            width: 1.35rem;
+            height: 1.35rem;
+            border-radius: 50%;
+            background: var(--acc-soft);
+            color: var(--acc);
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            top: 0.15em;
+            left: 0;
+        }
+
+        /* ================================================================
+           CARDS / CALLOUTS
+           ================================================================ */
+        .callout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.75rem;
+            padding: 1rem 1.1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--acc);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            color: var(--fg-2);
+            line-height: 1.6;
+        }
+
+        .callout i {
+            color: var(--acc);
+            font-size: 1.15rem;
+            line-height: 1.4;
+        }
+
+        .callout--tip {
+            border-left-color: #22a06b;
+            background: #f0faf5;
+        }
+
+        .callout--tip i { color: #22a06b }
+
+        .callout--warn {
+            border-left-color: #e0a800;
+            background: #fffbf0;
+        }
+
+        .callout--warn i { color: #e0a800 }
+
+        /* ================================================================
+           GRID — quick-start steps
+           ================================================================ */
+        .steps {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .steps { grid-template-columns: repeat(3, 1fr) }
+        }
+
+        .step {
+            padding: 1.25rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .step__num {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--acc);
+        }
+
+        .step__title {
+            font-size: 0.95rem;
+            font-weight: 650;
+            margin: 0;
+            color: var(--fg);
+        }
+
+        .step__desc {
+            font-size: 0.85rem;
+            color: var(--fg-2);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ================================================================
+           CODE BLOCK
+           ================================================================ */
+        .code {
+            background: var(--code-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid #1e2027;
+        }
+
+        .code__head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.6rem 0.9rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid #1e2027;
+        }
+
+        .code__lang {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #6a7382;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code__lang::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--acc);
+            opacity: 0.6;
+        }
+
+        .code__copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: var(--sans);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #9aa2b1;
+            background: transparent;
+            border: 1px solid #2a2e38;
+            border-radius: 6px;
+            padding: 0.3rem 0.65rem;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .code__copy:hover {
+            background: var(--acc);
+            color: #fff;
+            border-color: var(--acc);
+        }
+
+        .code__copy:focus-visible {
+            outline: 2px solid var(--acc);
+            outline-offset: 2px;
+        }
+
+        .code__copy i { font-size: 0.85rem }
+
+        .code pre {
+            margin: 0;
+            padding: 1.1rem 1.25rem;
+            overflow-x: auto;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            line-height: 1.7;
+            color: var(--code-fg);
+            tab-size: 2;
+            white-space: pre;
+            scrollbar-width: thin;
+            scrollbar-color: #2a2e38 transparent;
+        }
+
+        .code pre::-webkit-scrollbar { height: 8px }
+        .code pre::-webkit-scrollbar-thumb { background: #2a2e38; border-radius: 8px }
+
+        /* Syntax tokens */
+        .tok-key { color: var(--code-key) }
+        .tok-str { color: var(--code-str) }
+        .tok-com { color: var(--code-com); font-style: italic }
+        .tok-fn  { color: var(--code-fn) }
+        .tok-tag { color: var(--code-tag) }
+        .tok-num { color: #f0a85c }
+        .tok-attr { color: #9cdcfe }
+
+        /* ================================================================
+           TABLES
+           ================================================================ */
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        th {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--fg-3);
+            background: var(--surface-2);
+            white-space: nowrap;
+        }
+
+        tr:last-child td { border-bottom: 0 }
+
+        td code {
+            font-family: var(--mono);
+            font-size: 0.82em;
+            background: var(--surface-2);
+            padding: 0.1em 0.35em;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            color: var(--acc-dark);
+        }
+
+        /* ================================================================
+           COMPONENT PREVIEWS (static mock)
+           ================================================================ */
+        .preview {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            overflow: hidden;
+        }
+
+        .preview__bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.9rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 0.72rem;
+            color: var(--fg-3);
+            font-family: var(--mono);
+        }
+
+        .preview__dots {
+            display: inline-flex;
+            gap: 0.3rem;
+        }
+
+        .preview__dots span {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--border-2);
+        }
+
+        .preview__dots span:nth-child(1) { background: #ff5f57 }
+        .preview__dots span:nth-child(2) { background: #febc2e }
+        .preview__dots span:nth-child(3) { background: #28c840 }
+
+        .preview__body {
+            padding: 2.5rem 1.5rem;
+            display: grid;
+            place-items: center;
+            min-height: 160px;
+            background:
+                linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%),
+                linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        .preview__text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--fg);
+            text-align: center;
+        }
+
+        /* ================================================================
+           COMPONENT INDEX (cards)
+           ================================================================ */
+        .comp-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 560px) {
+            .comp-grid { grid-template-columns: repeat(2, 1fr) }
+        }
+
+        .comp {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            padding: 1rem 1.1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .comp:hover {
+            border-color: var(--acc);
+            box-shadow: 0 4px 16px rgba(47, 111, 228, 0.08);
+            transform: translateY(-1px);
+            color: inherit;
+        }
+
+        .comp__name {
+            font-size: 0.92rem;
+            font-weight: 650;
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .comp__name i {
+            color: var(--acc);
+            font-size: 1rem;
+        }
+
+        .comp__note {
+            font-size: 0.8rem;
+            color: var(--fg-2);
+            line-height: 1.5;
+        }
+
+        .comp__tag {
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--fg-3);
+            margin-top: 0.15rem;
+        }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 2.5rem 2.5rem 3rem;
+            max-width: 780px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--fg-3);
+        }
+
+        .footer a { color: var(--fg-2) }
+        .footer a:hover { color: var(--acc) }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 900px) {
+            :root { --sidebar-w: 210px }
+            .main { padding: 2.5rem 1.75rem 5rem }
+        }
+
+        @media (max-width: 720px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                max-height: none;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+                padding: 1rem 1.25rem 1.25rem;
+                overflow: visible;
+            }
+
+            .sidebar__group { margin-bottom: 0.5rem }
+
+            .sidebar__list, .sidebar__sublist {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.35rem;
+            }
+
+            .sidebar__link {
+                border: 1px solid var(--border);
+                border-radius: 999px;
+                padding: 0.35rem 0.75rem;
+                font-size: 0.78rem;
+            }
+
+            .sidebar__link.is-active {
+                border-color: var(--acc);
+            }
+
+            .sidebar__toggle {
+                padding-left: 0;
+                pointer-events: none;
+            }
+
+            .sidebar__toggle i { display: none }
+
+            .sidebar__sublist {
+                padding-left: 0;
+                margin-top: 0.35rem;
+            }
+
+            .main {
+                padding: 2rem 1.25rem 4rem;
+            }
+
+            .footer { padding-inline: 1.25rem }
+
+            .topbar__nav { display: none }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto }
+            * { transition: none !important; animation: none !important }
+        }
+
+        /* Skip link */
+        .skip {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            background: var(--acc);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0 0 8px 0;
+            z-index: 999;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .skip:focus {
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a class="skip" href="#main">Skip to content</a>
+
+    <!-- ============================================================
+         TOP BAR
+         ============================================================ -->
+    <header class="topbar">
+        <a class="topbar__brand" href="#top">
+            <span class="topbar__mark" aria-hidden="true">z</span>
+            <span>ziiui</span>
+            <span class="topbar__beta">beta</span>
+        </a>
+
+        <nav class="topbar__nav" aria-label="Primary">
+            <a href="#overview" class="is-active">Docs</a>
+            <a href="#components">Components</a>
+            <a href="#output">Output</a>
+            <a href="#tips">Tips</a>
+            
+        </nav>
+
+        <a class="topbar__cta" href="index.html">
+            <i class="ri-external-link-line" aria-hidden="true"></i>
+            Open the Lab
+        </a>
+    </header>
+
+    <!-- ============================================================
+         SHELL
+         ============================================================ -->
+    <div class="shell" id="top">
+
+        <!-- --------------------------------------------------------
+             SIDEBAR
+             -------------------------------------------------------- -->
+        <aside class="sidebar" aria-label="Documentation navigation">
+
+            <div class="sidebar__group">
+                <p class="sidebar__label">Getting started</p>
+                <ul class="sidebar__list">
+                    <li><a class="sidebar__link" href="#overview">Overview</a></li>
+                    <li><a class="sidebar__link" href="#quick-start">Quick start</a></li>
+                    <li><a class="sidebar__link" href="#how-it-works">How it works</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar__group">
+                <p class="sidebar__label">Component categories</p>
+
+                <!-- Text -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-text" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Text
+                </button>
+                <ul class="sidebar__sublist" id="nav-text">
+                    <li><a class="sidebar__link" href="#cat-text">Text Effects</a></li>
+                    <li><a class="sidebar__link" href="#cat-text">Custom Variants</a></li>
+                    <li><a class="sidebar__link" href="#cat-text">Text Roll</a></li>
+                    <li><a class="sidebar__link" href="#cat-text">Scramble / Shimmer</a></li>
+                </ul>
+
+                <!-- Cursor -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-cursor" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Cursor
+                </button>
+                <ul class="sidebar__sublist" id="nav-cursor">
+                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Expand</a></li>
+                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Icon Label</a></li>
+                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Image Reveal</a></li>
+                </ul>
+
+                <!-- Interactive -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-interactive" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Interactive
+                </button>
+                <ul class="sidebar__sublist" id="nav-interactive">
+                    <li><a class="sidebar__link" href="#cat-interactive">Draggable Mask</a></li>
+                    <li><a class="sidebar__link" href="#cat-interactive">Micro Hover</a></li>
+                </ul>
+
+                <!-- Scroll -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-scroll" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Scroll
+                </button>
+                <ul class="sidebar__sublist" id="nav-scroll">
+                    <li><a class="sidebar__link" href="#cat-scroll">List Reveal</a></li>
+                    <li><a class="sidebar__link" href="#cat-scroll">Scroll Stand</a></li>
+                    <li><a class="sidebar__link" href="#cat-scroll">Scrolling Mask</a></li>
+                </ul>
+
+                <!-- Shader -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-shader" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Shader
+                </button>
+                <ul class="sidebar__sublist" id="nav-shader">
+                    <li><a class="sidebar__link" href="#cat-shader">Noisy Pixel</a></li>
+                    <li><a class="sidebar__link" href="#cat-shader">Mirror Effect</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar__group">
+                <p class="sidebar__label">Reference</p>
+                <ul class="sidebar__list">
+                    <li><a class="sidebar__link" href="#output">Generated output</a></li>
+                    <li><a class="sidebar__link" href="#tips">Best practices</a></li>
+                    <li><a class="sidebar__link" href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+
+        </aside>
+
+        <!-- --------------------------------------------------------
+             MAIN
+             -------------------------------------------------------- -->
+        <main class="main" id="main">
+
+            <!-- ====================================================
+                 OVERVIEW
+                 ==================================================== -->
+            <section id="overview">
+                <p class="eyebrow">Documentation</p>
+                <h1>Introduction to ziiui</h1>
+
+                <p class="lead" style="margin-top:1rem">
+                    ziiui is an open-source collection of production-ready text effects,
+                    cursor interactions, scroll-driven sections, and WebGL shaders.
+                    Every component is a standalone HTML file — copy it, paste it, ship it.
+                </p>
+
+                <p style="margin-top:1rem">
+                    Get started by picking a component from the sidebar, tweaking it
+                    live in the Lab, and copying the generated code into your project.
+                    No build step. No package to install. The output runs anywhere a
+                    browser can open an HTML file.
+                </p>
+
+                <div class="callout" style="margin-top:1.5rem">
+                    <i class="ri-information-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Beta.</strong> ziiui is under active development. Component
+                        APIs may change. Report issues or suggest components on GitHub.
+                    </div>
+                </div>
+
+                <h2 id="quick-start" style="margin-top:2.5rem">Quick start</h2>
+
+                <div class="steps" style="margin-top:1rem">
+                    <div class="step">
+                        <span class="step__num">Step 01</span>
+                        <h3 class="step__title">Pick a component</h3>
+                        <p class="step__desc">
+                            Browse the sidebar. Components are grouped by category —
+                            Text, Cursor, Interactive, Scroll, and Shader.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">Step 02</span>
+                        <h3 class="step__title">Tweak it live</h3>
+                        <p class="step__desc">
+                            Use the Controls panel to change text, split mode, or preset.
+                            The preview updates instantly.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">Step 03</span>
+                        <h3 class="step__title">Copy the output</h3>
+                        <p class="step__desc">
+                            The Generated code panel always shows the exact HTML that
+                            produced the preview. Copy it and paste it into your project.
+                        </p>
+                    </div>
+                </div>
+
+                <h2 id="how-it-works" style="margin-top:2.5rem">How it works</h2>
+
+                <p style="margin-top:1rem">
+                    Each component is defined as a pair of inert templates — CSS and
+                    JavaScript. Placeholders like <code>__TEXT__</code> are replaced
+                    with your input at build time. That's the entire pipeline.
+                </p>
+
+                <p style="margin-top:1rem">
+                    The output is a complete, standalone HTML document. Open it in a
+                    browser, host it on any static server, or paste it into a CodePen.
+                    The only external dependency is the library the effect actually
+                    needs — for example, GSAP for scroll effects, or Three.js for
+                    shaders — and that is loaded from a CDN at the top of the file.
+                </p>
+
+                <div class="code" style="margin-top:1.5rem">
+                    <div class="code__head">
+                        <span class="code__lang">HTML — structure</span>
+                        <button class="code__copy" type="button" data-copy="#code-structure">
+                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+<pre id="code-structure"><code><span class="tok-com">&lt;!-- 1. Base styles --&gt;</span>
+<span class="tok-tag">&lt;style&gt;</span>
+  <span class="tok-attr">body</span> { <span class="tok-attr">margin</span>: <span class="tok-num">0</span>; <span class="tok-attr">min-height</span>: <span class="tok-num">100vh</span>; <span class="tok-attr">display</span>: <span class="tok-key">flex</span>; }
+  <span class="tok-attr">#t</span> { <span class="tok-attr">font-size</span>: <span class="tok-fn">clamp</span>(<span class="tok-num">1.4rem</span>, <span class="tok-num">6vw</span>, <span class="tok-num">2.6rem</span>); }
+<span class="tok-tag">&lt;/style&gt;</span>
+
+<span class="tok-com">&lt;!-- 2. The text target --&gt;</span>
+<span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Your text here<span class="tok-tag">&lt;/p&gt;</span>
+
+<span class="tok-com">&lt;!-- 3. The animation --&gt;</span>
+<span class="tok-tag">&lt;script&gt;</span>
+  <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
+  <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
+  el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
+  <span class="tok-com">// ...split and animate</span>
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+                </div>
+
+                <p style="margin-top:1rem">
+                    Nothing here is a black box. Swap the text, tweak the numbers, or
+                    strip out the reduced-motion guard if you don't need it.
+                </p>
+
+                <hr>
+
+                <h2 id="components">Components</h2>
+
+                <p style="margin-top:1rem">
+                    ziiui ships with 18 components across five categories. Each one
+                    is self-contained and copy-paste ready.
+                </p>
+
+                <div class="comp-grid" style="margin-top:1.25rem">
+
+                    <a class="comp" href="#cat-text">
+                        <span class="comp__name">
+                            <i class="ri-text" aria-hidden="true"></i>
+                            Text Effects
+                        </span>
+                        <span class="comp__note">
+                            Split by char, word, or line. Fade, blur, scale, slide, and
+                            custom spring variants.
+                        </span>
+                        <span class="comp__tag">08 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-cursor">
+                        <span class="comp__name">
+                            <i class="ri-cursor-line" aria-hidden="true"></i>
+                            Cursor Cues
+                        </span>
+                        <span class="comp__note">
+                            Custom cursors that react to their target — expanding labels,
+                            icon pointers, and photo previews.
+                        </span>
+                        <span class="comp__tag">03 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-interactive">
+                        <span class="comp__name">
+                            <i class="ri-drag-move-2-line" aria-hidden="true"></i>
+                            Interactive Layers
+                        </span>
+                        <span class="comp__note">
+                            Draggable canvas masks over video, and hover surfaces that
+                            burst with scattered media.
+                        </span>
+                        <span class="comp__tag">02 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-scroll">
+                        <span class="comp__name">
+                            <i class="ri-scroll-to-bottom-line" aria-hidden="true"></i>
+                            Scroll Sections
+                        </span>
+                        <span class="comp__note">
+                            Pinned, scroll-driven pages — list reveals, 3D card stacks,
+                            and full-screen video masks.
+                        </span>
+                        <span class="comp__tag">03 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-shader">
+                        <span class="comp__name">
+                            <i class="ri-magic-line" aria-hidden="true"></i>
+                            WebGL Shaders
+                        </span>
+                        <span class="comp__note">
+                            Custom fragment shaders for Three.js — pixel dissolves and
+                            Sobel-edge transitions.
+                        </span>
+                        <span class="comp__tag">02 components</span>
+                    </a>
+
+                    <a class="comp" href="#output">
+                        <span class="comp__name">
+                            <i class="ri-file-code-line" aria-hidden="true"></i>
+                            All output
+                        </span>
+                        <span class="comp__note">
+                            Every component produces a standalone HTML file. No build
+                            step, no dependencies to install.
+                        </span>
+                        <span class="comp__tag">Copy &amp; ship</span>
+                    </a>
+
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     TEXT
+                     ================================================ -->
+                <h2 id="cat-text">Text Effects</h2>
+
+                <p style="margin-top:1rem">
+                    Split your text into characters, words, or lines and animate each
+                    piece with a staggered transition. Perfect for headlines and labels.
+                </p>
+
+                <div class="preview" style="margin-top:1.25rem">
+                    <div class="preview__bar">
+                        <span class="preview__dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </span>
+                        Preview — Text Effect
+                    </div>
+                    <div class="preview__body">
+                        <p class="preview__text">Animate your ideas</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:1.75rem">Available variants</h3>
+
+                <div class="table-wrap" style="margin-top:0.75rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text Effect</code></td>
+                                <td>Split by char, word, or line</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Custom Variants</code></td>
+                                <td>Random spring, rotation, colour</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Roll</code></td>
+                                <td>Letters roll up in sequence</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Roll (custom)</code></td>
+                                <td>Rolls down, custom easing</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Scramble</code></td>
+                                <td>Random glyphs resolve to text</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Shimmer</code></td>
+                                <td>Light sweep across text</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Shimmer Wave</code></td>
+                                <td>3D wave through each letter</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Shimmer Wave (colour)</code></td>
+                                <td>Blue wave, custom depth</td>
+                                <td>Compact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top:1.75rem">Usage</h3>
+
+                <div class="code" style="margin-top:0.75rem">
+                    <div class="code__head">
+                        <span class="code__lang">HTML — copy &amp; paste</span>
+                        <button class="code__copy" type="button" data-copy="#code-text-effect">
+                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+<pre id="code-text-effect"><code><span class="tok-com">&lt;!-- Paste this into any HTML file --&gt;</span>
+<span class="tok-tag">&lt;style&gt;</span>
+  <span class="tok-attr">.u</span> {
+    <span class="tok-attr">opacity</span>: <span class="tok-num">0</span>;
+    <span class="tok-attr">transition</span>: <span class="tok-attr">opacity</span> <span class="tok-num">.5s</span> <span class="tok-key">ease</span>;
+    <span class="tok-attr">transition-delay</span>: <span class="tok-fn">calc</span>(<span class="tok-key">var</span>(<span class="tok-attr">--i</span>) * <span class="tok-num">.03s</span>);
+  }
+  <span class="tok-attr">.u.on</span> { <span class="tok-attr">opacity</span>: <span class="tok-num">1</span>; }
+<span class="tok-tag">&lt;/style&gt;</span>
+
+<span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Animate your ideas with motion-primitives<span class="tok-tag">&lt;/p&gt;</span>
+
+<span class="tok-tag">&lt;script&gt;</span>
+  <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
+  <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
+  el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
+
+  <span class="tok-key">let</span> i = <span class="tok-num">0</span>;
+  text.<span class="tok-fn">split</span>(<span class="tok-str">/(\s+)/</span>).<span class="tok-fn">forEach</span>(part =&gt; {
+    <span class="tok-key">if</span> (!part) <span class="tok-key">return</span>;
+    <span class="tok-key">if</span> (<span class="tok-str">/^\s+$/</span>.<span class="tok-fn">test</span>(part)) { el.<span class="tok-fn">append</span>(part); <span class="tok-key">return</span>; }
+    <span class="tok-key">const</span> w = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+    w.<span class="tok-attr">className</span> = <span class="tok-str">'w'</span>;
+    <span class="tok-fn">Array</span>.<span class="tok-fn">from</span>(part).<span class="tok-fn">forEach</span>(ch =&gt; {
+      <span class="tok-key">const</span> s = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+      s.<span class="tok-attr">className</span> = <span class="tok-str">'u'</span>;
+      s.<span class="tok-attr">style</span>.<span class="tok-fn">setProperty</span>(<span class="tok-str">'--i'</span>, i++);
+      s.<span class="tok-attr">textContent</span> = ch;
+      w.<span class="tok-fn">append</span>(s);
+    });
+    el.<span class="tok-fn">append</span>(w);
+  });
+
+  <span class="tok-fn">requestAnimationFrame</span>(() =&gt; <span class="tok-fn">requestAnimationFrame</span>(() =&gt; {
+    el.<span class="tok-fn">querySelectorAll</span>(<span class="tok-str">'.u'</span>).<span class="tok-fn">forEach</span>(u =&gt; u.<span class="tok-attr">classList</span>.<span class="tok-fn">add</span>(<span class="tok-str">'on'</span>));
+  }));
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+                </div>
+
+                <div class="callout callout--tip" style="margin-top:1.25rem">
+                    <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Tip.</strong> Every component checks
+                        <code>prefers-reduced-motion</code> and skips its animation when
+                        needed. Keep that guard in place — it's already included in
+                        the output.
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     CURSOR
+                     ================================================ -->
+                <h2 id="cat-cursor">Cursor Cues</h2>
+
+                <p style="margin-top:1rem">
+                    Replace the default pointer with a custom cursor that reacts to
+                    its target. Built for hero sections that want tactile feedback.
+                </p>
+
+                <div class="preview" style="margin-top:1.25rem">
+                    <div class="preview__bar">
+                        <span class="preview__dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </span>
+                        Preview — Cursor: Expand
+                    </div>
+                    <div class="preview__body">
+                        <p class="preview__text" style="font-size:1rem; color: var(--fg-3);">
+                            Hover the image to expand the cursor
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Cursor: Expand</code></td>
+                                <td>Custom cursor expands over an image</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Cursor: Icon Label</code></td>
+                                <td>Pointer icon with a trailing tag</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Cursor: Image Reveal</code></td>
+                                <td>Photo preview follows the pointer</td>
+                                <td>Compact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     INTERACTIVE
+                     ================================================ -->
+                <h2 id="cat-interactive">Interactive Layers</h2>
+
+                <p style="margin-top:1rem">
+                    Canvas-driven masks you can drag across video, plus hover surfaces
+                    that burst with scattered media on keyword hover.
+                </p>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Draggable Mask</code></td>
+                                <td>Drag canvas windows over a video</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Micro Hover</code></td>
+                                <td>Photo burst on keyword hover</td>
+                                <td>Large</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     SCROLL
+                     ================================================ -->
+                <h2 id="cat-scroll">Scroll Sections</h2>
+
+                <p style="margin-top:1rem">
+                    Pinned, scroll-driven pages that reveal content as the user moves
+                    through the section. Ideal for storytelling layouts.
+                </p>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>List Reveal</code></td>
+                                <td>Pinned list with image preview</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Scroll Stand</code></td>
+                                <td>3D cards rise on scroll</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Scrolling Mask</code></td>
+                                <td>Video revealed through scrolling text</td>
+                                <td>Large</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout callout--warn" style="margin-top:1.25rem">
+                    <i class="ri-error-warning-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Heads-up.</strong> Scroll components use GSAP and
+                        ScrollTrigger. The output loads them from a CDN at the top of
+                        the file — no install needed, but the page requires an internet
+                        connection on first load.
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     SHADER
+                     ================================================ -->
+                <h2 id="cat-shader">WebGL Shaders</h2>
+
+                <p style="margin-top:1rem">
+                    Custom fragment shaders written for Three.js. These produce
+                    full-screen effects that dissolve or transition between images.
+                </p>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Noisy Pixel</code></td>
+                                <td>WebGL pixel dissolve reveal</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Mirror Effect</code></td>
+                                <td>Sobel-edge dissolve between two images</td>
+                                <td>Large</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     OUTPUT
+                     ================================================ -->
+                <h2 id="output">Generated output</h2>
+
+                <p style="margin-top:1rem">
+                    Every output is a complete, standalone HTML document. Open it in a
+                    browser, host it on any static server, or paste the whole thing
+                    into a CodePen. The only external dependency is the library the
+                    effect actually needs — for example, GSAP for scroll effects, or
+                    Three.js for shaders.
+                </p>
+
+                <p style="margin-top:1rem">
+                    Here is a full example of a text effect, ready to copy:
+                </p>
+
+                <div class="code" style="margin-top:1.25rem">
+                    <div class="code__head">
+                        <span class="code__lang">HTML — full standalone file</span>
+                        <button class="code__copy" type="button" data-copy="#code-full">
+                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+<pre id="code-full"><code><span class="tok-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tok-tag">&lt;html</span> <span class="tok-attr">lang</span>=<span class="tok-str">"en"</span><span class="tok-tag">&gt;</span>
+<span class="tok-tag">&lt;head&gt;</span>
+  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">charset</span>=<span class="tok-str">"UTF-8"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">name</span>=<span class="tok-str">"viewport"</span> <span class="tok-attr">content</span>=<span class="tok-str">"width=device-width, initial-scale=1"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;title&gt;</span>Text Effect<span class="tok-tag">&lt;/title&gt;</span>
+  <span class="tok-tag">&lt;style&gt;</span>
+    <span class="tok-attr">body</span> {
+      <span class="tok-attr">margin</span>: <span class="tok-num">0</span>;
+      <span class="tok-attr">min-height</span>: <span class="tok-num">100vh</span>;
+      <span class="tok-attr">display</span>: <span class="tok-key">flex</span>;
+      <span class="tok-attr">padding</span>: <span class="tok-num">1rem</span>;
+      <span class="tok-attr">background</span>: <span class="tok-num">#0f1115</span>;
+      <span class="tok-attr">color</span>: <span class="tok-num">#f2f2f0</span>;
+      <span class="tok-attr">font-family</span>: <span class="tok-key">system-ui</span>, <span class="tok-key">sans-serif</span>;
+      <span class="tok-attr">text-align</span>: <span class="tok-key">center</span>;
+    }
+    <span class="tok-attr">#t</span> {
+      <span class="tok-attr">margin</span>: <span class="tok-key">auto</span>;
+      <span class="tok-attr">font-size</span>: <span class="tok-fn">clamp</span>(<span class="tok-num">1.4rem</span>, <span class="tok-num">6vw</span>, <span class="tok-num">2.6rem</span>);
+      <span class="tok-attr">font-weight</span>: <span class="tok-num">600</span>;
+    }
+    <span class="tok-attr">.u</span> {
+      <span class="tok-attr">opacity</span>: <span class="tok-num">0</span>;
+      <span class="tok-attr">display</span>: <span class="tok-key">inline-block</span>;
+      <span class="tok-attr">transition</span>: <span class="tok-attr">opacity</span> <span class="tok-num">.5s</span> <span class="tok-key">ease</span>;
+      <span class="tok-attr">transition-delay</span>: <span class="tok-fn">calc</span>(<span class="tok-key">var</span>(<span class="tok-attr">--i</span>) * <span class="tok-num">.03s</span>);
+    }
+    <span class="tok-attr">.u.on</span> { <span class="tok-attr">opacity</span>: <span class="tok-num">1</span>; }
+  <span class="tok-tag">&lt;/style&gt;</span>
+<span class="tok-tag">&lt;/head&gt;</span>
+<span class="tok-tag">&lt;body&gt;</span>
+
+  <span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Animate your ideas with motion-primitives<span class="tok-tag">&lt;/p&gt;</span>
+
+  <span class="tok-tag">&lt;script&gt;</span>
+    <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
+    <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
+
+    <span class="tok-key">if</span> (!<span class="tok-fn">window</span>.<span class="tok-fn">matchMedia</span>(<span class="tok-str">'(prefers-reduced-motion: reduce)'</span>).<span class="tok-attr">matches</span>) {
+      el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
+
+      <span class="tok-key">let</span> i = <span class="tok-num">0</span>;
+      text.<span class="tok-fn">split</span>(<span class="tok-str">/(\s+)/</span>).<span class="tok-fn">forEach</span>(part =&gt; {
+        <span class="tok-key">if</span> (!part) <span class="tok-key">return</span>;
+        <span class="tok-key">if</span> (<span class="tok-str">/^\s+$/</span>.<span class="tok-fn">test</span>(part)) { el.<span class="tok-fn">append</span>(part); <span class="tok-key">return</span>; }
+        <span class="tok-key">const</span> w = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+        w.<span class="tok-attr">className</span> = <span class="tok-str">'w'</span>;
+        <span class="tok-fn">Array</span>.<span class="tok-fn">from</span>(part).<span class="tok-fn">forEach</span>(ch =&gt; {
+          <span class="tok-key">const</span> s = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+          s.<span class="tok-attr">className</span> = <span class="tok-str">'u'</span>;
+          s.<span class="tok-attr">style</span>.<span class="tok-fn">setProperty</span>(<span class="tok-str">'--i'</span>, i++);
+          s.<span class="tok-attr">textContent</span> = ch;
+          w.<span class="tok-fn">append</span>(s);
+        });
+        el.<span class="tok-fn">append</span>(w);
+      });
+
+      <span class="tok-fn">requestAnimationFrame</span>(() =&gt; <span class="tok-fn">requestAnimationFrame</span>(() =&gt; {
+        el.<span class="tok-fn">querySelectorAll</span>(<span class="tok-str">'.u'</span>).<span class="tok-fn">forEach</span>(u =&gt; u.<span class="tok-attr">classList</span>.<span class="tok-fn">add</span>(<span class="tok-str">'on'</span>));
+      }));
+    }
+  <span class="tok-tag">&lt;/script&gt;</span>
+<span class="tok-tag">&lt;/body&gt;</span>
+<span class="tok-tag">&lt;/html&gt;</span></code></pre>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     TIPS
+                     ================================================ -->
+                <h2 id="tips">Best practices</h2>
+
+                <ul class="list" style="margin-top:1rem">
+                    <li>
+                        <strong>Respect reduced motion.</strong> Every component already
+                        checks <code>prefers-reduced-motion</code> and skips its animation
+                        when needed. Keep that guard in place.
+                    </li>
+                    <li>
+                        <strong>Keep text reasonable.</strong> Text effects split into
+                        individual characters. A 40-character headline animates
+                        beautifully; a 400-character paragraph does not.
+                    </li>
+                    <li>
+                        <strong>One hero per page.</strong> Cursor, scroll, and shader
+                        effects are heavy on GPU and layout. Use one hero-level effect
+                        per page — don't stack them.
+                    </li>
+                    <li>
+                        <strong>Host the output anywhere.</strong> The output is a single
+                        HTML file. It works on GitHub Pages, Netlify, Vercel, a WordPress
+                        custom HTML block, or a self-hosted server.
+                    </li>
+                </ul>
+
+                <hr>
+
+                <!-- ================================================
+                     FAQ
+                     ================================================ -->
+                <h2 id="faq">FAQ</h2>
+
+                <h3 style="margin-top:1.25rem">Do I need to install anything?</h3>
+                <p style="margin-top:0.5rem">
+                    No. The output is a standalone HTML file. It loads any required
+                    library from a CDN at the top of the file.
+                </p>
+
+                <h3 style="margin-top:1.25rem">Can I use these in a React or Vue project?</h3>
+                <p style="margin-top:0.5rem">
+                    Yes. The output is plain HTML, CSS, and JavaScript. Drop it into a
+                    component, an iframe, or a custom HTML block.
+                </p>
+
+                <h3 style="margin-top:1.25rem">Can I modify the generated code?</h3>
+                <p style="margin-top:0.5rem">
+                    Absolutely. Nothing is minified or obfuscated. Swap the text, change
+                    the timings, strip the parts you don't need.
+                </p>
+
+                <h3 style="margin-top:1.25rem">Why does the preview height change?</h3>
+                <p style="margin-top:0.5rem">
+                    Each component declares a <code>previewSize</code> of
+                    <code>compact</code> or <code>large</code>. Text and cursor effects
+                    use a compact preview; scroll, interactive, and shader effects use a
+                    larger one.
+                </p>
+
+                <hr>
+
+                <p style="font-size:0.85rem; color: var(--fg-3);">
+                    Last updated — v1.0. Found a bug or want a new component?
+                    <a href="#">Open an issue on GitHub</a>.
+                </p>
+
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <span>© <span id="year">2025</span> ziiui — docs v1.0</span>
+                <span>
+                    Built with
+                    <a href="https://gsap.com" target="_blank" rel="noopener">GSAP</a> ·
+                    <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a>
+                </span>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         SCRIPTS
+         ============================================================ -->
+    <script>
+        'use strict';
+
+        /* ---------- Year ---------- */
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        /* ---------- Sidebar collapsible categories ---------- */
+        document.querySelectorAll('[data-toggle]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var expanded = btn.getAttribute('aria-expanded') === 'true';
+                var targetId = btn.getAttribute('aria-controls');
+                var target = document.getElementById(targetId);
+
+                btn.setAttribute('aria-expanded', String(!expanded));
+                if (target) target.hidden = expanded;
+            });
+        });
+
+        /* ---------- Active link highlighting (scroll spy) ---------- */
+        (function () {
+            var links = Array.from(document.querySelectorAll('.sidebar__link'));
+            var sections = links
+                .map(function (link) {
+                    var id = link.getAttribute('href').slice(1);
+                    return document.getElementById(id);
+                })
+                .filter(Boolean);
+
+            if (!('IntersectionObserver' in window)) return;
+
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        var id = entry.target.id;
+                        links.forEach(function (link) {
+                            var match = link.getAttribute('href') === '#' + id;
+                            link.classList.toggle('is-active', match);
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '-20% 0px -70% 0px',
+                threshold: 0
+            });
+
+            sections.forEach(function (section) { observer.observe(section); });
+        })();
+
+        /* ---------- Code copy buttons ---------- */
+        document.querySelectorAll('[data-copy]').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+                var target = document.querySelector(btn.dataset.copy);
+                if (!target) return;
+
+                var text = target.innerText;
+
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        var ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.setAttribute('readonly', '');
+                        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+
+                    var original = btn.innerHTML;
+                    btn.innerHTML = '<i class="ri-check-line" aria-hidden="true"></i> Copied';
+                    setTimeout(function () { btn.innerHTML = original; }, 1600);
+                } catch (err) {
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="ri-error-warning-line" aria-hidden="true"></i> Failed';
+                    setTimeout(function () { btn.innerHTML = orig; }, 1600);
+                }
+            });
+        });
+
+        /* ---------- Smooth scroll with fixed header offset ---------- */
+        document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                var id = a.getAttribute('href').slice(1);
+                if (!id) return;
+                var target = document.getElementById(id);
+                if (!target) return;
+                e.preventDefault();
+                var top = target.getBoundingClientRect().top + window.scrollY - 72;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+                history.replaceState(null, '', '#' + id);
+            });
+        });
+    </script>
+</body>
+
+</html>
