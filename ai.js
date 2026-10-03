@@ -402,8 +402,8 @@ window.addEventListener('DOMContentLoaded', boot);
     const AI_MAX_VERSIONS = 30;
     const AI_MAX_MESSAGES = 60;
 
-    // const OPENROUTER_API_KEY = '';
-
+    const OPENROUTER_API_KEY = '';
+    
     const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
     const OPENROUTER_MODELS = [
         "qwen/qwen3-coder:free",

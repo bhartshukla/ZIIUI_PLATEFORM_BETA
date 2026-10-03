@@ -3505,7 +3505,7 @@ boot();
          OPENROUTER CONFIG
          Replace the key below with your own OpenRouter key.
          ============================================================ */
-      const OPENROUTER_API_KEY = '';
+      // const OPENROUTER_API_KEY = '';
       const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
       const OPENROUTER_MODELS = [
         "qwen/qwen3-coder:free",
