@@ -1,0 +1,39 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  overflow: hidden; background: #000;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.hero {
+  position: relative; width: 100vw; height: 100vh; background-color: #000;
+  background-image: url("https://www.transparenttextures.com/patterns/blizzard.png");
+}
+nav {
+  position: fixed; width: 100%; height: fit-content; display: flex;
+  justify-content: center; align-items: center; padding: 1.1vw; z-index: 9999999;
+}
+h1 {
+  color: #fff; font-size: 3.5vw; letter-spacing: .05vw; font-weight: 800;
+  text-transform: uppercase;
+}
+#clip-video { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.maskContainer {
+  position: fixed; border: 2px solid rgb(67, 67, 67); cursor: grab; will-change: transform;
+}
+.maskContainer.box1 { width: 35vw; height: 20vw; top: 15vh; left: 8vw; }
+.maskContainer.box2 { width: 35vw; height: 20vw; bottom: 3vh; left: 15vw; }
+.maskContainer.box3 { width: 35vw; height: 20vw; top: 15vh; right: 5vw; }
+.maskContainer.box4 { width: 20vw; height: 10vw; bottom: 23vh; left: 5vw; }
+.maskContainer.box5 { width: 22vw; height: 12vw; top: 28vh; left: 6vw; }
+.maskContainer.box6 { width: 60vw; height: 35vw; top: 20vh; right: 10vw; }
+.maskContainer canvas { width: 100%; height: 100%; display: block; }
+.coords {
+  position: absolute; top: -18px; left: -2px; font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px; color: #fff; background: rgba(49, 48, 48, .65); padding: 2px 6px;
+  pointer-events: none; white-space: nowrap;
+}
+.globalHud {
+  position: absolute; top: 16px; left: 16px; font-family: ui-monospace, Menlo, monospace;
+  color: #fff; pointer-events: none; z-index: 9999;
+  will-change: transform, opacity;
+  transition: opacity .45s ease, transform .15s ease;
+}

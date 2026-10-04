@@ -1,0 +1,18 @@
+body { align-items: center; justify-content: center; }
+.cur2-card {
+  position: relative; margin: auto; padding: .5rem; border-radius: 12px; max-width: 100%;
+  background: #15171c; border: 1px solid #232833; box-shadow: 0 12px 30px rgba(0,0,0,.4);
+  display: inline-block;
+}
+.cur2-img { height: 160px; width: 128px; max-width: 100%; object-fit: cover; border-radius: 8px; display: block; }
+.cur2 {
+  position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2;
+  display: flex; align-items: flex-start;
+  opacity: 0; transform: translate(-2px, -2px) scale(.3);
+  transition: opacity .15s ease-in-out, transform .15s ease-in-out;
+}
+.cur2.show { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+.cur2-tag {
+  margin-left: 1rem; margin-top: .25rem; border-radius: 4px; background: #22c55e; color: #fafaf9;
+  padding: .1rem .55rem; font-size: .8rem; white-space: nowrap;
+}

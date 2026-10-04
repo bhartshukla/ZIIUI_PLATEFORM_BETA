@@ -1,0 +1,3 @@
+#t { font-size: clamp(1.3rem, 6vw, 2.4rem); font-weight: 600; perspective: 500px; }
+@@WCSS@@
+#t .w span { display: inline-block; white-space: pre; color: @@BASE@@; }

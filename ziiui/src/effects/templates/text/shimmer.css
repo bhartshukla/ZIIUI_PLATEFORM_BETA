@@ -1,0 +1,15 @@
+#t {
+  font-family: ui-monospace, Menlo, monospace; font-size: clamp(1.1rem, 5vw, 1.7rem); color: transparent;
+  background: linear-gradient(90deg, #0000 calc(50% - 16px), #fff, #0000 calc(50% + 16px)), #71717a;
+  background-size: 250% 100%, auto;
+  background-repeat: no-repeat, padding-box;
+  -webkit-background-clip: text; background-clip: text;
+  animation: shimmer 1s linear infinite;
+}
+@keyframes shimmer {
+  from { background-position: 100% center; }
+  to   { background-position: 0% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #t { animation: none; background: none; color: #f2f2f0; }
+}

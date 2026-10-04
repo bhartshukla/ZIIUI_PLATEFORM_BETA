@@ -1,0 +1,8 @@
+#t { font-size: clamp(1.4rem, 6vw, 2.6rem); font-weight: 600; letter-spacing: -.02em; }
+@@WCSS@@.u {
+  display: @@DISPLAY@@; white-space: pre-wrap;@@MINH@@
+  @@HIDDEN@@
+  transition: @@TRANS@@;
+  transition-delay: calc(var(--i) * @@STAG@@s);
+}
+.u.on { @@SHOWN@@ }

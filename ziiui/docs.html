@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ziiui — Documentation</title>
+    <meta name="description" content="How to use ziiui: pick a component, tweak it live, and copy standalone production-ready code.">
+
+    <link rel="icon" href="/favicon.svg">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+
+</head>
+
+<body>
+
+    <a class="skip" href="#main">Skip to content</a>
+
+    <!-- ============================================================
+         TOP BAR
+         ============================================================ -->
+    <header class="topbar">
+        <a class="topbar__brand" href="#top">
+            <span class="topbar__mark" aria-hidden="true">z</span>
+            <span>ziiui</span>
+            <span class="topbar__beta">beta</span>
+        </a>
+
+        <nav class="topbar__nav" aria-label="Primary">
+            <a href="#overview" class="is-active">Docs</a>
+            <a href="#components">Components</a>
+            <a href="#output">Output</a>
+            <a href="#tips">Tips</a>
+            
+        </nav>
+
+        <a class="topbar__cta" href="index.html">
+            <i class="ri-external-link-line" aria-hidden="true"></i>
+            Open the Lab
+        </a>
+    </header>
+
+    <!-- ============================================================
+         SHELL
+         ============================================================ -->
+    <div class="shell" id="top">
+
+        <!-- --------------------------------------------------------
+             SIDEBAR
+             -------------------------------------------------------- -->
+        <aside class="sidebar" aria-label="Documentation navigation">
+
+            <div class="sidebar__group">
+                <p class="sidebar__label">Getting started</p>
+                <ul class="sidebar__list">
+                    <li><a class="sidebar__link" href="#overview">Overview</a></li>
+                    <li><a class="sidebar__link" href="#quick-start">Quick start</a></li>
+                    <li><a class="sidebar__link" href="#how-it-works">How it works</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar__group">
+                <p class="sidebar__label">Component categories</p>
+
+                <!-- Text -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-text" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Text
+                </button>
+                <ul class="sidebar__sublist" id="nav-text">
+                    <li><a class="sidebar__link" href="#cat-text">Text Effects</a></li>
+                    <li><a class="sidebar__link" href="#cat-text">Custom Variants</a></li>
+                    <li><a class="sidebar__link" href="#cat-text">Text Roll</a></li>
+                    <li><a class="sidebar__link" href="#cat-text">Scramble / Shimmer</a></li>
+                </ul>
+
+                <!-- Cursor -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-cursor" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Cursor
+                </button>
+                <ul class="sidebar__sublist" id="nav-cursor">
+                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Expand</a></li>
+                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Icon Label</a></li>
+                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Image Reveal</a></li>
+                </ul>
+
+                <!-- Interactive -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-interactive" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Interactive
+                </button>
+                <ul class="sidebar__sublist" id="nav-interactive">
+                    <li><a class="sidebar__link" href="#cat-interactive">Draggable Mask</a></li>
+                    <li><a class="sidebar__link" href="#cat-interactive">Micro Hover</a></li>
+                </ul>
+
+                <!-- Scroll -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-scroll" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Scroll
+                </button>
+                <ul class="sidebar__sublist" id="nav-scroll">
+                    <li><a class="sidebar__link" href="#cat-scroll">List Reveal</a></li>
+                    <li><a class="sidebar__link" href="#cat-scroll">Scroll Stand</a></li>
+                    <li><a class="sidebar__link" href="#cat-scroll">Scrolling Mask</a></li>
+                </ul>
+
+                <!-- Shader -->
+                <button class="sidebar__toggle" type="button"
+                    aria-expanded="true" aria-controls="nav-shader" data-toggle>
+                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                    Shader
+                </button>
+                <ul class="sidebar__sublist" id="nav-shader">
+                    <li><a class="sidebar__link" href="#cat-shader">Noisy Pixel</a></li>
+                    <li><a class="sidebar__link" href="#cat-shader">Mirror Effect</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar__group">
+                <p class="sidebar__label">Reference</p>
+                <ul class="sidebar__list">
+                    <li><a class="sidebar__link" href="#output">Generated output</a></li>
+                    <li><a class="sidebar__link" href="#tips">Best practices</a></li>
+                    <li><a class="sidebar__link" href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+
+        </aside>
+
+        <!-- --------------------------------------------------------
+             MAIN
+             -------------------------------------------------------- -->
+        <main class="main" id="main">
+
+            <!-- ====================================================
+                 OVERVIEW
+                 ==================================================== -->
+            <section id="overview">
+                <p class="eyebrow">Documentation</p>
+                <h1>Introduction to ziiui</h1>
+
+                <p class="lead" style="margin-top:1rem">
+                    ziiui is an open-source collection of production-ready text effects,
+                    cursor interactions, scroll-driven sections, and WebGL shaders.
+                    Every component is a standalone HTML file — copy it, paste it, ship it.
+                </p>
+
+                <p style="margin-top:1rem">
+                    Get started by picking a component from the sidebar, tweaking it
+                    live in the Lab, and copying the generated code into your project.
+                    No build step. No package to install. The output runs anywhere a
+                    browser can open an HTML file.
+                </p>
+
+                <div class="callout" style="margin-top:1.5rem">
+                    <i class="ri-information-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Beta.</strong> ziiui is under active development. Component
+                        APIs may change. Report issues or suggest components on GitHub.
+                    </div>
+                </div>
+
+                <h2 id="quick-start" style="margin-top:2.5rem">Quick start</h2>
+
+                <div class="steps" style="margin-top:1rem">
+                    <div class="step">
+                        <span class="step__num">Step 01</span>
+                        <h3 class="step__title">Pick a component</h3>
+                        <p class="step__desc">
+                            Browse the sidebar. Components are grouped by category —
+                            Text, Cursor, Interactive, Scroll, and Shader.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">Step 02</span>
+                        <h3 class="step__title">Tweak it live</h3>
+                        <p class="step__desc">
+                            Use the Controls panel to change text, split mode, or preset.
+                            The preview updates instantly.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">Step 03</span>
+                        <h3 class="step__title">Copy the output</h3>
+                        <p class="step__desc">
+                            The Generated code panel always shows the exact HTML that
+                            produced the preview. Copy it and paste it into your project.
+                        </p>
+                    </div>
+                </div>
+
+                <h2 id="how-it-works" style="margin-top:2.5rem">How it works</h2>
+
+                <p style="margin-top:1rem">
+                    Each component is defined as a pair of inert templates — CSS and
+                    JavaScript. Placeholders like <code>__TEXT__</code> are replaced
+                    with your input at build time. That's the entire pipeline.
+                </p>
+
+                <p style="margin-top:1rem">
+                    The output is a complete, standalone HTML document. Open it in a
+                    browser, host it on any static server, or paste it into a CodePen.
+                    The only external dependency is the library the effect actually
+                    needs — for example, GSAP for scroll effects, or Three.js for
+                    shaders — and that is loaded from a CDN at the top of the file.
+                </p>
+
+                <div class="code" style="margin-top:1.5rem">
+                    <div class="code__head">
+                        <span class="code__lang">HTML — structure</span>
+                        <button class="code__copy" type="button" data-copy="#code-structure">
+                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+<pre id="code-structure"><code><span class="tok-com">&lt;!-- 1. Base styles --&gt;</span>
+<span class="tok-tag">&lt;style&gt;</span>
+  <span class="tok-attr">body</span> { <span class="tok-attr">margin</span>: <span class="tok-num">0</span>; <span class="tok-attr">min-height</span>: <span class="tok-num">100vh</span>; <span class="tok-attr">display</span>: <span class="tok-key">flex</span>; }
+  <span class="tok-attr">#t</span> { <span class="tok-attr">font-size</span>: <span class="tok-fn">clamp</span>(<span class="tok-num">1.4rem</span>, <span class="tok-num">6vw</span>, <span class="tok-num">2.6rem</span>); }
+<span class="tok-tag">&lt;/style&gt;</span>
+
+<span class="tok-com">&lt;!-- 2. The text target --&gt;</span>
+<span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Your text here<span class="tok-tag">&lt;/p&gt;</span>
+
+<span class="tok-com">&lt;!-- 3. The animation --&gt;</span>
+<span class="tok-tag">&lt;script&gt;</span>
+  <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
+  <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
+  el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
+  <span class="tok-com">// ...split and animate</span>
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+                </div>
+
+                <p style="margin-top:1rem">
+                    Nothing here is a black box. Swap the text, tweak the numbers, or
+                    strip out the reduced-motion guard if you don't need it.
+                </p>
+
+                <hr>
+
+                <h2 id="components">Components</h2>
+
+                <p style="margin-top:1rem">
+                    ziiui ships with 18 components across five categories. Each one
+                    is self-contained and copy-paste ready.
+                </p>
+
+                <div class="comp-grid" style="margin-top:1.25rem">
+
+                    <a class="comp" href="#cat-text">
+                        <span class="comp__name">
+                            <i class="ri-text" aria-hidden="true"></i>
+                            Text Effects
+                        </span>
+                        <span class="comp__note">
+                            Split by char, word, or line. Fade, blur, scale, slide, and
+                            custom spring variants.
+                        </span>
+                        <span class="comp__tag">08 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-cursor">
+                        <span class="comp__name">
+                            <i class="ri-cursor-line" aria-hidden="true"></i>
+                            Cursor Cues
+                        </span>
+                        <span class="comp__note">
+                            Custom cursors that react to their target — expanding labels,
+                            icon pointers, and photo previews.
+                        </span>
+                        <span class="comp__tag">03 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-interactive">
+                        <span class="comp__name">
+                            <i class="ri-drag-move-2-line" aria-hidden="true"></i>
+                            Interactive Layers
+                        </span>
+                        <span class="comp__note">
+                            Draggable canvas masks over video, and hover surfaces that
+                            burst with scattered media.
+                        </span>
+                        <span class="comp__tag">02 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-scroll">
+                        <span class="comp__name">
+                            <i class="ri-scroll-to-bottom-line" aria-hidden="true"></i>
+                            Scroll Sections
+                        </span>
+                        <span class="comp__note">
+                            Pinned, scroll-driven pages — list reveals, 3D card stacks,
+                            and full-screen video masks.
+                        </span>
+                        <span class="comp__tag">03 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-shader">
+                        <span class="comp__name">
+                            <i class="ri-magic-line" aria-hidden="true"></i>
+                            WebGL Shaders
+                        </span>
+                        <span class="comp__note">
+                            Custom fragment shaders for Three.js — pixel dissolves and
+                            Sobel-edge transitions.
+                        </span>
+                        <span class="comp__tag">02 components</span>
+                    </a>
+
+                    <a class="comp" href="#output">
+                        <span class="comp__name">
+                            <i class="ri-file-code-line" aria-hidden="true"></i>
+                            All output
+                        </span>
+                        <span class="comp__note">
+                            Every component produces a standalone HTML file. No build
+                            step, no dependencies to install.
+                        </span>
+                        <span class="comp__tag">Copy &amp; ship</span>
+                    </a>
+
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     TEXT
+                     ================================================ -->
+                <h2 id="cat-text">Text Effects</h2>
+
+                <p style="margin-top:1rem">
+                    Split your text into characters, words, or lines and animate each
+                    piece with a staggered transition. Perfect for headlines and labels.
+                </p>
+
+                <div class="preview" style="margin-top:1.25rem">
+                    <div class="preview__bar">
+                        <span class="preview__dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </span>
+                        Preview — Text Effect
+                    </div>
+                    <div class="preview__body">
+                        <p class="preview__text">Animate your ideas</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:1.75rem">Available variants</h3>
+
+                <div class="table-wrap" style="margin-top:0.75rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text Effect</code></td>
+                                <td>Split by char, word, or line</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Custom Variants</code></td>
+                                <td>Random spring, rotation, colour</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Roll</code></td>
+                                <td>Letters roll up in sequence</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Roll (custom)</code></td>
+                                <td>Rolls down, custom easing</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Scramble</code></td>
+                                <td>Random glyphs resolve to text</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text Shimmer</code></td>
+                                <td>Light sweep across text</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Shimmer Wave</code></td>
+                                <td>3D wave through each letter</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Shimmer Wave (colour)</code></td>
+                                <td>Blue wave, custom depth</td>
+                                <td>Compact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top:1.75rem">Usage</h3>
+
+                <div class="code" style="margin-top:0.75rem">
+                    <div class="code__head">
+                        <span class="code__lang">HTML — copy &amp; paste</span>
+                        <button class="code__copy" type="button" data-copy="#code-text-effect">
+                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+<pre id="code-text-effect"><code><span class="tok-com">&lt;!-- Paste this into any HTML file --&gt;</span>
+<span class="tok-tag">&lt;style&gt;</span>
+  <span class="tok-attr">.u</span> {
+    <span class="tok-attr">opacity</span>: <span class="tok-num">0</span>;
+    <span class="tok-attr">transition</span>: <span class="tok-attr">opacity</span> <span class="tok-num">.5s</span> <span class="tok-key">ease</span>;
+    <span class="tok-attr">transition-delay</span>: <span class="tok-fn">calc</span>(<span class="tok-key">var</span>(<span class="tok-attr">--i</span>) * <span class="tok-num">.03s</span>);
+  }
+  <span class="tok-attr">.u.on</span> { <span class="tok-attr">opacity</span>: <span class="tok-num">1</span>; }
+<span class="tok-tag">&lt;/style&gt;</span>
+
+<span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Animate your ideas with motion-primitives<span class="tok-tag">&lt;/p&gt;</span>
+
+<span class="tok-tag">&lt;script&gt;</span>
+  <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
+  <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
+  el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
+
+  <span class="tok-key">let</span> i = <span class="tok-num">0</span>;
+  text.<span class="tok-fn">split</span>(<span class="tok-str">/(\s+)/</span>).<span class="tok-fn">forEach</span>(part =&gt; {
+    <span class="tok-key">if</span> (!part) <span class="tok-key">return</span>;
+    <span class="tok-key">if</span> (<span class="tok-str">/^\s+$/</span>.<span class="tok-fn">test</span>(part)) { el.<span class="tok-fn">append</span>(part); <span class="tok-key">return</span>; }
+    <span class="tok-key">const</span> w = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+    w.<span class="tok-attr">className</span> = <span class="tok-str">'w'</span>;
+    <span class="tok-fn">Array</span>.<span class="tok-fn">from</span>(part).<span class="tok-fn">forEach</span>(ch =&gt; {
+      <span class="tok-key">const</span> s = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+      s.<span class="tok-attr">className</span> = <span class="tok-str">'u'</span>;
+      s.<span class="tok-attr">style</span>.<span class="tok-fn">setProperty</span>(<span class="tok-str">'--i'</span>, i++);
+      s.<span class="tok-attr">textContent</span> = ch;
+      w.<span class="tok-fn">append</span>(s);
+    });
+    el.<span class="tok-fn">append</span>(w);
+  });
+
+  <span class="tok-fn">requestAnimationFrame</span>(() =&gt; <span class="tok-fn">requestAnimationFrame</span>(() =&gt; {
+    el.<span class="tok-fn">querySelectorAll</span>(<span class="tok-str">'.u'</span>).<span class="tok-fn">forEach</span>(u =&gt; u.<span class="tok-attr">classList</span>.<span class="tok-fn">add</span>(<span class="tok-str">'on'</span>));
+  }));
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+                </div>
+
+                <div class="callout callout--tip" style="margin-top:1.25rem">
+                    <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Tip.</strong> Every component checks
+                        <code>prefers-reduced-motion</code> and skips its animation when
+                        needed. Keep that guard in place — it's already included in
+                        the output.
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     CURSOR
+                     ================================================ -->
+                <h2 id="cat-cursor">Cursor Cues</h2>
+
+                <p style="margin-top:1rem">
+                    Replace the default pointer with a custom cursor that reacts to
+                    its target. Built for hero sections that want tactile feedback.
+                </p>
+
+                <div class="preview" style="margin-top:1.25rem">
+                    <div class="preview__bar">
+                        <span class="preview__dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </span>
+                        Preview — Cursor: Expand
+                    </div>
+                    <div class="preview__body">
+                        <p class="preview__text" style="font-size:1rem; color: var(--fg-3);">
+                            Hover the image to expand the cursor
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Cursor: Expand</code></td>
+                                <td>Custom cursor expands over an image</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Cursor: Icon Label</code></td>
+                                <td>Pointer icon with a trailing tag</td>
+                                <td>Compact</td>
+                            </tr>
+                            <tr>
+                                <td><code>Cursor: Image Reveal</code></td>
+                                <td>Photo preview follows the pointer</td>
+                                <td>Compact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     INTERACTIVE
+                     ================================================ -->
+                <h2 id="cat-interactive">Interactive Layers</h2>
+
+                <p style="margin-top:1rem">
+                    Canvas-driven masks you can drag across video, plus hover surfaces
+                    that burst with scattered media on keyword hover.
+                </p>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Draggable Mask</code></td>
+                                <td>Drag canvas windows over a video</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Micro Hover</code></td>
+                                <td>Photo burst on keyword hover</td>
+                                <td>Large</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     SCROLL
+                     ================================================ -->
+                <h2 id="cat-scroll">Scroll Sections</h2>
+
+                <p style="margin-top:1rem">
+                    Pinned, scroll-driven pages that reveal content as the user moves
+                    through the section. Ideal for storytelling layouts.
+                </p>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>List Reveal</code></td>
+                                <td>Pinned list with image preview</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Scroll Stand</code></td>
+                                <td>3D cards rise on scroll</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Scrolling Mask</code></td>
+                                <td>Video revealed through scrolling text</td>
+                                <td>Large</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout callout--warn" style="margin-top:1.25rem">
+                    <i class="ri-error-warning-line" aria-hidden="true"></i>
+                    <div>
+                        <strong>Heads-up.</strong> Scroll components use GSAP and
+                        ScrollTrigger. The output loads them from a CDN at the top of
+                        the file — no install needed, but the page requires an internet
+                        connection on first load.
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     SHADER
+                     ================================================ -->
+                <h2 id="cat-shader">WebGL Shaders</h2>
+
+                <p style="margin-top:1rem">
+                    Custom fragment shaders written for Three.js. These produce
+                    full-screen effects that dissolve or transition between images.
+                </p>
+
+                <div class="table-wrap" style="margin-top:1.25rem">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Note</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Noisy Pixel</code></td>
+                                <td>WebGL pixel dissolve reveal</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><code>Mirror Effect</code></td>
+                                <td>Sobel-edge dissolve between two images</td>
+                                <td>Large</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     OUTPUT
+                     ================================================ -->
+                <h2 id="output">Generated output</h2>
+
+                <p style="margin-top:1rem">
+                    Every output is a complete, standalone HTML document. Open it in a
+                    browser, host it on any static server, or paste the whole thing
+                    into a CodePen. The only external dependency is the library the
+                    effect actually needs — for example, GSAP for scroll effects, or
+                    Three.js for shaders.
+                </p>
+
+                <p style="margin-top:1rem">
+                    Here is a full example of a text effect, ready to copy:
+                </p>
+
+                <div class="code" style="margin-top:1.25rem">
+                    <div class="code__head">
+                        <span class="code__lang">HTML — full standalone file</span>
+                        <button class="code__copy" type="button" data-copy="#code-full">
+                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+<pre id="code-full"><code><span class="tok-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tok-tag">&lt;html</span> <span class="tok-attr">lang</span>=<span class="tok-str">"en"</span><span class="tok-tag">&gt;</span>
+<span class="tok-tag">&lt;head&gt;</span>
+  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">charset</span>=<span class="tok-str">"UTF-8"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">name</span>=<span class="tok-str">"viewport"</span> <span class="tok-attr">content</span>=<span class="tok-str">"width=device-width, initial-scale=1"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;title&gt;</span>Text Effect<span class="tok-tag">&lt;/title&gt;</span>
+  <span class="tok-tag">&lt;style&gt;</span>
+    <span class="tok-attr">body</span> {
+      <span class="tok-attr">margin</span>: <span class="tok-num">0</span>;
+      <span class="tok-attr">min-height</span>: <span class="tok-num">100vh</span>;
+      <span class="tok-attr">display</span>: <span class="tok-key">flex</span>;
+      <span class="tok-attr">padding</span>: <span class="tok-num">1rem</span>;
+      <span class="tok-attr">background</span>: <span class="tok-num">#0f1115</span>;
+      <span class="tok-attr">color</span>: <span class="tok-num">#f2f2f0</span>;
+      <span class="tok-attr">font-family</span>: <span class="tok-key">system-ui</span>, <span class="tok-key">sans-serif</span>;
+      <span class="tok-attr">text-align</span>: <span class="tok-key">center</span>;
+    }
+    <span class="tok-attr">#t</span> {
+      <span class="tok-attr">margin</span>: <span class="tok-key">auto</span>;
+      <span class="tok-attr">font-size</span>: <span class="tok-fn">clamp</span>(<span class="tok-num">1.4rem</span>, <span class="tok-num">6vw</span>, <span class="tok-num">2.6rem</span>);
+      <span class="tok-attr">font-weight</span>: <span class="tok-num">600</span>;
+    }
+    <span class="tok-attr">.u</span> {
+      <span class="tok-attr">opacity</span>: <span class="tok-num">0</span>;
+      <span class="tok-attr">display</span>: <span class="tok-key">inline-block</span>;
+      <span class="tok-attr">transition</span>: <span class="tok-attr">opacity</span> <span class="tok-num">.5s</span> <span class="tok-key">ease</span>;
+      <span class="tok-attr">transition-delay</span>: <span class="tok-fn">calc</span>(<span class="tok-key">var</span>(<span class="tok-attr">--i</span>) * <span class="tok-num">.03s</span>);
+    }
+    <span class="tok-attr">.u.on</span> { <span class="tok-attr">opacity</span>: <span class="tok-num">1</span>; }
+  <span class="tok-tag">&lt;/style&gt;</span>
+<span class="tok-tag">&lt;/head&gt;</span>
+<span class="tok-tag">&lt;body&gt;</span>
+
+  <span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Animate your ideas with motion-primitives<span class="tok-tag">&lt;/p&gt;</span>
+
+  <span class="tok-tag">&lt;script&gt;</span>
+    <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
+    <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
+
+    <span class="tok-key">if</span> (!<span class="tok-fn">window</span>.<span class="tok-fn">matchMedia</span>(<span class="tok-str">'(prefers-reduced-motion: reduce)'</span>).<span class="tok-attr">matches</span>) {
+      el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
+
+      <span class="tok-key">let</span> i = <span class="tok-num">0</span>;
+      text.<span class="tok-fn">split</span>(<span class="tok-str">/(\s+)/</span>).<span class="tok-fn">forEach</span>(part =&gt; {
+        <span class="tok-key">if</span> (!part) <span class="tok-key">return</span>;
+        <span class="tok-key">if</span> (<span class="tok-str">/^\s+$/</span>.<span class="tok-fn">test</span>(part)) { el.<span class="tok-fn">append</span>(part); <span class="tok-key">return</span>; }
+        <span class="tok-key">const</span> w = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+        w.<span class="tok-attr">className</span> = <span class="tok-str">'w'</span>;
+        <span class="tok-fn">Array</span>.<span class="tok-fn">from</span>(part).<span class="tok-fn">forEach</span>(ch =&gt; {
+          <span class="tok-key">const</span> s = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
+          s.<span class="tok-attr">className</span> = <span class="tok-str">'u'</span>;
+          s.<span class="tok-attr">style</span>.<span class="tok-fn">setProperty</span>(<span class="tok-str">'--i'</span>, i++);
+          s.<span class="tok-attr">textContent</span> = ch;
+          w.<span class="tok-fn">append</span>(s);
+        });
+        el.<span class="tok-fn">append</span>(w);
+      });
+
+      <span class="tok-fn">requestAnimationFrame</span>(() =&gt; <span class="tok-fn">requestAnimationFrame</span>(() =&gt; {
+        el.<span class="tok-fn">querySelectorAll</span>(<span class="tok-str">'.u'</span>).<span class="tok-fn">forEach</span>(u =&gt; u.<span class="tok-attr">classList</span>.<span class="tok-fn">add</span>(<span class="tok-str">'on'</span>));
+      }));
+    }
+  <span class="tok-tag">&lt;/script&gt;</span>
+<span class="tok-tag">&lt;/body&gt;</span>
+<span class="tok-tag">&lt;/html&gt;</span></code></pre>
+                </div>
+
+                <hr>
+
+                <!-- ================================================
+                     TIPS
+                     ================================================ -->
+                <h2 id="tips">Best practices</h2>
+
+                <ul class="list" style="margin-top:1rem">
+                    <li>
+                        <strong>Respect reduced motion.</strong> Every component already
+                        checks <code>prefers-reduced-motion</code> and skips its animation
+                        when needed. Keep that guard in place.
+                    </li>
+                    <li>
+                        <strong>Keep text reasonable.</strong> Text effects split into
+                        individual characters. A 40-character headline animates
+                        beautifully; a 400-character paragraph does not.
+                    </li>
+                    <li>
+                        <strong>One hero per page.</strong> Cursor, scroll, and shader
+                        effects are heavy on GPU and layout. Use one hero-level effect
+                        per page — don't stack them.
+                    </li>
+                    <li>
+                        <strong>Host the output anywhere.</strong> The output is a single
+                        HTML file. It works on GitHub Pages, Netlify, Vercel, a WordPress
+                        custom HTML block, or a self-hosted server.
+                    </li>
+                </ul>
+
+                <hr>
+
+                <!-- ================================================
+                     FAQ
+                     ================================================ -->
+                <h2 id="faq">FAQ</h2>
+
+                <h3 style="margin-top:1.25rem">Do I need to install anything?</h3>
+                <p style="margin-top:0.5rem">
+                    No. The output is a standalone HTML file. It loads any required
+                    library from a CDN at the top of the file.
+                </p>
+
+                <h3 style="margin-top:1.25rem">Can I use these in a React or Vue project?</h3>
+                <p style="margin-top:0.5rem">
+                    Yes. The output is plain HTML, CSS, and JavaScript. Drop it into a
+                    component, an iframe, or a custom HTML block.
+                </p>
+
+                <h3 style="margin-top:1.25rem">Can I modify the generated code?</h3>
+                <p style="margin-top:0.5rem">
+                    Absolutely. Nothing is minified or obfuscated. Swap the text, change
+                    the timings, strip the parts you don't need.
+                </p>
+
+                <h3 style="margin-top:1.25rem">Why does the preview height change?</h3>
+                <p style="margin-top:0.5rem">
+                    Each component declares a <code>previewSize</code> of
+                    <code>compact</code> or <code>large</code>. Text and cursor effects
+                    use a compact preview; scroll, interactive, and shader effects use a
+                    larger one.
+                </p>
+
+                <hr>
+
+                <p style="font-size:0.85rem; color: var(--fg-3);">
+                    Last updated — v1.0. Found a bug or want a new component?
+                    <a href="#">Open an issue on GitHub</a>.
+                </p>
+
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <span>© <span id="year">2025</span> ziiui — docs v1.0</span>
+                <span>
+                    Built with
+                    <a href="https://gsap.com" target="_blank" rel="noopener">GSAP</a> ·
+                    <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a>
+                </span>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         SCRIPTS
+         ============================================================ -->
+    <script type="module" src="/src/pages/docs.js"></script>
+</body>
+
+</html>

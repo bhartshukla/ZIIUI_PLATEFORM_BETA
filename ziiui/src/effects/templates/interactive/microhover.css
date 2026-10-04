@@ -1,0 +1,90 @@
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: "DM Sans", system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #ece8e1;
+  -webkit-font-smoothing: antialiased;
+}
+.about-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(3rem, 10vw, 6rem) clamp(1.25rem, 4vw, 2.5rem);
+  text-align: center;
+  overflow: hidden;
+}
+.about-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      ellipse 80% 55% at 50% 40%,
+      rgba(255, 255, 255, 0.04),
+      transparent 70%
+    ),
+    radial-gradient(circle at 50% 100%, rgba(120, 100, 80, 0.08), transparent 45%);
+  pointer-events: none;
+}
+.about-hero__kicker {
+  position: relative;
+  z-index: 2;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(236, 232, 225, 0.55);
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+}
+.about-hero__copy { position: relative; margin-inline: auto; }
+.about-hero__headline {
+  position: relative;
+  z-index: 2;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: #f5f2ec;
+  pointer-events: none;
+}
+.about-hero__keyword {
+  pointer-events: auto;
+  cursor: default;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  color: #fff;
+  position: relative;
+  z-index: 10;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.about-hero__keyword:hover,
+.about-hero__keyword:focus-visible { color: #e8dcc8; }
+.about-hero__keyword:focus-visible {
+  outline: 1px dotted rgba(255, 255, 255, 0.6);
+  outline-offset: 6px;
+}
+.about-hero__photo-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.about-hero__photo {
+  position: absolute;
+  width: min(24vw, 220px);
+  max-height: min(40vh, 300px);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border: none;
+  border-radius: 2px;
+  opacity: 1;
+  pointer-events: none;
+  will-change: transform;
+}

@@ -1,0 +1,67 @@
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+body {
+  background: #000; color: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
+.section {
+  height: 100vh; width: 100%; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; gap: 16px;
+  position: relative; z-index: 1;
+}
+.section .label {
+  font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); font-weight: 400;
+}
+.section h1 {
+  font-size: clamp(3rem, 8vw, 7rem); font-weight: 300; text-align: center;
+  line-height: 1; letter-spacing: -0.03em;
+}
+.section h1 em { font-style: italic; font-weight: 300; color: rgba(255,255,255,0.45); }
+.scroll-hint {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  opacity: 0; animation: fadeIn 1s 1.4s ease forwards;
+}
+.scroll-hint span {
+  font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.scroll-hint .line {
+  width: 1px; height: 48px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+  animation: lineSlide 1.8s 1.8s ease infinite;
+  transform-origin: top; transform: scaleY(0);
+}
+.webgl { height: 100vh; width: 100%; position: relative; overflow: hidden; }
+.webgl img {
+  position: absolute; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; pointer-events: none; user-select: none;
+}
+.webgl canvas {
+  position: absolute; inset: 0;
+  width: 100% !important; height: 200% !important;
+  pointer-events: none; display: block;
+}
+.progress-overlay {
+  position: absolute; bottom: 32px; right: 40px; z-index: 10;
+  pointer-events: none; font-size: 0.6rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: rgba(255,255,255,0.25);
+  font-family: ui-monospace, monospace; transition: color 0.4s ease;
+}
+.section-end { background: linear-gradient(to bottom, #000 0%, #0a0a0a 100%); }
+.section-end h1 {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 1s var(--ease), transform 1s var(--ease);
+}
+.section-end.visible h1 { opacity: 1; transform: translateY(0); }
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes lineSlide {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  45%  { transform: scaleY(1); transform-origin: top; }
+  55%  { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}

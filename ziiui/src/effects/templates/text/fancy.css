@@ -1,0 +1,2 @@
+#t { font-size: clamp(1.4rem, 6vw, 2.6rem); font-weight: 600; letter-spacing: -.02em; }
+#t span { display: inline-block; white-space: pre-wrap; }

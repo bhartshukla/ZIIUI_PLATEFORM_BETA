@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ziiui — AI Context Viewer</title>
+<meta name="theme-color" content="#0c0e12">
+<link rel="icon" href="/favicon.svg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+
+  <script>
+    /* Apply the saved theme before first paint (prevents a flash). */
+    (function () {
+      try {
+        var saved = localStorage.getItem('ziiui-theme');
+        if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+        else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+          document.documentElement.setAttribute('data-theme', 'light');
+      } catch (_) { }
+    })();
+  </script>
+</head>
+<body>
+
+<header>
+  <h1><i class="ri-database-2-line"></i> ziiui — AI Context Viewer</h1>
+  <span class="badge" id="schemaBadge">schema v2</span>
+  <span class="meta" id="metaLine">Reading localStorage…</span>
+  <div class="toolbar">
+    <a class="btn" href="index.html"><i class="ri-arrow-left-line"></i>Library</a>
+    <a class="btn" href="ai.html"><i class="ri-sparkling-2-line"></i>AI Editor</a>
+    <button class="btn" id="refreshBtn" type="button"><i class="ri-refresh-line"></i>Refresh</button>
+    <button class="btn" id="exportBtn" type="button"><i class="ri-download-2-line"></i>Export</button>
+    <button class="btn" id="importBtn" type="button"><i class="ri-upload-2-line"></i>Import</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+    <button class="btn" id="themeBtn" type="button"><i class="ri-moon-line"></i>Theme</button>
+    <button class="btn danger" id="clearAllBtn" type="button"><i class="ri-delete-bin-6-line"></i>Clear All</button>
+  </div>
+</header>
+
+<main>
+  <div class="notice" id="emptyNotice" hidden>
+    <i class="ri-information-line"></i>
+    No saved AI state found. Open <b>index.html</b>, use the AI Editor, then come back and refresh.
+  </div>
+
+  <div class="layout" id="layout" hidden>
+    <section class="card">
+      <div class="card-head"><i class="ri-list-check-2"></i>Components</div>
+      <ul class="comp-list" id="compList"></ul>
+    </section>
+
+    <section class="card" id="detailCard" hidden>
+      <div class="card-head" id="detailHead"><i class="ri-sparkling-2-line"></i>Select a component</div>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="overview" type="button"><i class="ri-dashboard-line"></i>Overview</button>
+        <button class="tab" data-tab="chat" type="button"><i class="ri-chat-3-line"></i>Chat</button>
+        <button class="tab" data-tab="versions" type="button"><i class="ri-git-branch-line"></i>Versions</button>
+        <button class="tab" data-tab="original" type="button"><i class="ri-file-code-line"></i>Original</button>
+        <button class="tab" data-tab="current" type="button"><i class="ri-file-edit-line"></i>Current</button>
+      </div>
+
+      <div class="pane" id="pane-overview">
+        <div class="stats" id="statsGrid"></div>
+        <div class="empty" id="overviewEmpty" hidden>No activity yet for this component.</div>
+      </div>
+
+      <div class="pane" id="pane-chat" hidden>
+        <div id="chatMsgs"></div>
+        <div class="empty" id="chatEmpty" hidden>No chat messages for this component.</div>
+      </div>
+
+      <div class="pane" id="pane-versions" hidden>
+        <div id="versionsList"></div>
+        <div class="empty" id="versionsEmpty" hidden>No AI versions yet.</div>
+      </div>
+
+      <div class="pane" id="pane-original" hidden><pre id="originalCode"></pre></div>
+      <div class="pane" id="pane-current" hidden><pre id="currentCode"></pre></div>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="/src/pages/context.js"></script>
+</body>
+</html>

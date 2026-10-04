@@ -1,0 +1,69 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  background: #0a0a0a; color: #fff;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+main { width: 100%; }
+.intro, .outro {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 4rem 2rem; text-align: center; background: #0a0a0a;
+}
+.intro h2, .outro h2 {
+  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-weight: 300; line-height: 1.05;
+  letter-spacing: -0.03em; margin-bottom: 1.5rem;
+  max-width: 900px; color: #fff;
+}
+.intro h2 span, .outro h2 span {
+  color: #ff6b35; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+}
+.intro h2 svg, .outro h2 svg { width: 0.75em; height: 0.75em; display: inline-block; vertical-align: middle; }
+.intro p, .outro p {
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  color: #8a8a8a; max-width: 520px; line-height: 1.65;
+}
+.pin-card {
+  height: 100vh; width: 100%; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; background: #0a0a0a;
+}
+.pin-card .overlay {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,107,53,.08), transparent 60%), #0a0a0a;
+  pointer-events: none; opacity: 0;
+}
+.pin-card > span {
+  position: absolute; top: 3rem; left: 3rem;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.85rem; color: #555; letter-spacing: 0.1em; opacity: 0;
+}
+.pin-card-content {
+  position: relative; z-index: 2;
+  max-width: 720px; padding: 2.5rem; text-align: center;
+  display: grid; gap: 1.5rem;
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform-origin: center center; will-change: transform, opacity;
+}
+.pin-card-content h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-weight: 600; letter-spacing: -0.02em; color: #fff;
+}
+.pin-card-content img {
+  width: 100%; height: clamp(200px, 30vh, 320px);
+  object-fit: cover; border-radius: 10px;
+}
+.pin-card-content p {
+  color: #a8a8a8; line-height: 1.65;
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  max-width: 560px; margin: 0 auto;
+}
+@media (max-width: 640px) {
+  .pin-card > span { top: 1.5rem; left: 1.5rem; font-size: 0.75rem; }
+  .pin-card-content { padding: 1.5rem; gap: 1rem; border-radius: 12px; }
+}

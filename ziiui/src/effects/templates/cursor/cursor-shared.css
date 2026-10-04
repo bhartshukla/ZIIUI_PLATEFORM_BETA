@@ -1,0 +1,9 @@
+.cur1-wrap, .cur1-wrap * { cursor: none; }
+.cur2-card, .cur2-card * { cursor: none; }
+.cur3-wrap, .cur3-wrap * { cursor: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cur1, .cur2, .cur3 { transition: none !important; }
+}
+@media (hover: none) {
+  .cur1, .cur2, .cur3 { display: none !important; }
+}

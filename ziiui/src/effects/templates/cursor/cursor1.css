@@ -1,0 +1,18 @@
+.cur1-wrap { display: flex; align-items: center; justify-content: center; min-height: 260px; position: relative; margin: auto; }
+.cur1-img { height: 190px; width: auto; max-width: 170px; border-radius: 8px; border: 1px solid #2a2f3a; object-fit: cover; }
+.cur1 {
+  position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  width: 16px; height: 16px; border-radius: 24px;
+  background: rgba(148, 156, 176, .45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; transform: translate(-50%, -50%) scale(.3);
+  transition: opacity .15s ease-in-out, transform .15s ease-in-out, width .2s ease-in-out, height .2s ease-in-out;
+}
+.cur1.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.cur1.wide { width: 84px; height: 32px; }
+.cur1-label {
+  display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap;
+  font-size: .82rem; color: #fff; opacity: 0; transform: scale(.6);
+  transition: opacity .15s ease, transform .15s ease;
+}
+.cur1.wide .cur1-label { opacity: 1; transform: scale(1); }

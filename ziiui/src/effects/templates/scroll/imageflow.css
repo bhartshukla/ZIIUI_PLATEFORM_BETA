@@ -1,0 +1,62 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh; width: 100vw;
+  overflow-x: hidden; background: #1c1c1c;
+}
+.intro, .outro {
+  height: 100vh; width: 100vw; background: #e9e9e9;
+  overflow: hidden; position: relative;
+}
+.flow {
+  height: 100vh; background: #1c1c1c;
+  position: relative; overflow: hidden;
+}
+.flow-images {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d; perspective: 2000px;
+}
+.flow .img {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 350px;
+  will-change: transform;
+}
+.flow .img img { width: 100%; height: 100%; object-fit: cover; }
+.flow .img.cover { width: 100%; height: 100%; position: relative; }
+.flow .img.cover::after {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+.section-text {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100; text-align: center;
+  font-family: 'Raleway', sans-serif;
+  pointer-events: none; width: 100%;
+}
+.section-text h1 {
+  font-weight: 200; letter-spacing: 0.3em;
+  text-transform: uppercase; margin-bottom: 1rem;
+  font-size: clamp(2rem, 8vw, 6rem);
+}
+.section-text p {
+  font-weight: 300; letter-spacing: 0.15em;
+  font-size: clamp(0.75rem, 2vw, 1.2rem);
+  opacity: 0.7;
+}
+.intro .section-text, .outro .section-text { color: #1c1c1c; }
+.intro .section-text h1, .outro .section-text h1 {
+  background: linear-gradient(135deg, #1c1c1c 0%, #4a4a4a 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.flow .section-text { color: #ffffff; font-family: 'Instrument Serif', serif; }
+.flow .section-text p {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  letter-spacing: 0.05em; opacity: 0.8;
+}
+@media (max-width: 800px) {
+  .flow .img { width: 280px; height: 200px; }
+}

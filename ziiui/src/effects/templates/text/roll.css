@@ -1,0 +1,8 @@
+#t { font-size: clamp(1.4rem, 6vw, 2.6rem); font-weight: 600; letter-spacing: -.02em; }
+@@WCSS@@
+.c { position: relative; display: inline-block; overflow: hidden; vertical-align: top; white-space: pre; }
+.c i { display: block; font-style: normal; transition: transform @@DUR@@s @@EASE@@; }
+.c i:first-child { transform: none; }
+.c i + i { position: absolute; left: 0; top: 0; transform: translateY(@@FROM@@); }
+.go .c i:first-child { transform: translateY(@@TO@@); }
+.go .c i + i { transform: none; }
