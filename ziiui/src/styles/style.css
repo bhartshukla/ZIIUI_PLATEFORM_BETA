@@ -1597,3 +1597,341 @@ pre::-webkit-scrollbar-track {
     scroll-behavior: auto !important
   }
 }
+
+/* Workspace polish */
+:root,
+[data-theme="dark"] {
+  --maxw: 1600px;
+  --pad: clamp(1rem, 2.5vw, 2.25rem);
+  --header-h: 68px;
+}
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+.topbar {
+  border-color: color-mix(in srgb, var(--line) 82%, transparent);
+}
+
+.topbar-inner {
+  padding-inline: clamp(1rem, 2.5vw, 2rem);
+  gap: clamp(.5rem, 1.2vw, 1rem);
+}
+
+.logo {
+  gap: .65rem;
+  padding-inline: .25rem;
+}
+
+.logo-mark {
+  height: 34px;
+}
+
+.topnav {
+  gap: .25rem;
+}
+
+.topnav a {
+  padding: .55rem .8rem;
+  font-size: .82rem;
+  font-weight: 600;
+  transition: color .18s ease, background-color .18s ease;
+}
+
+.search input {
+  min-height: 42px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--panel) 72%, var(--bg));
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.app {
+  grid-template-columns: clamp(250px, 22vw, 310px) minmax(0, 1fr);
+}
+
+.side {
+  padding: 1.25rem .8rem 2rem;
+  background: color-mix(in srgb, var(--panel) 94%, var(--bg));
+}
+
+.side-label {
+  padding-inline: .8rem;
+  margin-bottom: .35rem;
+  font-size: .67rem;
+}
+
+.grp {
+  padding-block: .3rem;
+}
+
+.gl {
+  padding: .7rem .65rem;
+  border-radius: 9px;
+}
+
+.items {
+  gap: 3px;
+  padding: .15rem 0 .45rem .9rem;
+}
+
+nav button[data-id] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  min-height: 38px;
+  border-radius: 8px;
+  padding: .5rem .65rem .5rem .75rem;
+  font-size: .82rem;
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+nav button[data-id] .nm {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nm-index {
+  flex: none;
+  color: var(--mute);
+  font: 600 .65rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  opacity: .72;
+  letter-spacing: .04em;
+}
+
+nav button[data-id][aria-current=true] .nm-index {
+  color: var(--acc);
+  opacity: 1;
+}
+
+main {
+  gap: clamp(1rem, 1.8vw, 1.5rem);
+  padding-block: clamp(1.25rem, 2.5vw, 2.25rem);
+}
+
+.workspace-intro {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2.4rem);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 88% 8%, color-mix(in srgb, var(--acc) 15%, transparent), transparent 38%),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel) 94%, var(--acc)), var(--panel) 60%);
+}
+
+.workspace-intro::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  width: 18rem;
+  height: 18rem;
+  right: -7rem;
+  bottom: -13rem;
+  border: 1px solid var(--acc-line);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2rem color-mix(in srgb, var(--acc) 4%, transparent), 0 0 0 4rem color-mix(in srgb, var(--acc) 3%, transparent);
+}
+
+.workspace-intro-copy {
+  display: grid;
+  gap: .65rem;
+  max-width: 700px;
+}
+
+.workspace-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  margin: 0;
+  color: var(--acc);
+  font-size: .7rem;
+  font-weight: 750;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.workspace-eyebrow i {
+  font-size: 1rem;
+}
+
+.workspace-intro h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(1.55rem, 3.1vw, 2.5rem);
+  font-weight: 720;
+  letter-spacing: -.045em;
+  line-height: 1.12;
+}
+
+.workspace-intro-copy > p:last-child {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--mute);
+  font-size: clamp(.88rem, 1vw, 1rem);
+  line-height: 1.65;
+}
+
+.workspace-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  flex: none;
+  padding: .6rem .8rem;
+  color: var(--mute);
+  background: color-mix(in srgb, var(--bg) 68%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.workspace-status > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 14%, transparent);
+}
+
+.card {
+  border-radius: 16px;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--bg) 48%, transparent);
+}
+
+.card-head {
+  padding: 1rem clamp(1rem, 2vw, 1.4rem);
+}
+
+.kick {
+  letter-spacing: .12em;
+}
+
+.ttl h2,
+.card-head > h2 {
+  font-size: 1.03rem;
+  letter-spacing: -.015em;
+}
+
+.pbody {
+  padding: clamp(.75rem, 1.5vw, 1.1rem);
+}
+
+.stage {
+  border-radius: 12px;
+}
+
+.pfoot {
+  padding: .8rem clamp(1rem, 2vw, 1.4rem);
+}
+
+.controls {
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+select,
+textarea,
+button.b {
+  border-radius: 10px;
+  transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+select:focus-visible,
+textarea:focus-visible,
+button.b:focus-visible,
+.icon-btn:focus-visible,
+.topnav a:focus-visible,
+nav button[data-id]:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+#copy {
+  border-radius: 10px;
+}
+
+pre {
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+.ai-fab {
+  right: clamp(1rem, 2vw, 1.75rem);
+  bottom: clamp(1rem, 2vw, 1.75rem);
+  min-height: 48px;
+  padding-inline: 1.1rem;
+  border-radius: 14px;
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #fff;
+}
+
+.ai-fab i {
+  color: #fff;
+}
+
+.ai-fab:hover {
+  background: var(--acc2);
+  border-color: var(--acc2);
+}
+
+.ai-fab.is-open {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--fg);
+}
+
+.ai-fab.is-open i {
+  color: var(--acc);
+}
+
+@media (max-width: 900px) {
+  :root,
+  [data-theme="dark"],
+  [data-theme="light"] {
+    --header-h: 56px;
+  }
+
+  .side {
+    padding-top: 4rem;
+  }
+
+  .workspace-intro {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  main {
+    padding-inline: .85rem;
+  }
+
+  .workspace-intro {
+    gap: 1rem;
+    border-radius: 14px;
+  }
+
+  .workspace-status {
+    max-width: 100%;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .card {
+    border-radius: 13px;
+  }
+}

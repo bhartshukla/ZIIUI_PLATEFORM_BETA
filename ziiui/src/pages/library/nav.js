@@ -6,6 +6,7 @@ export function buildNav(onSelect) {
   const nav = $('nav');
   if (!nav) return;
   nav.innerHTML = '';
+  let componentNumber = 0;
   CATEGORIES.forEach((c) => {
     const list = EFFECTS.filter((e) => e.cat === c);
     if (!list.length) return;
@@ -39,11 +40,15 @@ export function buildNav(onSelect) {
     list.forEach((e) => {
       const b = document.createElement('button');
       const n = document.createElement('span');
+      const index = document.createElement('span');
       b.type = 'button';
       b.dataset.id = e.id;
       n.className = 'nm';
       n.textContent = e.cat === 'Cursor' ? e.name.replace(/^Cursor:\s*/, '') : e.name;
-      b.append(n);
+      index.className = 'nm-index';
+      index.textContent = String(++componentNumber).padStart(2, '0');
+      index.setAttribute('aria-hidden', 'true');
+      b.append(n, index);
       b.title = e.name + ' — ' + e.note;
       b.addEventListener('click', () => onSelect(e, true));
       items.append(b);

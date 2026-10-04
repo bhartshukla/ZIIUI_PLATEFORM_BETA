@@ -13,44 +13,46 @@
   *{box-sizing:border-box}
   [hidden]{display:none!important}
   body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+    min-height:100vh;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
   header{position:sticky;top:0;z-index:10;background:var(--header-bg);backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  header h1{margin:0;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+    border-bottom:1px solid var(--line);padding:14px clamp(16px,3vw,36px);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header h1{margin:0;font-size:1.05rem;font-weight:720;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
   header h1 i{color:var(--acc);font-size:1.15rem}
   header .meta{font-size:.78rem;color:var(--mute);flex:1;min-width:0}
   .badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
     color:var(--acc);background:var(--acc-soft);border:1px solid var(--acc-line);
     padding:.15rem .55rem;border-radius:999px}
-  .toolbar{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto}
+  .toolbar{display:flex;gap:.5rem;flex-wrap:wrap;margin-left:auto}
   .btn{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:8px;
-    padding:.45rem .8rem;font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;
-    display:inline-flex;align-items:center;gap:.35rem;min-height:34px;text-decoration:none}
+    padding:.5rem .85rem;font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:.4rem;min-height:38px;text-decoration:none;transition:background .16s,border-color .16s,transform .16s}
   .btn:hover{background:var(--raise);border-color:var(--line2)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible,.tab:focus-visible,.version .vbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
   .btn.danger{border-color:var(--bad);color:var(--bad)}
   .btn.danger:hover{background:rgba(255,138,138,.1)}
   .btn i{font-size:1rem}
-  main{padding:18px 20px 60px;max-width:1280px;margin:0 auto;display:grid;gap:14px}
-  .layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px}
+  main{padding:clamp(20px,3vw,36px) clamp(16px,3vw,36px) 60px;max-width:1500px;margin:0 auto;display:grid;gap:18px}
+  .layout{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:18px;align-items:start}
   @media(max-width:820px){.layout{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .card-head{padding:.7rem 1rem;border-bottom:1px solid var(--line);display:flex;
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.08)}
+  .card-head{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);display:flex;
     align-items:center;gap:.6rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:var(--mute)}
   .card-head i{color:var(--acc);font-size:1rem}
-  .comp-list{list-style:none;margin:0;padding:0;max-height:calc(100vh - 200px);overflow:auto}
-  .comp-list li{padding:.65rem .9rem;border-bottom:1px solid var(--line);cursor:pointer;
+  .comp-list{list-style:none;margin:0;padding:.35rem;max-height:calc(100vh - 200px);overflow:auto}
+  .comp-list li{padding:.75rem .8rem;border-bottom:1px solid var(--line);border-radius:8px;cursor:pointer;
     display:flex;align-items:center;gap:.6rem;transition:background .15s}
   .comp-list li:last-child{border-bottom:0}
   .comp-list li:hover{background:var(--raise)}
-  .comp-list li.active{background:var(--acc-soft);border-left:3px solid var(--acc);padding-left:.6rem}
+  .comp-list li.active{background:var(--acc-soft);border-left:3px solid var(--acc);padding-left:calc(.8rem - 3px)}
   .comp-list .name{flex:1;font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .comp-list .cat{font-size:.68rem;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
   .comp-list .counts{font-size:.68rem;color:var(--mute);display:flex;gap:.4rem;flex:none}
   .comp-list .counts span{background:var(--raise);padding:.1rem .4rem;border-radius:4px}
   .empty{padding:2rem 1rem;text-align:center;color:var(--mute);font-size:.85rem;line-height:1.6}
-  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;margin-bottom:1rem}
-  .stat{background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:.7rem .85rem}
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.75rem;margin-bottom:1rem}
+  .stat{background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:.85rem 1rem}
   .stat .label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);
     font-weight:700;margin-bottom:.3rem}
   .stat .value{font-size:1.05rem;font-weight:700;color:var(--fg);overflow-wrap:anywhere}
@@ -62,7 +64,7 @@
   .tab:hover{color:var(--fg)}
   .tab.active{color:var(--acc);border-bottom-color:var(--acc)}
   .tab i{font-size:1rem}
-  .pane{padding:1rem}
+  .pane{padding:clamp(1rem,2vw,1.4rem)}
   .msg{max-width:100%;padding:.55rem .75rem;border-radius:9px;font-size:.82rem;line-height:1.5;
     margin-bottom:.5rem;overflow-wrap:anywhere;white-space:pre-wrap}
   .msg.user{background:var(--acc);color:#fff;margin-left:auto;max-width:82%}
@@ -81,7 +83,7 @@
   .version .vbtn:hover{border-color:var(--line2);background:var(--panel)}
   .version.active{border-color:var(--acc);background:var(--acc-soft)}
   .notice{background:var(--acc-soft);border:1px solid var(--acc-line);color:var(--acc);
-    padding:.6rem .85rem;border-radius:8px;font-size:.78rem;margin-bottom:.85rem;display:flex;
+    padding:.8rem 1rem;border-radius:10px;font-size:.82rem;margin-bottom:.85rem;display:flex;
     align-items:center;gap:.45rem}
   .notice i{font-size:1rem}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel);
