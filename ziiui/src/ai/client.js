@@ -48,8 +48,11 @@ export async function generateCode({ component, compState, request, signal }) {
 
   const summary = getConversationSummary(compState);
   const messages = [{ role: 'system', content: buildSystemPrompt(component) }];
-  if (summary) messages.push({ role: 'system', content: 'Conversation summary: ' + summary });
-  buildContextMessages(compState, prompt).forEach((m) => messages.push(m));
+  if (summary) {
+    messages.push({ role: 'system', content: 'Conversation summary: ' + summary });
+  }
+  const context = buildContextMessages(compState, prompt).filter((m) => !(m.role === 'system' && m.content.startsWith('Conversation summary:')));
+  context.forEach((m) => messages.push(m));
   messages.push({ role: 'user', content: prompt });
 
   const headers = { 'Content-Type': 'application/json' };

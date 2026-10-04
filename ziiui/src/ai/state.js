@@ -156,6 +156,12 @@ export function setCurrentCode(compState, code) {
 }
 
 /* ---------- chat + versions ---------- */
+function summarizeHistory(history) {
+  const lines = Array.isArray(history) ? history.slice(-12).map((m) => m && typeof m.text === 'string' ? m.text.trim() : '').filter(Boolean) : [];
+  if (!lines.length) return '';
+  return lines.join(' ').replace(/\s+/g, ' ').slice(0, 800);
+}
+
 export function pushChatMessage(compState, role, text) {
   if (!compState) return null;
   const msg = {
@@ -168,6 +174,7 @@ export function pushChatMessage(compState, role, text) {
   if (compState.chatHistory.length > AI_MAX_MESSAGES) {
     compState.chatHistory = compState.chatHistory.slice(-AI_MAX_MESSAGES);
   }
+  compState.summary = summarizeHistory(compState.chatHistory);
   compState.lastUpdated = Date.now();
   persistAIState();
   return msg;
@@ -181,6 +188,7 @@ export function addCodeVersion(compState, code, prompt) {
     compState.codeVersions = compState.codeVersions.slice(-AI_MAX_VERSIONS);
   }
   compState.activeVersionId = version.id;
+  compState.summary = summarizeHistory(compState.chatHistory);
   compState.revision = (Number(compState.revision) || 0) + 1;
   compState.lastUpdated = Date.now();
   persistAIState();
