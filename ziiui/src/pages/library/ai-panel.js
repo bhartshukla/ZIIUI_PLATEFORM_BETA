@@ -9,7 +9,7 @@ import {
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
 import { describeAIError } from '../../ai/prompt.js';
-import { beginRequest, endRequest, isBusy, isCurrent, cancelActiveRequest } from '../../ai/request.js';
+import { beginRequest, endRequest, isBusy, isCurrent, cancelActiveRequest, isDuplicateRequest } from '../../ai/request.js';
 import { createChatView } from '../../ai/chat-view.js';
 import { store, hooks } from './store.js';
 import { setNavigationLocked } from './nav.js';
@@ -120,7 +120,17 @@ async function generate() {
   if (!request) { chat.add('err', 'Please describe what you want to change.'); return; }
   if (!store.html) { chat.add('err', 'No component code available yet.'); return; }
 
-  const req = beginRequest(cur.id);
+  if (isDuplicateRequest(cur.id, request, Number(compState.revision || 0), 'library')) {
+    chat.add('err', 'The same AI request is already in progress.');
+    return;
+  }
+
+  const req = beginRequest(cur.id, request, Number(compState.revision || 0), 'library');
+  if (!req) {
+    chat.add('err', 'Unable to start the AI request.');
+    return;
+  }
+
   compState.lastUpdated = Date.now();
   persistAIState();
 
@@ -145,6 +155,10 @@ async function generate() {
       signal: req.signal
     });
     if (!isCurrent(req) || cur.id !== store.cur.id) return;
+    if ((compState.revision || 0) !== Number(req.baseRevision || 0)) {
+      chat.add('err', 'This AI result was generated from an older version and was ignored.');
+      return;
+    }
     chat.hideLoading();
     store.edited = code;
     store.editActive = true;

@@ -12,6 +12,26 @@ import { say } from '../lib/dom.js';
 
 const freshState = () => ({ schemaVersion: AI_SCHEMA_VERSION, components: {} });
 
+function normalizeComponentState(componentId, entry = {}) {
+  const safeEntry = entry && typeof entry === 'object' ? entry : {};
+  const chatHistory = Array.isArray(safeEntry.chatHistory) ? safeEntry.chatHistory : [];
+  const codeVersions = Array.isArray(safeEntry.codeVersions) ? safeEntry.codeVersions : [];
+  return {
+    componentId: String(componentId || safeEntry.componentId || 'component'),
+    componentName: safeEntry.componentName || componentId || 'Component',
+    category: safeEntry.category || '',
+    originalCode: typeof safeEntry.originalCode === 'string' ? safeEntry.originalCode : '',
+    currentCode: typeof safeEntry.currentCode === 'string' ? safeEntry.currentCode : '',
+    chatHistory: chatHistory.filter((m) => m && typeof m === 'object' && typeof m.text === 'string' &&
+      (m.role === 'user' || m.role === 'assistant' || m.role === 'system')),
+    codeVersions: codeVersions.filter((v) => v && typeof v === 'object' && typeof v.code === 'string'),
+    activeVersionId: safeEntry.activeVersionId || null,
+    summary: typeof safeEntry.summary === 'string' ? safeEntry.summary : '',
+    revision: Number.isFinite(Number(safeEntry.revision)) ? Number(safeEntry.revision) : 0,
+    lastUpdated: Number.isFinite(Number(safeEntry.lastUpdated)) ? Number(safeEntry.lastUpdated) : Date.now()
+  };
+}
+
 let aiState = freshState();
 let aiSettings = { autoPreview: false };
 let storageWarned = false;
@@ -40,16 +60,7 @@ export function loadAIState() {
     Object.keys(parsed.components).forEach((k) => {
       const c = parsed.components[k];
       if (!c || typeof c !== 'object') { delete parsed.components[k]; return; }
-      if (!Array.isArray(c.chatHistory)) c.chatHistory = [];
-      if (!Array.isArray(c.codeVersions)) c.codeVersions = [];
-      c.chatHistory = c.chatHistory.filter((m) =>
-        m && typeof m === 'object' && typeof m.text === 'string' &&
-        (m.role === 'user' || m.role === 'assistant'));
-      c.codeVersions = c.codeVersions.filter((v) =>
-        v && typeof v === 'object' && typeof v.code === 'string');
-      if (typeof c.originalCode !== 'string') c.originalCode = '';
-      if (typeof c.currentCode !== 'string') c.currentCode = '';
-      if (typeof c.componentId !== 'string') c.componentId = k;
+      parsed.components[k] = normalizeComponentState(k, c);
     });
     aiState = parsed;
   } catch (err) {
@@ -94,7 +105,7 @@ export const getComponentState = (id) => aiState.components[id] || null;
 
 export function getOrCreateComponentState(componentId, name, category, originalCode) {
   if (!aiState.components[componentId]) {
-    aiState.components[componentId] = {
+    aiState.components[componentId] = normalizeComponentState(componentId, {
       componentId,
       componentName: name || componentId,
       category: category || '',
@@ -103,13 +114,16 @@ export function getOrCreateComponentState(componentId, name, category, originalC
       chatHistory: [],
       codeVersions: [],
       activeVersionId: null,
+      summary: '',
+      revision: 0,
       lastUpdated: Date.now()
-    };
+    });
   }
-  const s = aiState.components[componentId];
+  const s = normalizeComponentState(componentId, aiState.components[componentId]);
   if (name) s.componentName = name;
   if (category) s.category = category;
-  if (originalCode) s.originalCode = originalCode;
+  if (typeof originalCode === 'string') s.originalCode = originalCode;
+  aiState.components[componentId] = s;
   return s;
 }
 
@@ -133,7 +147,10 @@ export function clearAllAIHistory() {
 /** Record the code the user is currently editing ('' when identical to the original). */
 export function setCurrentCode(compState, code) {
   if (!compState) return;
-  compState.currentCode = code && code !== compState.originalCode ? code : '';
+  const next = typeof code === 'string' ? code : '';
+  const previous = typeof compState.currentCode === 'string' ? compState.currentCode : '';
+  compState.currentCode = next && next !== compState.originalCode ? next : '';
+  if (previous !== compState.currentCode) compState.revision = (Number(compState.revision) || 0) + 1;
   compState.lastUpdated = Date.now();
   persistAIState();
 }
@@ -164,9 +181,27 @@ export function addCodeVersion(compState, code, prompt) {
     compState.codeVersions = compState.codeVersions.slice(-AI_MAX_VERSIONS);
   }
   compState.activeVersionId = version.id;
+  compState.revision = (Number(compState.revision) || 0) + 1;
   compState.lastUpdated = Date.now();
   persistAIState();
   return version;
+}
+
+export function getConversationSummary(compState) {
+  if (!compState) return '';
+  if (typeof compState.summary === 'string' && compState.summary.trim()) return compState.summary.trim();
+  const relevant = (compState.chatHistory || []).slice(-8).map((m) => m && typeof m.text === 'string' ? m.text : '').filter(Boolean);
+  if (!relevant.length) return '';
+  return relevant.join(' ').slice(0, 280);
+}
+
+export function setConversationSummary(compState, summary) {
+  if (!compState) return '';
+  const text = String(summary || '').trim();
+  compState.summary = text.slice(0, 800);
+  compState.lastUpdated = Date.now();
+  persistAIState();
+  return compState.summary;
 }
 
 /** Recent chat turns (oldest first) that fit the context budget. */
@@ -175,14 +210,18 @@ export function buildContextMessages(compState, currentUserText) {
   const history = compState.chatHistory.slice();
   const last = history[history.length - 1];
   if (last && last.role === 'user' && last.text === currentUserText) history.pop();
+  const summary = getConversationSummary(compState);
   const result = [];
-  let total = 0;
+  if (summary) {
+    result.push({ role: 'system', content: 'Conversation summary: ' + summary });
+  }
+  let total = summary.length;
   for (let i = history.length - 1; i >= 0; i--) {
     const m = history[i];
     if (!m || (m.role !== 'user' && m.role !== 'assistant')) continue;
     const text = String(m.text || '');
     if (!text) continue;
-    if (total + text.length > AI_MAX_CONTEXT_CHARS && result.length >= 4) break;
+    if (total + text.length > AI_MAX_CONTEXT_CHARS && result.length >= 2) break;
     result.push({ role: m.role, content: text });
     total += text.length;
   }

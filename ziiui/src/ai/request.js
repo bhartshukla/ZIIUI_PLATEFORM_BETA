@@ -10,24 +10,49 @@ let active = null;
 
 export const isBusy = () => active !== null;
 
-export function beginRequest(componentId) {
+export function getActiveRequest() { return active; }
+
+export function buildRequestFingerprint(componentId, prompt, baseRevision, model = '') {
+  return JSON.stringify({
+    componentId: String(componentId || ''),
+    prompt: String(prompt || '').trim(),
+    baseRevision: Number(baseRevision) || 0,
+    model: String(model || '')
+  });
+}
+
+export function isDuplicateRequest(componentId, prompt, baseRevision, model = '') {
+  if (!active) return false;
+  const fingerprint = buildRequestFingerprint(componentId, prompt, baseRevision, model);
+  return active.componentId === componentId && active.requestFingerprint === fingerprint;
+}
+
+export function beginRequest(componentId, prompt = '', baseRevision = 0, model = '') {
+  const fingerprint = buildRequestFingerprint(componentId, prompt, baseRevision, model);
+  if (active && active.componentId === componentId && active.requestFingerprint === fingerprint) {
+    return active;
+  }
   const controller = new AbortController();
   const req = {
     id: uid(),
     componentId,
+    requestFingerprint: fingerprint,
+    baseRevision: Number(baseRevision) || 0,
+    prompt: String(prompt || '').trim(),
     controller,
     signal: controller.signal,
     timeoutId: setTimeout(() => { try { controller.abort(); } catch (_) { /* ignore */ } }, AI_REQUEST_TIMEOUT_MS)
   };
   active = req;
-  safeSet(AI_PENDING_KEY, JSON.stringify({ requestId: req.id, componentId, timestamp: Date.now() }));
+  safeSet(AI_PENDING_KEY, JSON.stringify({ requestId: req.id, componentId, baseRevision: req.baseRevision, timestamp: Date.now() }));
   return req;
 }
 
 /** False once the request was superseded (e.g. a newer one started). */
-export const isCurrent = (req) => active === req;
+export const isCurrent = (req) => active === req && (!req || !req.signal || !req.signal.aborted);
 
 export function endRequest(req) {
+  if (!req) return;
   clearTimeout(req.timeoutId);
   if (active === req) {
     active = null;

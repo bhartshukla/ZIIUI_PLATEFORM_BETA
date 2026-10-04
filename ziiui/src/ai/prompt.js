@@ -61,11 +61,22 @@ export function buildSystemPrompt(c) {
 export function normalizeCode(text) {
   let t = String(text == null ? '' : text).trim();
   if (!t) return '';
+
+  if (t.startsWith('{') || t.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(t);
+      const jsonText = typeof parsed === 'string' ? parsed : parsed && parsed.code ? parsed.code : parsed && parsed.html ? parsed.html : '';
+      if (jsonText) t = String(jsonText).trim();
+    } catch (_) { /* ignore malformed JSON */ }
+  }
+
   const fenced = t.match(/```[a-zA-Z0-9]*\s*\n([\s\S]*?)```/);
   if (fenced && fenced[1] && fenced[1].trim()) t = fenced[1].trim();
   else t = t.replace(/^```[a-zA-Z0-9]*\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
   const docIdx = t.search(/<!DOCTYPE\s+html/i);
   if (docIdx > 0) t = t.slice(docIdx);
+  const htmlIdx = t.search(/<html|<body|<section|<div|<style|<script|<svg/i);
+  if (htmlIdx > 0) t = t.slice(htmlIdx);
   return t.trim();
 }
 

@@ -11,7 +11,7 @@ import {
 } from '../ai/state.js';
 import { generateCode } from '../ai/client.js';
 import { describeAIError } from '../ai/prompt.js';
-import { beginRequest, endRequest, isBusy, isCurrent, cancelActiveRequest, consumePendingMarker } from '../ai/request.js';
+import { beginRequest, endRequest, isBusy, isCurrent, cancelActiveRequest, consumePendingMarker, isDuplicateRequest } from '../ai/request.js';
 import { createChatView } from '../ai/chat-view.js';
 
 let activeId = null;
@@ -91,7 +91,12 @@ async function generate() {
   if (!compState.originalCode) { chat.add('err', 'This component has no saved original code. Open it in the library first.'); return; }
 
   const comp = compState;
-  const req = beginRequest(comp.componentId);
+  if (isDuplicateRequest(comp.componentId, request, Number(comp.revision || 0), 'editor')) {
+    chat.add('err', 'The same AI request is already in progress.');
+    return;
+  }
+
+  const req = beginRequest(comp.componentId, request, Number(comp.revision || 0), 'editor');
   persistAIState();
 
   el.prompt.value = '';
@@ -115,6 +120,10 @@ async function generate() {
       signal: req.signal
     });
     if (!isCurrent(req) || comp !== compState) return;
+    if ((comp.revision || 0) !== Number(req.baseRevision || 0)) {
+      chat.add('err', 'This AI result was generated from an older version and was ignored.');
+      return;
+    }
     chat.hideLoading();
     addCodeVersion(comp, code, request);
     pushChatMessage(comp, 'assistant', 'Applied: ' + request);

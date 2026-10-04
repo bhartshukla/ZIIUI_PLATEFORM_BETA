@@ -6,10 +6,31 @@
  * AbortError when the request is cancelled or times out.
  */
 import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured } from './config.js';
-import { buildContextMessages } from './state.js';
+import { buildContextMessages, getConversationSummary } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
+const MAX_CODE_CHARS = 200000;
+
+function extractResponseText(payload) {
+  if (!payload) return '';
+  const choice = payload?.choices?.[0];
+  const message = choice?.message;
+  if (typeof message?.content === 'string') return message.content;
+  if (Array.isArray(message?.content)) {
+    return message.content.map((part) => {
+      if (typeof part === 'string') return part;
+      if (part && typeof part === 'object') {
+        return part.text || part.content || '';
+      }
+      return '';
+    }).join('\n');
+  }
+  if (message?.content && typeof message.content === 'object') {
+    return String(message.content.text || message.content.content || JSON.stringify(message.content));
+  }
+  return '';
+}
 
 /**
  * @param {object}  p
@@ -21,10 +42,15 @@ const abortError = () => new DOMException('Aborted', 'AbortError');
  */
 export async function generateCode({ component, compState, request, signal }) {
   if (!aiIsConfigured()) throw new Error('NOKEY');
+  const prompt = String(request || '').trim();
+  if (!prompt) throw new Error('INVALID');
+  if (prompt.length > 4000) throw new Error('INVALID');
 
+  const summary = getConversationSummary(compState);
   const messages = [{ role: 'system', content: buildSystemPrompt(component) }];
-  buildContextMessages(compState, request).forEach((m) => messages.push(m));
-  messages.push({ role: 'user', content: request });
+  if (summary) messages.push({ role: 'system', content: 'Conversation summary: ' + summary });
+  buildContextMessages(compState, prompt).forEach((m) => messages.push(m));
+  messages.push({ role: 'user', content: prompt });
 
   const headers = { 'Content-Type': 'application/json' };
   if (!AI_USES_PROXY) {
@@ -44,6 +70,7 @@ export async function generateCode({ component, compState, request, signal }) {
         signal
       });
       if (response.status === 401 || response.status === 403) throw new Error('AUTH');
+      if (response.status === 408 || response.status === 504) throw new Error('TIMEOUT');
       if (response.status === 429) { lastError = new Error('RATE'); continue; }
       if (!response.ok) {
         let detail = '';
@@ -54,9 +81,9 @@ export async function generateCode({ component, compState, request, signal }) {
 
       let data;
       try { data = await response.json(); } catch (_) { lastError = new Error('BADJSON'); continue; }
-      const output = data && data.choices && data.choices[0] &&
-        data.choices[0].message && data.choices[0].message.content;
+      const output = extractResponseText(data);
       if (!output) { lastError = new Error('EMPTY'); continue; }
+      if (output.length > MAX_CODE_CHARS) { lastError = new Error('INVALID'); continue; }
 
       const code = normalizeCode(output);
       if (!code) { lastError = new Error('EMPTY'); continue; }
@@ -65,9 +92,11 @@ export async function generateCode({ component, compState, request, signal }) {
     } catch (err) {
       if (err && err.name === 'AbortError') throw err;
       if (err && err.message === 'AUTH') throw err;
+      if (err && err.message === 'TIMEOUT') throw err;
       lastError = err instanceof TypeError ? new Error('NETWORK') : err;
     }
   }
   if (lastError && lastError.message === 'NETWORK') throw lastError;
+  if (lastError && lastError.message === 'RATE') throw lastError;
   throw new Error('ALLMODELS');
 }
