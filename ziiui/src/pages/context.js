@@ -1,6 +1,7 @@
 /* Entry point for context.html — inspect, export and import saved AI sessions. */
 import '../styles/context.css';
 import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js';
+import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
 (function(){
   const $ = id => document.getElementById(id);
@@ -29,22 +30,24 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  function isPlainObject(value){ return !!value && typeof value === 'object' && !Array.isArray(value); }
+
   function load(){
-    let raw = null;
-    try { raw = localStorage.getItem(AI_STATE_KEY); } catch(_) { raw = null; }
+    const raw = safeGet(AI_STATE_KEY);
     if(!raw){ state = { schemaVersion: AI_SCHEMA_VERSION, components: {} }; return false; }
     try {
       const p = JSON.parse(raw);
-      if(!p || typeof p !== 'object') throw new Error('shape');
-      if(!p.components || typeof p.components !== 'object') p.components = {};
+      if(!isPlainObject(p)) throw new Error('shape');
+      if(!isPlainObject(p.components)) p.components = {};
       Object.keys(p.components).forEach(k=>{
         const c = p.components[k];
-        if(!c || typeof c !== 'object'){ delete p.components[k]; return; }
+        if(!isPlainObject(c)){ delete p.components[k]; return; }
         if(!Array.isArray(c.chatHistory)) c.chatHistory = [];
         if(!Array.isArray(c.codeVersions)) c.codeVersions = [];
+        if(typeof c.componentName !== 'string') c.componentName = String(k);
       });
       state = { schemaVersion: p.schemaVersion||AI_SCHEMA_VERSION, components: p.components };
-      try { activeId = localStorage.getItem(AI_ACTIVE_KEY) || null; } catch(_){}
+      activeId = safeGet(AI_ACTIVE_KEY) || null;
       return true;
     } catch(_) {
       state = { schemaVersion: AI_SCHEMA_VERSION, components: {} };
@@ -52,8 +55,9 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
     }
   }
   function save(){
-    try { localStorage.setItem(AI_STATE_KEY, JSON.stringify(state)); return true; }
-    catch(err){ toast('Save failed: ' + err.message); return false; }
+    const ok = safeSet(AI_STATE_KEY, JSON.stringify(state));
+    if(!ok){ toast('Save failed: local storage is unavailable.'); return false; }
+    return true;
   }
   function compIds(){ return Object.keys(state.components); }
 
@@ -62,7 +66,7 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
     const totalMsgs = ids.reduce((a,k)=>a+(state.components[k].chatHistory||[]).length,0);
     const totalVers = ids.reduce((a,k)=>a+(state.components[k].codeVersions||[]).length,0);
     $('schemaBadge').textContent = 'schema v'+state.schemaVersion;
-    const raw = localStorage.getItem(AI_STATE_KEY);
+    const raw = safeGet(AI_STATE_KEY);
     $('metaLine').textContent = ids.length + ' component' + (ids.length===1?'':'s')
       + ' · ' + totalMsgs + ' message' + (totalMsgs===1?'':'s')
       + ' · ' + totalVers + ' version' + (totalVers===1?'':'s')
@@ -92,7 +96,7 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
           '<span title="Messages">'+msgs+'</span>'+
           '<span title="Versions">'+vers+'</span>'+
         '</div>';
-      li.addEventListener('click', ()=>{ activeId = id; try{localStorage.setItem(AI_ACTIVE_KEY,id);}catch(_){} renderList(); renderDetail(); });
+      li.addEventListener('click', ()=>{ activeId = id; safeSet(AI_ACTIVE_KEY, id); renderList(); renderDetail(); });
       ul.appendChild(li);
     });
   }
@@ -210,14 +214,25 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
     r.onload = ()=>{
       try{
         const p = JSON.parse(String(r.result));
-        if(!p || !p.components || typeof p.components !== 'object') throw new Error('Invalid shape');
+        if(!isPlainObject(p) || !isPlainObject(p.components)) throw new Error('Invalid shape');
         if(!confirm('Replace your current AI state with the imported file?')) return;
-        p.schemaVersion = AI_SCHEMA_VERSION;
-        state = p; save();
+        const normalized = { schemaVersion: AI_SCHEMA_VERSION, components: {} };
+        Object.keys(p.components).forEach((key)=>{
+          const value = p.components[key];
+          if(!isPlainObject(value)) return;
+          normalized.components[key] = {
+            ...value,
+            componentId: key,
+            componentName: typeof value.componentName === 'string' ? value.componentName : key,
+            chatHistory: Array.isArray(value.chatHistory) ? value.chatHistory.filter((m)=>m && typeof m === 'object' && typeof m.text === 'string') : [],
+            codeVersions: Array.isArray(value.codeVersions) ? value.codeVersions.filter((v)=>v && typeof v === 'object' && typeof v.code === 'string') : []
+          };
+        });
+        state = normalized; save();
         activeId = null;
         renderList(); renderMeta();
         $('detailCard').hidden = true;
-        toast('Imported '+Object.keys(p.components).length+' components.');
+        toast('Imported '+Object.keys(normalized.components).length+' components.');
       }catch(err){ toast('Import failed: '+err.message); }
     };
     r.readAsText(file);
@@ -225,15 +240,14 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
   function clearAll(){
     if(!confirm('Delete ALL AI history? Original components are not affected.')) return;
     state = { schemaVersion: AI_SCHEMA_VERSION, components: {} };
-    try{ localStorage.removeItem(AI_STATE_KEY); localStorage.removeItem(AI_ACTIVE_KEY); }catch(_){}
+    safeRemove(AI_STATE_KEY); safeRemove(AI_ACTIVE_KEY);
     activeId = null;
     renderList(); renderMeta();
     $('detailCard').hidden = true;
     toast('All AI history cleared.');
   }
   function initTheme(){
-    let t = null;
-    try{ t = localStorage.getItem('ziiui-theme'); }catch(_){}
+    const t = safeGet('ziiui-theme');
     if(t==='light'||t==='dark') document.documentElement.setAttribute('data-theme',t);
     else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
       document.documentElement.setAttribute('data-theme','light');
@@ -242,7 +256,7 @@ import { AI_STATE_KEY, AI_ACTIVE_KEY, AI_SCHEMA_VERSION } from '../ai/config.js'
     const cur = document.documentElement.getAttribute('data-theme')||'dark';
     const next = cur==='light'?'dark':'light';
     document.documentElement.setAttribute('data-theme',next);
-    try{ localStorage.setItem('ziiui-theme',next); }catch(_){}
+    safeSet('ziiui-theme', next);
   }
 
   $('refreshBtn').addEventListener('click', ()=>{ load(); renderMeta(); renderList(); renderDetail(); toast('Refreshed.'); });

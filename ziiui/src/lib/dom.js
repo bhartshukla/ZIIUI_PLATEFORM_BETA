@@ -15,13 +15,18 @@ export const indent = (s) =>
   norm(s).split('\n').map((l) => (l ? '  ' + l : l)).join('\n');
 
 let statusTimer = null;
+let statusSeq = 0;
 /** Announce a message to screen readers via the #status live region. */
 export function say(msg) {
   const el = $('status');
   if (!el) return;
+  const seq = ++statusSeq;
   el.textContent = '';
   clearTimeout(statusTimer);
-  statusTimer = setTimeout(() => { el.textContent = msg; }, 30);
+  statusTimer = setTimeout(() => {
+    if (seq !== statusSeq) return;
+    el.textContent = msg;
+  }, 30);
 }
 
 export function report(err, ctx) {

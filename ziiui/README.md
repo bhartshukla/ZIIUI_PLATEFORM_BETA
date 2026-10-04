@@ -1,110 +1,184 @@
 # ziiui
 
-Production-ready creative web effects — text animations, custom cursors, scroll-driven sections,
-WebGL shaders and footers. Pick an effect, tweak it live, and **copy standalone HTML/CSS/JS**.
-An optional **AI editor** (via OpenRouter) lets you change any effect by describing the change.
+ZiiUI is a frontend-first creative effects library and component playground for building text animations, scroll-driven layouts, interactive motion, cursor effects, shader visuals, and reusable HTML/CSS/JS snippets. It lets you browse ready-made components, preview them live, copy standalone code, and optionally use an AI-powered editor to iterate on the currently selected effect by description.
+
+This project is built for local-first experimentation and rapid UI prototyping. It is intentionally front-end focused, with browser-based previews and local persistence for AI sessions and component state.
+
+## Features
+
+- Browse a curated library of animated UI effects
+- Preview each effect live in the browser
+- Copy standalone HTML/CSS/JS output for reuse anywhere
+- Adjust effect text and configuration through the editor UI
+- Use an AI-assisted editor to modify the current component via natural language
+- Persist recent AI chat history and component revisions in localStorage
+- Multi-page Vite app with library, AI workspace, context explorer, and docs
+
+## Tech stack
+
+- Vite for building and local serving
+- Vanilla JavaScript modules
+- HTML/CSS/JS effect templates
+- Vitest for automated testing
+- OpenRouter-based AI integration (optional)
 
 ## Quick start
 
+From the project folder:
+
 ```bash
 npm install
-cp .env.example .env      # optional — only needed for the AI editor
-npm run dev               # http://localhost:5173
+npm run dev
 ```
 
-| Command           | What it does                                    |
-| ----------------- | ----------------------------------------------- |
-| `npm run dev`     | Dev server with hot reload                      |
-| `npm run build`   | Production build into `dist/`                   |
-| `npm run preview` | Serve the production build locally              |
-| `npm test`        | Run the unit tests (effects, AI helpers, state) |
+Then open the local URL shown by Vite, typically:
 
-> The app must be served over http(s) — opening `index.html` straight from disk (`file://`) will not work.
+```text
+http://localhost:5173
+```
+
+## Available commands
+
+```bash
+npm run dev      # start the development server
+npm run build    # create a production build in dist/
+npm run preview  # preview the production build locally
+npm test         # run the project test suite
+```
+
+> The app must be loaded over `http://` or `https://`. Opening the HTML directly from disk via `file://` is not supported for the interactive preview flow.
 
 ## Pages
 
-| File           | Purpose                                                          |
-| -------------- | ---------------------------------------------------------------- |
-| `index.html`   | The effects library: preview, controls, generated code, AI panel |
-| `ai.html`      | Full-page AI editor for a saved component (code + live preview)  |
-| `context.html` | Inspect / export / import saved AI sessions (localStorage)       |
-| `docs.html`    | Documentation                                                    |
+- `index.html` — main effects library and preview browser
+- `ai.html` — full AI editing workspace for a selected component
+- `context.html` — inspect, import, export, and clear saved AI state
+- `docs.html` — documentation and usage notes
 
 ## Project structure
 
-```
+```text
 ziiui/
-├── index.html · ai.html · context.html · docs.html   # pages (Vite multi-page app)
-├── public/                    # static files served as-is (logo, favicon)
+├── index.html                 # main effects library page
+├── ai.html                    # AI editor page
+├── context.html               # AI state inspection page
+├── docs.html                  # documentation page
+├── public/                    # static assets
 ├── src/
-│   ├── pages/                 # one entry module per page
-│   │   ├── library.js         #   index.html entry (wires everything together)
-│   │   ├── library/           #   store · viewer · nav · ai-panel
-│   │   ├── ai-editor.js       #   ai.html entry
-│   │   ├── context.js         #   context.html entry
-│   │   └── docs.js            #   docs.html entry
+│   ├── pages/
+│   │   ├── library.js         # main library entry
+│   │   ├── library/           # UI logic for the library
+│   │   ├── ai-editor.js       # AI editor entry
+│   │   ├── context.js         # context/export view entry
+│   │   └── docs.js            # docs entry
 │   ├── effects/
-│   │   ├── registry.js        # the 25 effects (name, category, head libraries…)
-│   │   ├── builders.js        # assembles complete standalone HTML documents
-│   │   ├── templates.js       # loads template files, fills @@PLACEHOLDERS@@
-│   │   └── templates/         # real .css/.html/.js files, grouped by category
-│   │       └── text/ cursor/ interactive/ scroll/ shader/ footer/
+│   │   ├── registry.js        # effect catalog and metadata
+│   │   ├── builders.js        # code generation helpers
+│   │   ├── templates.js       # template loading and placeholder replacement
+│   │   └── templates/         # per-category HTML/CSS/JS effect files
 │   ├── ai/
-│   │   ├── config.js          # keys, endpoint, models, limits
-│   │   ├── state.js           # per-component chat history + versions (localStorage)
-│   │   ├── prompt.js          # system prompt, response cleaning, error messages
-│   │   ├── client.js          # OpenRouter client with model fallback
-│   │   ├── request.js         # in-flight request: cancel, timeout, interrupted marker
-│   │   └── chat-view.js       # chat log rendering
-│   ├── lib/                   # dom · storage · clipboard · theme · preview helpers
-│   └── styles/                # style.css (app) + one stylesheet per extra page
-├── tests/                     # vitest (effects + AI)
-├── vite.config.js · package.json
-└── .env.example · .gitignore
+│   │   ├── config.js          # AI model + endpoint config
+│   │   ├── state.js           # local AI state / chat history / revisions
+│   │   ├── prompt.js          # prompt construction and response sanitization
+│   │   ├── client.js          # OpenRouter client and model fallback logic
+│   │   ├── request.js         # in-flight request handling
+│   │   └── chat-view.js      # UI display for AI chat
+│   ├── lib/
+│   │   ├── dom.js             # DOM helpers and live announcements
+│   │   ├── storage.js        # safe storage helpers
+│   │   └── ...                # other shared utilities
+│   ├── styles/
+│   │   └── ...                # shared and page-specific styles
+│   └── app boot logic...
+├── tests/
+│   ├── ai.test.js
+│   ├── ai-core.test.js
+│   └── effects.test.js
+├── .env                       # local environment file (not committed)
+├── .gitignore
+├── package.json
+├── vite.config.js
+├── README.md
+└── dist/                     # built output after npm run build
 ```
-
-## Adding a new effect
-
-1. Add `src/effects/templates/<group>/<name>.css`, `<name>.html`, `<name>.js`.
-2. Add an entry to `EFFECTS` in `src/effects/registry.js`:
-
-   ```js
-   { id: 'myeffect', name: 'My Effect', cat: 'Scroll', field: 'none', previewSize: 'large',
-     note: 'One-line description', text: '',
-     code: full('myeffect', [js(GSAP('3.13.0')), js(SCROLLTRIGGER('3.13.0'))]) },
-   ```
-
-3. Run `npm test` — it checks that the page builds, has no unfilled placeholders, and that every
-   inline script is valid JavaScript.
-
-Text-style effects use `__TEXT__` for the user's text; `@@NAME@@` placeholders are filled by `fill()`.
 
 ## AI editor setup
 
-1. Create a key at <https://openrouter.ai/keys> and put it in `.env`:
+The AI editor is optional and is enabled when a valid key or proxy endpoint is available.
 
-   ```
-   VITE_OPENROUTER_API_KEY=sk-or-v1-...
-   ```
-2. Restart `npm run dev` (env files are read at startup).
+### Local development
 
-Optional variables: `VITE_AI_MODELS` (comma-separated, tried in order) and `VITE_AI_ENDPOINT`.
+Create `.env` in the project root with:
 
-### ⚠️ Key security
+```bash
+VITE_OPENROUTER_API_KEY=your_key_here
+```
 
-Every `VITE_*` variable is **compiled into the browser JavaScript**. Anyone who can open your deployed
-site can read the key. That is fine for local development with a low-limit key, but for a public site
-run a small server-side proxy that adds the key, and point `VITE_AI_ENDPOINT` at it — no browser-side
-key is needed in that mode. Never commit `.env` (it is in `.gitignore`).
+Optional configuration:
 
-## Notes
+```bash
+VITE_AI_MODELS=qwen/qwen3-coder:free,deepseek/deepseek-r1:free
+VITE_AI_ENDPOINT=https://your-proxy.example.com/v1/chat/completions
+```
 
-- AI history lives in `localStorage` (schema v2) and is shared by the library, `ai.html` and `context.html`.
-- Previews run in sandboxed iframes (`sandbox="allow-scripts"`); runtime errors are reported back to the page.
-- Generated effects load GSAP / Lenis / Three.js from public CDNs, so previews need internet access.
-- Text input is limited to 3,000 characters and is HTML-escaped; emoji / grapheme clusters are handled safely.
-- `prefers-reduced-motion` is respected by the text effects.
+Then restart the dev server:
+
+```bash
+npm run dev
+```
+
+### AI security note
+
+`VITE_*` variables are embedded in the browser bundle. That means:
+
+- local development is acceptable with a limited key
+- public deployments should not expose a production key directly in frontend code
+- for production, use a small backend proxy and point `VITE_AI_ENDPOINT` at that proxy instead
+
+Never commit real credentials to source control. The project `.env` file is intended for local use only.
+
+## Production build
+
+To produce a static production build:
+
+```bash
+npm run build
+```
+
+Then preview it locally:
+
+```bash
+npm run preview
+```
+
+The built files are emitted to the `dist/` directory and can be deployed to any static host such as Netlify, Vercel static output, GitHub Pages, or a CDN-backed web server.
+
+## Testing
+
+The project includes automated checks for:
+
+- effect generation and registry integrity
+- AI prompt sanitization and state handling
+- component revision and context tracking
+- build validity and runtime safety
+
+Run:
+
+```bash
+npm test
+```
+
+## Notes for production use
+
+- AI state is stored in `localStorage` and is intended for browser-local UX continuity
+- preview code is executed in a sandboxed iframe with script access only where needed
+- external libraries such as GSAP, Lenis, and Three.js may be loaded from public CDNs
+- generated snippets are self-contained and can be copied to other sites or documents
+
+## License
+
+This project is for local experimentation and frontend prototyping. License details should be confirmed in the repository policy and packaging setup if this app is being distributed externally.
 
 ## Author
 
-**Bharat Shukla**
+Bharat Shukla

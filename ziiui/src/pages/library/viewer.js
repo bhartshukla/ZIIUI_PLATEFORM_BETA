@@ -53,7 +53,7 @@ export function rebuild() {
     const raw = norm(ta ? ta.value : '');
     const empty = !raw.trim();
     const generated = cur.opts ? cur.code($('per').value, $('preset').value) : cur.code();
-    store.html = String(generated).replace('__TEXT__', () => esc(empty ? PLACEHOLDER : raw));
+    store.html = String(generated).replace(/__TEXT__/g, () => esc(empty ? PLACEHOLDER : raw));
     $('code-out').textContent = store.html;
     $('label').textContent = cur.name + (cur.opts ? ' · ' + $('per').value + ' · ' + $('preset').value : '');
     $('frame').title = 'Preview of ' + cur.name;
