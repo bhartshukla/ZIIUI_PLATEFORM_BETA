@@ -28,7 +28,7 @@
 
 <body>
 
-  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open components menu"
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open component list"
     aria-expanded="false" aria-controls="sidePanel">
     <i class="ri-menu-line" aria-hidden="true"></i>
   </button>
@@ -66,26 +66,38 @@
   </header>
 
   <div class="app">
-    <aside class="side" id="sidePanel" aria-label="Component navigation">
-      <button class="side-close" id="sideClose" type="button" aria-label="Close components menu">
+    <aside class="side" id="sidePanel" aria-label="Component library">
+      <button class="side-close" id="sideClose" type="button" aria-label="Close component list">
         <i class="ri-close-line" aria-hidden="true"></i>
       </button>
-      <p class="side-label">Components</p>
-      <nav id="nav" aria-label="Components"></nav>
-      <div class="side-empty" id="sideEmpty">No effects match your search.</div>
+      <div class="sidebar-head">
+        <div>
+          <p class="side-label">Component library</p>
+          <p class="sidebar-total"><span id="catalogTotal"></span><span class="sidebar-live"><i></i> Ready to preview</span></p>
+        </div>
+        <button class="shuffle-btn sidebar-shuffle" id="shuffleComponents" type="button" aria-label="Shuffle components">
+          <i class="ri-shuffle-line" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="category-filters" id="categoryFilters" aria-label="Filter components by category"></nav>
+      <div class="catalog-meta">
+        <span id="catalogCount" aria-live="polite"></span>
+      </div>
+      <nav id="nav" class="component-nav" aria-label="Components"></nav>
+      <p class="catalog-empty" id="catalogEmpty" hidden>No components found. Try another search.</p>
     </aside>
 
     <main>
       <section class="workspace-intro" aria-labelledby="workspaceTitle">
         <div class="workspace-intro-copy">
           <p class="workspace-eyebrow"><i class="ri-sparkling-2-line" aria-hidden="true"></i> The motion library</p>
-          <h1 id="workspaceTitle">Make every interaction feel intentional.</h1>
-          <p>Explore polished effects, tune them live, and take production-ready code with you.</p>
+          <h1 id="workspaceTitle">Find the right motion. Make it yours.</h1>
+          <p>Choose a component from the library, preview it live, then fine-tune and copy the code.</p>
         </div>
-        <span class="workspace-status"><span aria-hidden="true"></span> Live preview · Copy-ready code</span>
+        <a class="intro-link" href="docs.html"><span>How it works</span><i class="ri-arrow-up-right-line" aria-hidden="true"></i></a>
       </section>
 
-      <section class="card" aria-labelledby="pname">
+      <section class="card" id="previewCard" aria-labelledby="pname">
         <div class="card-head">
           <div class="ttl">
             <span class="kick">Preview</span>

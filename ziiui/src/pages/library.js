@@ -5,7 +5,7 @@ import { applyThemeIcon, toggleTheme } from '../lib/theme.js';
 import { EFFECTS, BY_ID } from '../effects/registry.js';
 import { loadAIState, loadAISettings, getActiveComponentId } from '../ai/state.js';
 import { consumePendingMarker } from '../ai/request.js';
-import { buildNav, applySearch, openSidebar, closeSidebar } from './library/nav.js';
+import { buildNav, applySearch, openSidebar, closeSidebar, shuffleComponents } from './library/nav.js';
 import { selectEffect, rebuild, replay, onInput, onCopy } from './library/viewer.js';
 import { initAIPanel, announceInterruptedRequest } from './library/ai-panel.js';
 
@@ -15,6 +15,7 @@ function wire() {
   on('menuToggle', 'click', guard(openSidebar, 'openSidebar'));
   on('sideClose', 'click', guard(closeSidebar, 'closeSidebar'));
   on('sideOverlay', 'click', guard(closeSidebar, 'closeSidebar'));
+  on('shuffleComponents', 'click', guard(shuffleComponents, 'shuffleComponents'));
   on('themeToggle', 'click', guard(toggleTheme, 'theme'));
   on('per', 'change', guard(rebuild, 'per'));
   on('preset', 'change', guard(rebuild, 'preset'));

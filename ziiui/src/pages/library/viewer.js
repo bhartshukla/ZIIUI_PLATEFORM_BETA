@@ -127,8 +127,10 @@ export function selectEffect(e, fromUser) {
   rebuild();
   try { hooks.afterSelect(); } catch (err) { report(err, 'afterSelect'); }
   if (fromUser) {
-    say('Showing ' + e.name + (e.cat === 'Cursor' ? '. Its text field is below the preview.' : ''));
+    say('Previewing ' + e.name + (e.cat === 'Cursor' ? '. Its text field is below the preview.' : ''));
     if (window.matchMedia('(max-width: 900px)').matches) closeSidebar();
+    const preview = $('previewCard');
+    if (preview) preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 

@@ -36,18 +36,42 @@ body { overflow: hidden }
 .ai-page-head .ai-btn { text-decoration: none }
 .ai-page-head .ai-picker { min-height: 40px }
 @media (max-width: 1100px) {
-  .ai-page-body { grid-template-columns: minmax(0, 1fr) }
-  .ai-page-col { border-right: 0; border-bottom: 1px solid var(--line) }
-  .ai-page-body { overflow-y: auto; grid-template-rows: minmax(460px, 1fr) minmax(520px, 1fr) minmax(460px, 1fr) }
+  .ai-page-body {
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    grid-template-rows: minmax(420px, 58dvh) minmax(460px, 66dvh);
+  }
+  .ai-page-col { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line) }
+  .ai-page-col:nth-child(3) { grid-column: 1 / -1; border-right: 0 }
+  .ai-page-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
   .ai-page { min-height: 100dvh; height: auto }
 }
-@media (max-width: 600px) {
+@media (max-width: 680px) {
+  body { overflow: auto }
+  .ai-page { min-height: 100dvh; height: auto }
   .ai-page-head { gap: .55rem; padding-block: .7rem }
   .ai-page-head h1 { width: 100%; font-size: 1rem }
   .ai-page-head .meta { flex-basis: 100% }
   .ai-page-head .ai-btn { flex: 1 1 auto; justify-content: center }
   .ai-col-head { flex-wrap: wrap }
-  .ai-col-actions { flex-wrap: wrap }
+  .ai-col-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap }
+  .ai-page-col .ai-code { padding: .85rem; font-size: .73rem }
+  .ai-page-col .ai-input { padding: .8rem }
+  .ai-page-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(320px, 58dvh) minmax(360px, 66dvh) minmax(320px, 58dvh);
+    overflow: visible;
+  }
+  .ai-page-col,
+  .ai-page-col:nth-child(3) { grid-column: auto; border-right: 0 }
+}
+@media (max-width: 380px) {
+  .ai-page-head .ai-btn { padding-inline: .55rem; font-size: .74rem }
+  .ai-col-head { padding: .7rem .75rem }
+  .ai-page-body { grid-template-rows: minmax(300px, 56dvh) minmax(340px, 64dvh) minmax(300px, 56dvh) }
 }
 
 /* component picker + header actions */
@@ -57,3 +81,19 @@ body { overflow: hidden }
 }
 .ai-picker:disabled { opacity: .6 }
 .ai-col-actions { display: flex; align-items: center; gap: .5rem }
+
+.ai-btn.primary {
+  color: var(--acc-ink);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--acc) 18%, transparent);
+}
+
+.ai-page-col,
+.ai-modal-box {
+  background: var(--panel);
+}
+
+.ai-page-col .ai-preview-frame {
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--acc) 5%, transparent), transparent 48%),
+    var(--stage-bg);
+}
