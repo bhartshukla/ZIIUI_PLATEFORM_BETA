@@ -12,6 +12,9 @@ export const isBusy = () => active !== null;
 
 export function getActiveRequest() { return active; }
 
+/** True while this request still owns the active-request slot, even if aborted. */
+export const isActiveRequest = (req) => !!req && active === req;
+
 export function buildRequestFingerprint(componentId, prompt, baseRevision, model = '') {
   return JSON.stringify({
     componentId: String(componentId || ''),

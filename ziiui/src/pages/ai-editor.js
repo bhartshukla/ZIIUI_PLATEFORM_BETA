@@ -11,7 +11,7 @@ import {
 } from '../ai/state.js';
 import { generateCode } from '../ai/client.js';
 import { describeAIError } from '../ai/prompt.js';
-import { beginRequest, endRequest, isBusy, isCurrent, cancelActiveRequest, consumePendingMarker, isDuplicateRequest } from '../ai/request.js';
+import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, consumePendingMarker, isDuplicateRequest } from '../ai/request.js';
 import { createChatView } from '../ai/chat-view.js';
 
 let activeId = null;
@@ -133,15 +133,15 @@ async function generate() {
     updateIndicator();
     say('AI version generated.');
   } catch (err) {
-    if (!isCurrent(req)) return;
+    if (!isActiveRequest(req)) return;
     chat.hideLoading();
     const aborted = err && err.name === 'AbortError';
     chat.add('err', aborted ? 'Request cancelled or timed out. Existing code preserved.' : describeAIError(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
-    const wasCurrent = isCurrent(req);
+    const wasActive = isActiveRequest(req);
     endRequest(req);
-    if (wasCurrent) setLocked(false);
+    if (wasActive) setLocked(false);
   }
 }
 

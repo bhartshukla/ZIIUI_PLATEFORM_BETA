@@ -88,7 +88,10 @@ export function loadAISettings() {
   try {
     const s = JSON.parse(raw);
     if (s && typeof s === 'object') aiSettings = { autoPreview: !!s.autoPreview };
-  } catch (_) { /* keep defaults */ }
+  } catch (err) {
+    console.warn('[ziiui] invalid AI settings; using defaults', err);
+    aiSettings = { autoPreview: false };
+  }
   return aiSettings;
 }
 export function setAutoPreview(on) {

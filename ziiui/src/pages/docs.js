@@ -1,5 +1,6 @@
 /* Entry point for docs.html — collapsible sidebar and scroll-spy. */
 import '../styles/docs.css';
+import { copyText } from '../lib/clipboard.js';
 
 
         /* ---------- Year ---------- */
@@ -53,30 +54,17 @@ import '../styles/docs.css';
                 var target = document.querySelector(btn.dataset.copy);
                 if (!target) return;
 
-                var text = target.innerText;
-
+                var original = btn.innerHTML;
                 try {
-                    if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(text);
-                    } else {
-                        var ta = document.createElement('textarea');
-                        ta.value = text;
-                        ta.setAttribute('readonly', '');
-                        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
-                        document.body.appendChild(ta);
-                        ta.select();
-                        document.execCommand('copy');
-                        ta.remove();
-                    }
-
-                    var original = btn.innerHTML;
-                    btn.innerHTML = '<i class="ri-check-line" aria-hidden="true"></i> Copied';
-                    setTimeout(function () { btn.innerHTML = original; }, 1600);
+                    var copied = await copyText(target.innerText);
+                    btn.innerHTML = copied
+                        ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
+                        : '<i class="ri-error-warning-line" aria-hidden="true"></i> Copy failed';
                 } catch (err) {
-                    var orig = btn.innerHTML;
-                    btn.innerHTML = '<i class="ri-error-warning-line" aria-hidden="true"></i> Failed';
-                    setTimeout(function () { btn.innerHTML = orig; }, 1600);
+                    console.error('[ziiui:docs-copy]', err);
+                    btn.innerHTML = '<i class="ri-error-warning-line" aria-hidden="true"></i> Copy failed';
                 }
+                setTimeout(function () { btn.innerHTML = original; }, 1600);
             });
         });
 

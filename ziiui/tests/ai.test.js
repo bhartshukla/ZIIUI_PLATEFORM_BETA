@@ -5,6 +5,7 @@ import {
   setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState
 } from '../src/ai/state.js';
 import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, aiIsConfigured } from '../src/ai/config.js';
+import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent } from '../src/ai/request.js';
 
 describe('normalizeCode', () => {
   it('strips markdown fences', () => {
@@ -51,6 +52,23 @@ describe('describeAIError', () => {
 describe('config', () => {
   it('treats a placeholder key as not configured', () => {
     expect(aiIsConfigured()).toBe(false);
+  });
+
+  describe('AI request cancellation', () => {
+    it('keeps an aborted request identifiable for UI cleanup until it ends', () => {
+      const request = beginRequest('component', 'change it', 0, 'test');
+      expect(isActiveRequest(request)).toBe(true);
+      expect(isCurrent(request)).toBe(true);
+
+      cancelActiveRequest();
+
+      expect(request.signal.aborted).toBe(true);
+      expect(isActiveRequest(request)).toBe(true);
+      expect(isCurrent(request)).toBe(false);
+
+      endRequest(request);
+      expect(isActiveRequest(request)).toBe(false);
+    });
   });
 });
 

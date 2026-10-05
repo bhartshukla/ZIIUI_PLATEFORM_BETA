@@ -23,13 +23,17 @@ function wire() {
   on('replay', 'click', guard(replay, 'replay'));
   on('copy', 'click', guard(onCopy, 'copy'));
 
-  const search = $('searchInput');
-  if (search) {
+  const searches = [$('searchInput'), $('sideSearchInput')].filter(Boolean);
+  searches.forEach((search) => {
     search.addEventListener('input', guard(applySearch, 'search'));
     search.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { search.value = ''; applySearch(); search.blur(); }
+      if (e.key === 'Escape') {
+        searches.forEach((input) => { input.value = ''; });
+        applySearch({ currentTarget: search });
+        search.blur();
+      }
     });
-  }
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -38,7 +42,8 @@ function wire() {
     }
     if ((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() === 'k') {
       e.preventDefault();
-      if (search && search.offsetParent !== null && !search.disabled) { search.focus(); search.select(); }
+      const search = searches.find((input) => input.offsetParent !== null && !input.disabled);
+      if (search) { search.focus(); search.select(); }
     }
   });
   window.addEventListener('resize', () => { if (window.innerWidth > 900) closeSidebar(); });
@@ -58,7 +63,7 @@ function boot() {
   const initial = lastId && BY_ID[lastId] ? BY_ID[lastId] : EFFECTS[0];
   try { selectEffect(initial, false); } catch (err) { report(err, 'boot'); }
 
-  try { announceInterruptedRequest(consumePendingMarker()); } catch (_) { /* ignore */ }
+  try { announceInterruptedRequest(consumePendingMarker()); } catch (err) { report(err, 'interruptedRequest'); }
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

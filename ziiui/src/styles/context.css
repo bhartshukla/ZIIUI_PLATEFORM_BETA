@@ -41,11 +41,14 @@
     text-transform:uppercase;color:var(--mute)}
   .card-head i{color:var(--acc);font-size:1rem}
   .comp-list{list-style:none;margin:0;padding:.35rem;max-height:calc(100vh - 200px);overflow:auto}
-  .comp-list li{padding:.75rem .8rem;border-bottom:1px solid var(--line);border-radius:8px;cursor:pointer;
-    display:flex;align-items:center;gap:.6rem;transition:background .15s}
+  .comp-list li{padding:0;border-bottom:1px solid var(--line);border-radius:8px;transition:background .15s}
   .comp-list li:last-child{border-bottom:0}
-  .comp-list li:hover{background:var(--raise)}
-  .comp-list li.active{background:var(--acc-soft);border-left:3px solid var(--acc);padding-left:calc(.8rem - 3px)}
+  .comp-list li > button{width:100%;padding:.75rem .8rem;border:0;border-radius:8px;background:transparent;
+    color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:.6rem;
+    transition:background .15s}
+  .comp-list li > button:hover{background:var(--raise)}
+  .comp-list li.active > button{background:var(--acc-soft);box-shadow:inset 3px 0 var(--acc);padding-left:calc(.8rem + 3px)}
+  .comp-list li > button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
   .comp-list .name{flex:1;font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .comp-list .cat{font-size:.68rem;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
   .comp-list .counts{font-size:.68rem;color:var(--mute);display:flex;gap:.4rem;flex:none}

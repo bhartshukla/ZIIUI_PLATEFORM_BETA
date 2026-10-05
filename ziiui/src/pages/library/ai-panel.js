@@ -9,7 +9,7 @@ import {
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
 import { describeAIError } from '../../ai/prompt.js';
-import { beginRequest, endRequest, isBusy, isCurrent, cancelActiveRequest, isDuplicateRequest } from '../../ai/request.js';
+import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, isDuplicateRequest } from '../../ai/request.js';
 import { createChatView } from '../../ai/chat-view.js';
 import { store, hooks } from './store.js';
 import { setNavigationLocked } from './nav.js';
@@ -18,6 +18,8 @@ import { play } from './viewer.js';
 let el = {};      // resolved DOM elements
 let chat = null;  // chat view
 let autoTimer = null;
+let modalReturnFocus = null;
+let modalPreviousOverflow = '';
 
 /* ---------- state sync with the viewer ---------- */
 function syncAfterBuild(html) {
@@ -172,7 +174,7 @@ async function generate() {
     updateStatus();
     say('AI version generated — original component preserved.');
   } catch (err) {
-    if (!isCurrent(req)) return;
+    if (!isActiveRequest(req)) return;
     chat.hideLoading();
     const aborted = err && err.name === 'AbortError';
     chat.add('err', aborted
@@ -180,9 +182,9 @@ async function generate() {
       : describeAIError(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
-    const wasCurrent = isCurrent(req);
+    const wasActive = isActiveRequest(req);
     endRequest(req);
-    if (wasCurrent) {
+    if (wasActive) {
       if (el.send) el.send.disabled = false;
       setNavigationLocked(false);
     }
@@ -192,6 +194,10 @@ async function generate() {
 /* ---------- modal ---------- */
 function openModal() {
   if (!el.modal) return;
+  if (el.modal.hidden) {
+    modalReturnFocus = document.activeElement;
+    modalPreviousOverflow = document.body.style.overflow;
+  }
   const target = store.editActive ? store.edited : store.html;
   if (el.code && el.code.value !== target) el.code.value = target || '';
   if (el.modalTitle) el.modalTitle.textContent = store.cur ? store.cur.name : 'Component';
@@ -199,13 +205,37 @@ function openModal() {
   document.body.style.overflow = 'hidden';
   updateStatus();
   runPreview();
-  setTimeout(() => { try { $('aiModalClose').focus(); } catch (_) { /* ignore */ } }, 30);
+  setTimeout(() => {
+    if (!el.modal.hidden) $('aiModalClose').focus();
+  }, 30);
 }
 
 function closeModal() {
-  if (!el.modal) return;
+  if (!el.modal || el.modal.hidden) return;
   el.modal.hidden = true;
-  document.body.style.overflow = '';
+  document.body.style.overflow = modalPreviousOverflow;
+  if (modalReturnFocus && modalReturnFocus.isConnected) modalReturnFocus.focus();
+  modalReturnFocus = null;
+}
+
+function keepModalFocus(event) {
+  if (event.key !== 'Tab' || !el.modal || el.modal.hidden) return;
+  const focusable = [...el.modal.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )].filter((node) => node.getClientRects().length > 0);
+  if (!focusable.length) {
+    event.preventDefault();
+    return;
+  }
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !el.modal.contains(document.activeElement))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !el.modal.contains(document.activeElement))) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function runPreview() {
@@ -352,11 +382,12 @@ export function initAIPanel() {
   }
 
   document.addEventListener('keydown', (e) => {
+    keepModalFocus(e);
     if (e.key !== 'Escape') return;
     if (el.modal && !el.modal.hidden) { e.preventDefault(); closeModal(); return; }
     if (el.panel && !el.panel.hidden) { e.preventDefault(); togglePanel(false); }
   });
-  window.addEventListener('beforeunload', () => { try { persistAIState(); } catch (_) { /* ignore */ } });
+  window.addEventListener('beforeunload', persistAIState);
 }
 
 /** After boot: tell the user if a previous request was interrupted. */

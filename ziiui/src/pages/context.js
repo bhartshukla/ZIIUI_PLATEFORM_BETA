@@ -32,25 +32,46 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
   function isPlainObject(value){ return !!value && typeof value === 'object' && !Array.isArray(value); }
 
+  function normalizeComponent(key, value){
+    const chatHistory = Array.isArray(value.chatHistory) ? value.chatHistory : [];
+    const codeVersions = Array.isArray(value.codeVersions) ? value.codeVersions : [];
+    const lastUpdated = Number(value.lastUpdated);
+    const revision = Number(value.revision);
+    return {
+      ...value,
+      componentId: typeof value.componentId === 'string' ? value.componentId : key,
+      componentName: typeof value.componentName === 'string' ? value.componentName : key,
+      category: typeof value.category === 'string' ? value.category : '',
+      originalCode: typeof value.originalCode === 'string' ? value.originalCode : '',
+      currentCode: typeof value.currentCode === 'string' ? value.currentCode : '',
+      chatHistory: chatHistory.filter(m => isPlainObject(m) && typeof m.text === 'string' &&
+        ['user','assistant','system'].includes(m.role)),
+      codeVersions: codeVersions.filter(v => isPlainObject(v) && typeof v.code === 'string'),
+      activeVersionId: typeof value.activeVersionId === 'string' ? value.activeVersionId : null,
+      lastUpdated: Number.isFinite(lastUpdated) ? lastUpdated : 0,
+      revision: Number.isFinite(revision) ? revision : 0
+    };
+  }
+
   function load(){
     const raw = safeGet(AI_STATE_KEY);
-    if(!raw){ state = { schemaVersion: AI_SCHEMA_VERSION, components: {} }; return false; }
+    if(!raw){ state = { schemaVersion: AI_SCHEMA_VERSION, components: {} }; activeId = null; return false; }
     try {
       const p = JSON.parse(raw);
       if(!isPlainObject(p)) throw new Error('shape');
-      if(!isPlainObject(p.components)) p.components = {};
+      if(!isPlainObject(p.components)) throw new Error('components must be an object');
       Object.keys(p.components).forEach(k=>{
         const c = p.components[k];
         if(!isPlainObject(c)){ delete p.components[k]; return; }
-        if(!Array.isArray(c.chatHistory)) c.chatHistory = [];
-        if(!Array.isArray(c.codeVersions)) c.codeVersions = [];
-        if(typeof c.componentName !== 'string') c.componentName = String(k);
+        p.components[k] = normalizeComponent(k, c);
       });
       state = { schemaVersion: p.schemaVersion||AI_SCHEMA_VERSION, components: p.components };
       activeId = safeGet(AI_ACTIVE_KEY) || null;
       return true;
     } catch(_) {
       state = { schemaVersion: AI_SCHEMA_VERSION, components: {} };
+      activeId = null;
+      toast('Saved AI state could not be read. Import a valid backup or clear the damaged data.');
       return false;
     }
   }
@@ -85,9 +106,12 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       const c = state.components[id];
       const li = document.createElement('li');
       if(id === activeId) li.classList.add('active');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('aria-current', String(id === activeId));
       const msgs = (c.chatHistory||[]).length;
       const vers = (c.codeVersions||[]).length;
-      li.innerHTML =
+      button.innerHTML =
         '<div style="min-width:0;flex:1">'+
           '<div class="name">'+esc(c.componentName||id)+'</div>'+
           '<div class="cat">'+esc(c.category||'')+' · '+fmtAgo(c.lastUpdated)+'</div>'+
@@ -96,7 +120,8 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
           '<span title="Messages">'+msgs+'</span>'+
           '<span title="Versions">'+vers+'</span>'+
         '</div>';
-      li.addEventListener('click', ()=>{ activeId = id; safeSet(AI_ACTIVE_KEY, id); renderList(); renderDetail(); });
+      button.addEventListener('click', ()=>{ activeId = id; safeSet(AI_ACTIVE_KEY, id); renderList(); renderDetail(); });
+      li.append(button);
       ul.appendChild(li);
     });
   }
@@ -171,6 +196,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
           c.currentCode = v.code||'';
           c.activeVersionId = v.id;
           c.lastUpdated = Date.now();
+          c.revision = (Number(c.revision) || 0) + 1;
           save(); renderDetail(); renderList(); renderMeta();
           toast('Version #'+(i+1)+' restored.');
         }
@@ -179,7 +205,10 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   }
   function setActiveTab(){
     document.querySelectorAll('.tab').forEach(t=>{
-      t.classList.toggle('active', t.dataset.tab===activeTab);
+      const selected = t.dataset.tab === activeTab;
+      t.classList.toggle('active', selected);
+      t.setAttribute('aria-selected', String(selected));
+      t.tabIndex = selected ? 0 : -1;
     });
     ['overview','chat','versions','original','current'].forEach(k=>{
       $('pane-'+k).hidden = (k !== activeTab);
@@ -203,10 +232,13 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   function exportJSON(){
     const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    let objectUrl;
+    try { objectUrl = URL.createObjectURL(blob); }
+    catch(_) { toast('Export failed: could not create a download.'); return; }
+    a.href = objectUrl;
     a.download = 'ziiui-ai-state-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+    setTimeout(()=>URL.revokeObjectURL(objectUrl),1500);
     toast('Exported.');
   }
   function importJSON(file){
@@ -219,23 +251,22 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         const normalized = { schemaVersion: AI_SCHEMA_VERSION, components: {} };
         Object.keys(p.components).forEach((key)=>{
           const value = p.components[key];
-          if(!isPlainObject(value)) return;
-          normalized.components[key] = {
-            ...value,
-            componentId: key,
-            componentName: typeof value.componentName === 'string' ? value.componentName : key,
-            chatHistory: Array.isArray(value.chatHistory) ? value.chatHistory.filter((m)=>m && typeof m === 'object' && typeof m.text === 'string') : [],
-            codeVersions: Array.isArray(value.codeVersions) ? value.codeVersions.filter((v)=>v && typeof v === 'object' && typeof v.code === 'string') : []
-          };
+          if(isPlainObject(value)) normalized.components[key] = normalizeComponent(key, value);
         });
-        state = normalized; save();
+        const previousState = state;
+        state = normalized;
+        if(!save()){ state = previousState; return; }
+        safeRemove(AI_ACTIVE_KEY);
         activeId = null;
         renderList(); renderMeta();
         $('detailCard').hidden = true;
         toast('Imported '+Object.keys(normalized.components).length+' components.');
       }catch(err){ toast('Import failed: '+err.message); }
     };
-    r.readAsText(file);
+    r.onerror = ()=>toast('Import failed: could not read the selected file.');
+    r.onabort = ()=>toast('Import cancelled.');
+    try { r.readAsText(file); }
+    catch(err) { toast('Import failed: '+err.message); }
   }
   function clearAll(){
     if(!confirm('Delete ALL AI history? Original components are not affected.')) return;
@@ -251,12 +282,22 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     if(t==='light'||t==='dark') document.documentElement.setAttribute('data-theme',t);
     else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
       document.documentElement.setAttribute('data-theme','light');
+    updateThemeControl();
+  }
+  function updateThemeControl(){
+    const button = $('themeBtn');
+    if(!button) return;
+    const icon = button.querySelector('i');
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    if(icon) icon.className = light ? 'ri-moon-line' : 'ri-sun-line';
+    button.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
   }
   function toggleTheme(){
     const cur = document.documentElement.getAttribute('data-theme')||'dark';
     const next = cur==='light'?'dark':'light';
     document.documentElement.setAttribute('data-theme',next);
-    safeSet('ziiui-theme', next);
+    if(!safeSet('ziiui-theme', next)) toast('Theme changed, but could not be saved.');
+    updateThemeControl();
   }
 
   $('refreshBtn').addEventListener('click', ()=>{ load(); renderMeta(); renderList(); renderDetail(); toast('Refreshed.'); });
@@ -271,6 +312,20 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   $('clearAllBtn').addEventListener('click', clearAll);
   document.querySelectorAll('.tab').forEach(t=>{
     t.addEventListener('click', ()=>{ activeTab = t.dataset.tab; setActiveTab(); });
+    t.addEventListener('keydown', e=>{
+      const tabs = [...document.querySelectorAll('.tab')];
+      const current = tabs.indexOf(t);
+      let next = current;
+      if(e.key === 'ArrowRight') next = (current + 1) % tabs.length;
+      else if(e.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+      else if(e.key === 'Home') next = 0;
+      else if(e.key === 'End') next = tabs.length - 1;
+      else return;
+      e.preventDefault();
+      activeTab = tabs[next].dataset.tab;
+      setActiveTab();
+      tabs[next].focus();
+    });
   });
   window.addEventListener('storage', e=>{
     if(e.key === AI_STATE_KEY){

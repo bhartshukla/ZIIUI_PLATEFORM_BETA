@@ -41,14 +41,14 @@
         <span class="beta-badge" title="This platform is in beta">beta</span>
       </a>
       <nav class="topnav" aria-label="Primary">
-        <a href="#" class="active">Effects</a>
+        <a href="#" class="active">Components</a>
         <a href="ai.html">AI</a>
         <a href="context.html">Context</a>
         <a href="docs.html">Docs</a>
       </nav>
       <div class="search" role="search">
         <i class="ri-search-line" aria-hidden="true"></i>
-        <input type="search" id="searchInput" placeholder="Search effects…" aria-label="Search effects"
+        <input type="search" id="searchInput" placeholder="Search components…" aria-label="Search components"
           autocomplete="off" spellcheck="false">
         <kbd>Ctrl K</kbd>
       </div>
@@ -72,29 +72,41 @@
       </button>
       <div class="sidebar-head">
         <div>
-          <p class="side-label">Component library</p>
-          <p class="sidebar-total"><span id="catalogTotal"></span><span class="sidebar-live"><i></i> Ready to preview</span></p>
+          <p class="side-label">Components</p>
+          <p class="sidebar-total"><span id="catalogTotal"></span></p>
         </div>
         <button class="shuffle-btn sidebar-shuffle" id="shuffleComponents" type="button" aria-label="Shuffle components">
           <i class="ri-shuffle-line" aria-hidden="true"></i>
         </button>
       </div>
-      <nav class="category-filters" id="categoryFilters" aria-label="Filter components by category"></nav>
-      <div class="catalog-meta">
-        <span id="catalogCount" aria-live="polite"></span>
+      <div class="search sidebar-search" role="search">
+        <i class="ri-search-line" aria-hidden="true"></i>
+        <input type="search" id="sideSearchInput" placeholder="Search components…" aria-label="Search components"
+          autocomplete="off" spellcheck="false">
       </div>
+      <button class="component-link all-components-link" id="allComponentsFilter" type="button"
+        data-category="All" aria-pressed="true">
+        <i class="ri-apps-2-line" aria-hidden="true"></i>
+        <span class="component-link-name">All Components</span>
+        <span class="all-components-count" id="allComponentsCount"></span>
+      </button>
       <nav id="nav" class="component-nav" aria-label="Components"></nav>
       <p class="catalog-empty" id="catalogEmpty" hidden>No components found. Try another search.</p>
     </aside>
 
     <main>
-      <section class="workspace-intro" aria-labelledby="workspaceTitle">
-        <div class="workspace-intro-copy">
-          <p class="workspace-eyebrow"><i class="ri-sparkling-2-line" aria-hidden="true"></i> The motion library</p>
-          <h1 id="workspaceTitle">Find the right motion. Make it yours.</h1>
-          <p>Choose a component from the library, preview it live, then fine-tune and copy the code.</p>
-        </div>
-        <a class="intro-link" href="docs.html"><span>How it works</span><i class="ri-arrow-up-right-line" aria-hidden="true"></i></a>
+      <section class="catalog-section" aria-labelledby="catalogTitle">
+        <header class="catalog-heading">
+          <div>
+            <p class="catalog-kicker">The motion library</p>
+            <h1 id="catalogTitle">Components</h1>
+            <p class="catalog-description">Explore a collection of creative, customizable effects.</p>
+          </div>
+          <span class="catalog-total" id="catalogCount" aria-live="polite"></span>
+        </header>
+        <nav class="category-filters" id="categoryFilters" aria-label="Filter components by category"></nav>
+        <div class="component-grid" id="componentGrid" aria-label="Component gallery"></div>
+        <p class="catalog-empty gallery-empty" id="galleryEmpty" hidden>No components found. Try another search.</p>
       </section>
 
       <section class="card" id="previewCard" aria-labelledby="pname">
@@ -199,10 +211,11 @@
       <span class="ai-context-text" id="aiContextText">New AI session</span>
       <span class="ai-context-actions">
         <button class="ai-icon-btn ai-context-btn" id="aiClearComponent" type="button"
-          title="Clear this component's AI history">
+          title="Clear this component's AI history" aria-label="Clear this component's AI history">
           <i class="ri-eraser-line" aria-hidden="true"></i>
         </button>
-        <button class="ai-icon-btn ai-context-btn" id="aiClearAll" type="button" title="Clear all AI history">
+        <button class="ai-icon-btn ai-context-btn" id="aiClearAll" type="button" title="Clear all AI history"
+          aria-label="Clear all AI history">
           <i class="ri-delete-bin-6-line" aria-hidden="true"></i>
         </button>
       </span>

@@ -52,31 +52,31 @@
 
     <section class="card" id="detailCard" hidden>
       <div class="card-head" id="detailHead"><i class="ri-sparkling-2-line"></i>Select a component</div>
-      <div class="tabs" role="tablist">
-        <button class="tab active" data-tab="overview" type="button"><i class="ri-dashboard-line"></i>Overview</button>
-        <button class="tab" data-tab="chat" type="button"><i class="ri-chat-3-line"></i>Chat</button>
-        <button class="tab" data-tab="versions" type="button"><i class="ri-git-branch-line"></i>Versions</button>
-        <button class="tab" data-tab="original" type="button"><i class="ri-file-code-line"></i>Original</button>
-        <button class="tab" data-tab="current" type="button"><i class="ri-file-edit-line"></i>Current</button>
+      <div class="tabs" id="detailTabs" role="tablist" aria-label="Component details">
+        <button class="tab active" id="tab-overview" role="tab" aria-selected="true" aria-controls="pane-overview" tabindex="0" data-tab="overview" type="button"><i class="ri-dashboard-line" aria-hidden="true"></i>Overview</button>
+        <button class="tab" id="tab-chat" role="tab" aria-selected="false" aria-controls="pane-chat" tabindex="-1" data-tab="chat" type="button"><i class="ri-chat-3-line" aria-hidden="true"></i>Chat</button>
+        <button class="tab" id="tab-versions" role="tab" aria-selected="false" aria-controls="pane-versions" tabindex="-1" data-tab="versions" type="button"><i class="ri-git-branch-line" aria-hidden="true"></i>Versions</button>
+        <button class="tab" id="tab-original" role="tab" aria-selected="false" aria-controls="pane-original" tabindex="-1" data-tab="original" type="button"><i class="ri-file-code-line" aria-hidden="true"></i>Original</button>
+        <button class="tab" id="tab-current" role="tab" aria-selected="false" aria-controls="pane-current" tabindex="-1" data-tab="current" type="button"><i class="ri-file-edit-line" aria-hidden="true"></i>Current</button>
       </div>
 
-      <div class="pane" id="pane-overview">
+      <div class="pane" id="pane-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
         <div class="stats" id="statsGrid"></div>
         <div class="empty" id="overviewEmpty" hidden>No activity yet for this component.</div>
       </div>
 
-      <div class="pane" id="pane-chat" hidden>
+      <div class="pane" id="pane-chat" role="tabpanel" aria-labelledby="tab-chat" tabindex="0" hidden>
         <div id="chatMsgs"></div>
         <div class="empty" id="chatEmpty" hidden>No chat messages for this component.</div>
       </div>
 
-      <div class="pane" id="pane-versions" hidden>
+      <div class="pane" id="pane-versions" role="tabpanel" aria-labelledby="tab-versions" tabindex="0" hidden>
         <div id="versionsList"></div>
         <div class="empty" id="versionsEmpty" hidden>No AI versions yet.</div>
       </div>
 
-      <div class="pane" id="pane-original" hidden><pre id="originalCode"></pre></div>
-      <div class="pane" id="pane-current" hidden><pre id="currentCode"></pre></div>
+      <div class="pane" id="pane-original" role="tabpanel" aria-labelledby="tab-original" tabindex="0" hidden><pre id="originalCode"></pre></div>
+      <div class="pane" id="pane-current" role="tabpanel" aria-labelledby="tab-current" tabindex="0" hidden><pre id="currentCode"></pre></div>
     </section>
   </div>
 </main>
