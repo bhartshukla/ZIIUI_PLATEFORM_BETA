@@ -6,7 +6,7 @@
  * AbortError when the request is cancelled or times out.
  */
 import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured } from './config.js';
-import { buildContextMessages, getConversationSummary } from './state.js';
+import { buildContextMessages } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
@@ -46,12 +46,8 @@ export async function generateCode({ component, compState, request, signal }) {
   if (!prompt) throw new Error('INVALID');
   if (prompt.length > 4000) throw new Error('INVALID');
 
-  const summary = getConversationSummary(compState);
   const messages = [{ role: 'system', content: buildSystemPrompt(component) }];
-  if (summary) {
-    messages.push({ role: 'system', content: 'Conversation summary: ' + summary });
-  }
-  const context = buildContextMessages(compState, prompt).filter((m) => !(m.role === 'system' && m.content.startsWith('Conversation summary:')));
+  const context = buildContextMessages(compState, prompt);
   context.forEach((m) => messages.push(m));
   messages.push({ role: 'user', content: prompt });
 

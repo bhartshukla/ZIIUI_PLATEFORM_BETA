@@ -5,8 +5,7 @@
  *   `current` is the AI-edited code, or '' when it is identical to the original.
  */
 export function buildSystemPrompt(c) {
-  const original = c.original || '(unavailable)';
-  const current = c.current || '(none — identical to the original)';
+  const workingCode = c.current || c.original || '(unavailable)';
   return [
     'You are an expert frontend developer working for ZiiUI.',
     '',
@@ -47,11 +46,8 @@ export function buildSystemPrompt(c) {
     'Component name: ' + (c.name || '(none)'),
     'Category: ' + (c.category || '(none)'),
     '',
-    'Original component code:',
-    original,
-    '',
-    'Current edited component code (authoritative — modify THIS):',
-    current,
+    'Selected component code (authoritative working version — modify THIS):',
+    workingCode,
     '',
     'Return ONLY the complete updated HTML.'
   ].join('\n');
@@ -95,7 +91,7 @@ export function looksLikeCode(code) {
 export function describeAIError(err) {
   const m = (err && err.message) || '';
   if (err && err.name === 'AbortError') return 'AI request timed out. Your existing component was preserved.';
-  if (m === 'NOKEY') return 'OpenRouter API key is missing. Add VITE_OPENROUTER_API_KEY to your .env file and restart the dev server.';
+  if (m === 'NOKEY') return 'AI is not configured. Use VITE_OPENROUTER_API_KEY for local development or configure VITE_AI_ENDPOINT to a server-side proxy for production.';
   if (m === 'AUTH') return 'OpenRouter rejected the API key. Check that your key is valid and has credits.';
   if (m === 'RATE') return 'OpenRouter rate limit reached. Please try again shortly.';
   if (m === 'NETWORK') return 'Could not reach OpenRouter. Check your internet connection.';

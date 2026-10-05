@@ -28,7 +28,7 @@
 
 <body>
 
-  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open component list"
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation"
     aria-expanded="false" aria-controls="sidePanel">
     <i class="ri-menu-line" aria-hidden="true"></i>
   </button>
@@ -46,7 +46,8 @@
         <a href="context.html">Context</a>
         <a href="docs.html">Docs</a>
       </nav>
-      <div class="search" role="search">
+      <div class="search-navbar-slot" id="searchNavbarSlot"></div>
+      <div class="search" id="componentSearch" role="search">
         <i class="ri-search-line" aria-hidden="true"></i>
         <input type="search" id="searchInput" placeholder="Search components…" aria-label="Search components"
           autocomplete="off" spellcheck="false">
@@ -79,11 +80,7 @@
           <i class="ri-shuffle-line" aria-hidden="true"></i>
         </button>
       </div>
-      <div class="search sidebar-search" role="search">
-        <i class="ri-search-line" aria-hidden="true"></i>
-        <input type="search" id="sideSearchInput" placeholder="Search components…" aria-label="Search components"
-          autocomplete="off" spellcheck="false">
-      </div>
+      <div class="search-slot" id="searchDrawerSlot"></div>
       <button class="component-link all-components-link" id="allComponentsFilter" type="button"
         data-category="All" aria-pressed="true">
         <i class="ri-apps-2-line" aria-hidden="true"></i>
@@ -91,11 +88,16 @@
         <span class="all-components-count" id="allComponentsCount"></span>
       </button>
       <nav id="nav" class="component-nav" aria-label="Components"></nav>
+      <nav class="side-links" aria-label="More pages">
+        <a href="ai.html"><i class="ri-sparkling-2-line" aria-hidden="true"></i>AI Editor</a>
+        <a href="context.html"><i class="ri-database-2-line" aria-hidden="true"></i>Context</a>
+        <a href="docs.html"><i class="ri-book-open-line" aria-hidden="true"></i>Docs</a>
+      </nav>
       <p class="catalog-empty" id="catalogEmpty" hidden>No components found. Try another search.</p>
     </aside>
 
     <main>
-      <section class="catalog-section" aria-labelledby="catalogTitle">
+      <section class="catalog-section" id="catalogSection" aria-labelledby="catalogTitle">
         <header class="catalog-heading">
           <div>
             <p class="catalog-kicker">The motion library</p>
@@ -106,9 +108,25 @@
         </header>
         <nav class="category-filters" id="categoryFilters" aria-label="Filter components by category"></nav>
         <div class="component-grid" id="componentGrid" aria-label="Component gallery"></div>
-        <p class="catalog-empty gallery-empty" id="galleryEmpty" hidden>No components found. Try another search.</p>
+        <p class="catalog-empty gallery-empty" id="galleryEmpty" hidden>
+          No components found. Try another search.
+          <button class="clear-search" id="clearSearch" type="button">Clear search</button>
+        </p>
+        <button class="see-more" id="seeMore" type="button" hidden>See more components</button>
       </section>
 
+      <div class="component-detail" id="componentDetail" hidden>
+        <div class="detail-toolbar">
+          <button class="back-to-components" id="backToComponents" type="button">
+            <i class="ri-arrow-left-line" aria-hidden="true"></i>
+            <span>All Components</span>
+          </button>
+          <p class="detail-breadcrumb"><span id="detailCategory"></span><span aria-hidden="true">/</span><strong id="detailName"></strong></p>
+        </div>
+        <p class="route-error" id="routeError" role="status" hidden>
+          Component not found. <button id="routeErrorBack" type="button">Back to Components</button>
+        </p>
+        <div id="componentDetailContent">
       <section class="card" id="previewCard" aria-labelledby="pname">
         <div class="card-head">
           <div class="ttl">
@@ -172,16 +190,28 @@
             <h2 id="codetitle">Generated code</h2>
             <span class="meta" id="label"></span>
           </div>
-          <button class="b" id="copy" type="button" aria-label="Copy code">Copy code</button>
+          <button class="b" id="copy" type="button" aria-label="Copy full component">Copy full component</button>
         </div>
-        <pre tabindex="0" role="region" aria-label="Generated code"><code id="code-out"></code></pre>
+        <div class="code-toolbar">
+          <div class="code-tabs" id="codeTabs" role="tablist" aria-label="Component code language">
+            <button class="code-tab" id="codeTabHtml" type="button" role="tab" data-code-tab="html"
+              aria-selected="true" aria-controls="codePanel">HTML</button>
+            <button class="code-tab" id="codeTabCss" type="button" role="tab" data-code-tab="css"
+              aria-selected="false" aria-controls="codePanel" tabindex="-1">CSS</button>
+            <button class="code-tab" id="codeTabJs" type="button" role="tab" data-code-tab="js"
+              aria-selected="false" aria-controls="codePanel" tabindex="-1">JavaScript</button>
+          </div>
+        </div>
+        <pre id="codePanel" tabindex="0" role="tabpanel" aria-labelledby="codeTabHtml"><code id="code-out"></code></pre>
       </section>
+        </div>
+      </div>
       <div id="status" class="sr" role="status" aria-live="polite"></div>
     </main>
   </div>
 
-  <button class="ai-fab" id="aiFab" type="button" aria-label="Open AI component editor"
-    aria-expanded="false" aria-controls="aiPanel" title="AI Component Editor">
+  <button class="ai-fab" id="aiFab" type="button" aria-label="Edit with AI"
+    aria-expanded="false" aria-controls="aiPanel" title="Edit with AI" data-tooltip="Edit with AI" hidden>
     <i class="ri-sparkling-2-line" aria-hidden="true"></i>
     <span>AI Edit</span>
   </button>

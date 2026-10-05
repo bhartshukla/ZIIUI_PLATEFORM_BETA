@@ -5,7 +5,7 @@ import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js
 import {
   getOrCreateComponentState, getComponentState, saveActiveComponentId, persistAIState,
   clearComponentHistory, clearAllAIHistory, pushChatMessage, addCodeVersion, setCurrentCode,
-  describeContext, getAISettings, setAutoPreview
+  describeContext, getAISettings, getAIState, setAutoPreview
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
 import { describeAIError } from '../../ai/prompt.js';
@@ -13,7 +13,7 @@ import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelAct
 import { createChatView } from '../../ai/chat-view.js';
 import { store, hooks } from './store.js';
 import { setNavigationLocked } from './nav.js';
-import { play } from './viewer.js';
+import { play, refreshCodeView } from './viewer.js';
 
 let el = {};      // resolved DOM elements
 let chat = null;  // chat view
@@ -158,6 +158,7 @@ async function generate() {
     });
     if (!isCurrent(req) || cur.id !== store.cur.id) return;
     if ((compState.revision || 0) !== Number(req.baseRevision || 0)) {
+      el.prompt.value = request;
       chat.add('err', 'This AI result was generated from an older version and was ignored.');
       return;
     }
@@ -168,6 +169,7 @@ async function generate() {
     pushChatMessage(compState, 'assistant', 'Applied: ' + request);
     chat.add('ai', 'Updated the component. Opening the AI editor…');
     if (el.code) el.code.value = code;
+    refreshCodeView();
     updateContextIndicator();
     openModal();
     runPreview();
@@ -176,6 +178,7 @@ async function generate() {
   } catch (err) {
     if (!isActiveRequest(req)) return;
     chat.hideLoading();
+    el.prompt.value = request;
     const aborted = err && err.name === 'AbortError';
     chat.add('err', aborted
       ? 'AI request timed out or was cancelled. Your existing component was preserved.'
@@ -271,6 +274,7 @@ function applyEdited() {
   store.edited = val;
   store.editActive = val !== store.html;
   setCurrentCode(store.compState, val);
+  refreshCodeView();
   setFrameHTML($('frame'), injectDebug(val));
   updateStatus();
   chat.add('sys', 'Applied AI version to the preview.');
@@ -282,6 +286,7 @@ function resetToOriginal() {
   store.editActive = false;
   setCurrentCode(store.compState, '');
   if (el.code) el.code.value = store.html || '';
+  refreshCodeView();
   if (store.html) setFrameHTML($('frame'), injectDebug(store.html));
   updateStatus();
   runPreview();
@@ -298,10 +303,21 @@ async function copyEdited() {
 function clearThisComponent() {
   const cur = store.cur;
   if (!cur) return;
+  const state = store.compState;
+  const hasHistory = !!(state && (
+    state.chatHistory.length ||
+    state.codeVersions.length ||
+    state.currentCode
+  ));
+  if (!hasHistory) {
+    chat.add('sys', 'There is no saved AI history to clear for this component.');
+    return;
+  }
   if (!window.confirm('Clear chat history and AI versions for "' + cur.name + '"? The original component will remain.')) return;
   clearComponentHistory(cur.id);
   store.edited = store.html;
   store.editActive = false;
+  refreshCodeView();
   renderChat();
   updateContextIndicator();
   chat.add('sys', 'Component AI history cleared.');
@@ -310,10 +326,19 @@ function clearThisComponent() {
 }
 
 function clearEverything() {
+  const components = Object.values(getAIState().components || {});
+  const hasHistory = store.editActive || components.some((state) =>
+    state.chatHistory.length || state.codeVersions.length || state.currentCode
+  );
+  if (!hasHistory) {
+    chat.add('sys', 'There is no saved AI history to clear.');
+    return;
+  }
   if (!window.confirm('Clear ALL AI history for every component? Original components will remain intact.')) return;
   clearAllAIHistory();
   store.edited = store.html;
   store.editActive = false;
+  refreshCodeView();
   store.compState = store.cur ? getOrCreateComponentState(store.cur.id, store.cur.name, store.cur.cat, store.html) : null;
   renderChat();
   updateContextIndicator();

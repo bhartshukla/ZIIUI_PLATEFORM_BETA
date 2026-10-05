@@ -131,9 +131,9 @@ npm run dev
 
 `VITE_*` variables are embedded in the browser bundle. That means:
 
-- local development is acceptable with a limited key
-- public deployments should not expose a production key directly in frontend code
-- for production, use a small backend proxy and point `VITE_AI_ENDPOINT` at that proxy instead
+- `VITE_OPENROUTER_API_KEY` is used only by the local development server; production builds omit it
+- public deployments must use a server-side proxy and point `VITE_AI_ENDPOINT` at that proxy
+- the proxy should add the provider key server-side; do not put a provider key in any production `VITE_*` variable
 
 Never commit real credentials to source control. The project `.env` file is intended for local use only.
 

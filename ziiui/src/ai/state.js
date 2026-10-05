@@ -225,21 +225,20 @@ export function buildContextMessages(compState, currentUserText) {
   const isPendingUserMessage = !!(last && last.role === 'user' && last.text === currentUserText);
   if (isPendingUserMessage) history.pop();
 
-  const summary = isPendingUserMessage ? '' : getConversationSummary(compState);
   const result = [];
   let total = 0;
-
-  if (summary) {
-    result.push({ role: 'system', content: 'Conversation summary: ' + summary });
-    total += result[0].content.length;
-  }
 
   for (let i = history.length - 1; i >= 0; i--) {
     const m = history[i];
     if (!m || (m.role !== 'user' && m.role !== 'assistant')) continue;
     const text = String(m.text || '');
     if (!text) continue;
-    if (total + text.length > AI_MAX_CONTEXT_CHARS && result.length > 1) break;
+    const remaining = AI_MAX_CONTEXT_CHARS - total;
+    if (remaining <= 0) break;
+    if (text.length > remaining) {
+      if (!result.length) result.push({ role: m.role, content: text.slice(-remaining) });
+      break;
+    }
     result.push({ role: m.role, content: text });
     total += text.length;
   }

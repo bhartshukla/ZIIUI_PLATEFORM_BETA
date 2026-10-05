@@ -121,6 +121,7 @@ async function generate() {
     });
     if (!isCurrent(req) || comp !== compState) return;
     if ((comp.revision || 0) !== Number(req.baseRevision || 0)) {
+      el.prompt.value = request;
       chat.add('err', 'This AI result was generated from an older version and was ignored.');
       return;
     }
@@ -135,6 +136,7 @@ async function generate() {
   } catch (err) {
     if (!isActiveRequest(req)) return;
     chat.hideLoading();
+    el.prompt.value = request;
     const aborted = err && err.name === 'AbortError';
     chat.add('err', aborted ? 'Request cancelled or timed out. Existing code preserved.' : describeAIError(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');

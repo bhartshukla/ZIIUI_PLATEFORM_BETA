@@ -29,15 +29,15 @@ describe('looksLikeCode', () => {
 });
 
 describe('buildSystemPrompt', () => {
-  it('includes original and current code', () => {
+  it('uses the selected working code without duplicating the original', () => {
     const p = buildSystemPrompt({ name: 'Roll', category: 'Text', original: 'ORIG', current: 'CURR' });
     expect(p).toContain('Component name: Roll');
-    expect(p).toContain('ORIG');
     expect(p).toContain('CURR');
+    expect(p).not.toContain('ORIG');
   });
-  it('says so when there is no edited version', () => {
+  it('falls back to the original code when no edit exists', () => {
     expect(buildSystemPrompt({ name: 'x', category: 'y', original: 'o', current: '' }))
-      .toContain('identical to the original');
+      .toContain('o');
   });
 });
 

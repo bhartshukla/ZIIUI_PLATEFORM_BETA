@@ -1,9 +1,7 @@
 /* Shared mutable state for the library page (one object so modules stay decoupled). */
-import { EFFECTS } from '../../effects/registry.js';
-
 export const store = {
   /** Currently selected effect. */
-  cur: EFFECTS[0],
+  cur: null,
   /** Generated code for the current effect (the untouched original). */
   html: '',
   /** AI-edited code for the current effect (equals `html` when not edited). */

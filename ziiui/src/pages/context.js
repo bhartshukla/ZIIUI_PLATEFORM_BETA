@@ -269,6 +269,10 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     catch(err) { toast('Import failed: '+err.message); }
   }
   function clearAll(){
+    const hasHistory = Object.values(state.components || {}).some((component) =>
+      component.chatHistory.length || component.codeVersions.length || component.currentCode
+    );
+    if(!hasHistory){ toast('There is no saved AI history to clear.'); return; }
     if(!confirm('Delete ALL AI history? Original components are not affected.')) return;
     state = { schemaVersion: AI_SCHEMA_VERSION, components: {} };
     safeRemove(AI_STATE_KEY); safeRemove(AI_ACTIVE_KEY);

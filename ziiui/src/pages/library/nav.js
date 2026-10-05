@@ -13,29 +13,24 @@ const CATEGORY_ICONS = {
   Shader: 'ri-contrast-2-line'
 };
 
-const CARD_ICONS = {
-  Web: 'ri-layout-grid-line',
-  Interactive: 'ri-cursor-line',
-  Footer: 'ri-layout-bottom-line',
-  Text: 'ri-font-size-2',
-  Cursor: 'ri-mouse-line',
-  Scroll: 'ri-scroll-to-bottom-line',
-  Shader: 'ri-contrast-2-line'
-};
-
 let onSelectEffect = null;
+let onShowCategory = () => {};
 let activeCategory = 'All';
 let activeEffectId = null;
 let navigationLocked = false;
 let displayEffects = [...EFFECTS];
+let visibleCardCount = 12;
+const CARD_INCREMENT = 12;
+const collapsedCategories = new Set();
 
 function searchQuery() {
-  const input = $('searchInput') || $('sideSearchInput');
+  const input = $('searchInput');
   return input ? input.value.trim().toLowerCase() : '';
 }
 
 function setActiveCategory(category) {
   activeCategory = category;
+  visibleCardCount = CARD_INCREMENT;
   document.querySelectorAll('[data-category].category-filter, .category-nav-filter, #allComponentsFilter')
     .forEach((filter) => {
       filter.setAttribute('aria-pressed', String(filter.dataset.category === activeCategory));
@@ -100,23 +95,47 @@ function makeEffectButton(effect, index) {
   return button;
 }
 
+function createCardVisual(effect) {
+  const visual = document.createElement('span');
+  visual.className = `component-card-visual preview-${effect.cat.toLowerCase()} preview-${effect.id}`;
+  visual.dataset.component = effect.id;
+
+  if (effect.cat === 'Text') {
+    const text = document.createElement('span');
+    text.className = 'preview-word';
+    text.textContent = effect.text || effect.name;
+    visual.append(text);
+    if (/shimmer|wave/i.test(effect.id)) visual.classList.add('is-shimmer');
+  } else if (effect.cat === 'Interactive') {
+    visual.innerHTML = '<span class="preview-window preview-window-a"></span><span class="preview-window preview-window-b"></span><span class="preview-cursor"></span>';
+  } else if (effect.cat === 'Scroll' || effect.cat === 'Web') {
+    visual.innerHTML = '<span class="preview-panel preview-panel-a"></span><span class="preview-panel preview-panel-b"></span><span class="preview-panel preview-panel-c"></span>';
+  } else if (effect.cat === 'Shader') {
+    visual.innerHTML = '<span class="preview-shader"></span><span class="preview-reflection"></span>';
+  } else if (effect.cat === 'Footer') {
+    visual.innerHTML = '<span class="preview-footer-line"></span><span class="preview-footer-line"></span><span class="preview-footer-line"></span><span class="preview-footer-mark"></span>';
+  } else if (effect.cat === 'Cursor') {
+    visual.innerHTML = '<span class="preview-cursor-card"></span><span class="preview-cursor-tag"></span><span class="preview-cursor-dot"></span>';
+  }
+  return visual;
+}
+
 function renderList() {
   const nav = $('nav');
   const empty = $('catalogEmpty');
   const count = $('catalogCount');
 
   const query = searchQuery();
-  const visible = displayEffects.filter((effect) =>
-    (activeCategory === 'All' || effect.cat === activeCategory) &&
-    matchesSearch(effect, query)
+  const searched = displayEffects.filter((effect) => matchesSearch(effect, query));
+  const visible = searched.filter((effect) =>
+    activeCategory === 'All' || effect.cat === activeCategory
   );
 
   if (nav) {
     nav.replaceChildren();
 
     CATEGORIES.forEach((category) => {
-      if (activeCategory !== 'All' && activeCategory !== category) return;
-      const effects = visible.filter((effect) => effect.cat === category);
+      const effects = searched.filter((effect) => effect.cat === category);
       if (!effects.length) return;
 
       const group = document.createElement('section');
@@ -124,7 +143,10 @@ function renderList() {
       const icon = document.createElement('i');
       const label = document.createElement('span');
       const total = document.createElement('span');
+      const toggle = document.createElement('button');
+      const toggleIcon = document.createElement('i');
       const list = document.createElement('div');
+      const listId = `component-group-${category.toLowerCase()}`;
       group.className = 'component-group';
       group.dataset.category = category;
       heading.type = 'button';
@@ -139,12 +161,31 @@ function renderList() {
       total.textContent = String(effects.length).padStart(2, '0');
       total.setAttribute('aria-hidden', 'true');
       heading.append(icon, label, total);
-      heading.addEventListener('click', () => setActiveCategory(category));
+      heading.addEventListener('click', () => onShowCategory(category));
+      toggle.type = 'button';
+      toggle.className = 'component-group-toggle';
+      toggle.setAttribute('aria-label', `${collapsedCategories.has(category) ? 'Expand' : 'Collapse'} ${category} components`);
+      toggle.setAttribute('aria-expanded', String(!collapsedCategories.has(category)));
+      toggle.setAttribute('aria-controls', listId);
+      toggle.disabled = navigationLocked;
+      toggleIcon.className = 'ri-arrow-down-s-line';
+      toggleIcon.setAttribute('aria-hidden', 'true');
+      toggle.append(toggleIcon);
+      toggle.addEventListener('click', () => {
+        const collapsed = !list.hidden;
+        list.hidden = collapsed;
+        toggle.setAttribute('aria-expanded', String(!collapsed));
+        toggle.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${category} components`);
+        if (collapsed) collapsedCategories.add(category);
+        else collapsedCategories.delete(category);
+      });
       list.className = 'component-group-list';
+      list.id = listId;
+      list.hidden = collapsedCategories.has(category);
       effects.forEach((effect) => {
         list.append(makeEffectButton(effect, EFFECTS.indexOf(effect) + 1));
       });
-      group.append(heading, list);
+      group.append(heading, toggle, list);
       nav.append(group);
     });
   }
@@ -159,7 +200,7 @@ function renderList() {
   if (allCount) allCount.textContent = String(EFFECTS.length);
   const allFilter = $('allComponentsFilter');
   if (allFilter) {
-    allFilter.setAttribute('aria-pressed', String(activeCategory === 'All'));
+    allFilter.setAttribute('aria-pressed', String(activeCategory === 'All' && !activeEffectId));
     allFilter.disabled = navigationLocked;
   }
   renderCards(visible);
@@ -170,12 +211,12 @@ function renderCards(effects) {
   if (!grid) return;
   grid.replaceChildren();
 
-  effects.forEach((effect) => {
+  effects.slice(0, visibleCardCount).forEach((effect) => {
     const card = document.createElement('button');
     const art = document.createElement('span');
     const category = document.createElement('span');
     const number = document.createElement('span');
-    const icon = document.createElement('i');
+    const visual = createCardVisual(effect);
     const body = document.createElement('span');
     const name = document.createElement('span');
     const note = document.createElement('span');
@@ -193,14 +234,14 @@ function renderCards(effects) {
     card.disabled = navigationLocked;
     art.className = 'component-card-art';
     art.dataset.category = effect.cat.toLowerCase();
+    art.dataset.component = effect.id;
+    art.setAttribute('aria-hidden', 'true');
     category.className = 'component-card-category';
     category.textContent = effect.cat;
     number.className = 'component-card-number';
     number.textContent = String(index).padStart(2, '0');
     number.setAttribute('aria-hidden', 'true');
-    icon.className = CARD_ICONS[effect.cat] || 'ri-shapes-line';
-    icon.setAttribute('aria-hidden', 'true');
-    art.append(category, number, icon);
+    art.append(category, number, visual);
 
     body.className = 'component-card-body';
     name.className = 'component-card-name';
@@ -220,14 +261,22 @@ function renderCards(effects) {
     });
     grid.append(card);
   });
+  const more = $('seeMore');
+  if (more) {
+    const remaining = Math.max(0, effects.length - visibleCardCount);
+    more.hidden = remaining === 0;
+    more.textContent = `See more components (${remaining} remaining)`;
+    more.disabled = navigationLocked;
+  }
 }
 
-export function buildNav(onSelect) {
+export function buildNav(onSelect, showCategory) {
   onSelectEffect = onSelect;
+  onShowCategory = typeof showCategory === 'function' ? showCategory : setActiveCategory;
   const total = $('catalogTotal');
   if (total) total.textContent = `${EFFECTS.length} components`;
   const allFilter = $('allComponentsFilter');
-  if (allFilter) allFilter.addEventListener('click', () => setActiveCategory('All'));
+  if (allFilter) allFilter.addEventListener('click', () => onShowCategory('All'));
   renderCategories();
   renderList();
 
@@ -248,29 +297,49 @@ export function buildNav(onSelect) {
       buttons[next].focus();
     });
   }
+  const more = $('seeMore');
+  if (more) more.addEventListener('click', showMoreComponents);
 
 }
 
 export function markCurrent(effect, scrollIntoView) {
-  activeEffectId = effect.id;
+  activeEffectId = effect ? effect.id : null;
   const nav = $('nav');
   [nav, $('componentGrid')].filter(Boolean).forEach((container) => {
     container.querySelectorAll('[data-id]').forEach((button) => {
-      const selected = button.dataset.id === effect.id;
+      const selected = !!effect && button.dataset.id === effect.id;
       button.setAttribute('aria-current', String(selected));
       if (selected && scrollIntoView && container === nav && button.scrollIntoView) {
         button.scrollIntoView({ block: 'nearest' });
       }
     });
   });
+  const allFilter = $('allComponentsFilter');
+  if (allFilter) allFilter.setAttribute('aria-pressed', String(!effect && activeCategory === 'All'));
 }
 
 export function applySearch(event) {
   const source = event && event.currentTarget;
   const query = source ? source.value.trim().toLowerCase() : searchQuery();
-  [$('searchInput'), $('sideSearchInput')].filter(Boolean)
-    .forEach((input) => { if (input.value.trim().toLowerCase() !== query) input.value = query; });
+  visibleCardCount = CARD_INCREMENT;
+  if (source && source.value.trim().toLowerCase() !== query) source.value = query;
   renderList();
+}
+
+export function showAllComponents(category = 'All') {
+  activeCategory = category;
+  visibleCardCount = CARD_INCREMENT;
+  document.querySelectorAll('[data-category].category-filter, .category-nav-filter, #allComponentsFilter')
+    .forEach((filter) => filter.setAttribute('aria-pressed', String(filter.dataset.category === category)));
+  renderList();
+  markCurrent(null, false);
+}
+
+export function showMoreComponents() {
+  visibleCardCount += CARD_INCREMENT;
+  renderList();
+  const more = $('seeMore');
+  if (more && !more.hidden) more.focus();
 }
 
 export function shuffleComponents() {
@@ -317,7 +386,7 @@ export function closeSidebar() {
   if (restoreFocus) {
     if (compact && toggle) toggle.focus();
     else if (!compact) {
-      const search = $('sideSearchInput');
+      const search = $('searchInput');
       if (search) search.focus();
     }
   }
@@ -342,7 +411,7 @@ export function setNavigationLocked(locked) {
   const nav = $('nav');
   if (nav) {
     nav.classList.toggle('locked', navigationLocked);
-    nav.querySelectorAll('.component-link').forEach((button) => { button.disabled = navigationLocked; });
+    nav.querySelectorAll('.component-link, .component-group-toggle').forEach((button) => { button.disabled = navigationLocked; });
   }
   const grid = $('componentGrid');
   if (grid) grid.querySelectorAll('.component-card').forEach((button) => { button.disabled = navigationLocked; });
@@ -351,8 +420,10 @@ export function setNavigationLocked(locked) {
   if (nav) nav.querySelectorAll('.category-nav-filter').forEach((button) => { button.disabled = navigationLocked; });
   const filters = $('categoryFilters');
   if (filters) filters.querySelectorAll('button').forEach((button) => { button.disabled = navigationLocked; });
-  [$('searchInput'), $('sideSearchInput')].filter(Boolean)
-    .forEach((input) => { input.disabled = navigationLocked; });
+  const search = $('searchInput');
+  if (search) search.disabled = navigationLocked;
+  const more = $('seeMore');
+  if (more) more.disabled = navigationLocked;
   const shuffle = $('shuffleComponents');
   if (shuffle) shuffle.disabled = navigationLocked;
   const banner = $('aiLockBanner');

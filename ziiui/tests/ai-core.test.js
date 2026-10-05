@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { buildContextMessages, getOrCreateComponentState, pushChatMessage, setCurrentCode } from '../src/ai/state.js';
 import { normalizeCode } from '../src/ai/prompt.js';
+import { AI_MAX_CONTEXT_CHARS } from '../src/ai/config.js';
 
 function createStorageMock() {
   const store = new Map();
@@ -27,14 +28,26 @@ describe('AI state and prompt helpers', () => {
     expect(state.revision).toBeGreaterThan(before);
   });
 
-  it('builds bounded context with a conversation summary', () => {
+  it('builds bounded context from recent conversation messages', () => {
     const state = getOrCreateComponentState('ctx-component', 'Context', 'Text', '<section>Original</section>');
     pushChatMessage(state, 'user', 'Make the button blue.');
     pushChatMessage(state, 'assistant', 'Done — the button is now blue.');
     const ctx = buildContextMessages(state, 'Make it darker.');
-    expect(ctx.some((m) => m.role === 'system' && m.content.includes('Conversation summary:'))).toBe(true);
-    expect(ctx.some((m) => m.role === 'user' && m.content.includes('button blue'))).toBe(true);
-    expect(ctx.some((m) => m.role === 'assistant')).toBe(true);
+    expect(ctx).toEqual([
+      { role: 'user', content: 'Make the button blue.' },
+      { role: 'assistant', content: 'Done — the button is now blue.' }
+    ]);
+    expect(ctx.some((m) => m.role === 'system')).toBe(false);
+  });
+
+  it('never exceeds the conversation context budget', () => {
+    const state = getOrCreateComponentState('large-context', 'Large', 'Text', '<div></div>');
+    pushChatMessage(state, 'assistant', 'a'.repeat(AI_MAX_CONTEXT_CHARS + 100));
+    pushChatMessage(state, 'user', 'current request');
+    const ctx = buildContextMessages(state, 'current request');
+    expect(ctx).toHaveLength(1);
+    expect(ctx[0].content).toHaveLength(AI_MAX_CONTEXT_CHARS);
+    expect(ctx[0].content.endsWith('a'.repeat(50))).toBe(true);
   });
 
   it('normalizes markdown or JSON code payloads to HTML content', () => {
