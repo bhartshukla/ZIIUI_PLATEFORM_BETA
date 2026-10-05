@@ -297,6 +297,10 @@ export function openSidebar() {
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
   if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  if (syncSidebarAccessibility(side, true)) {
+    const close = $('sideClose');
+    if (close) close.focus();
+  }
 }
 
 export function closeSidebar() {
@@ -304,10 +308,32 @@ export function closeSidebar() {
   const overlay = $('sideOverlay');
   const toggle = $('menuToggle');
   if (!side || !overlay) return;
+  const restoreFocus = side.contains(document.activeElement);
   side.classList.remove('open');
   overlay.classList.remove('active');
   document.body.style.overflow = '';
   if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  const compact = syncSidebarAccessibility(side, false);
+  if (restoreFocus) {
+    if (compact && toggle) toggle.focus();
+    else if (!compact) {
+      const search = $('sideSearchInput');
+      if (search) search.focus();
+    }
+  }
+}
+
+function syncSidebarAccessibility(side, opened) {
+  const compact = window.matchMedia &&
+    window.matchMedia('(max-width: 900px)').matches;
+  if (compact) {
+    side.inert = !opened;
+    side.setAttribute('aria-hidden', String(!opened));
+  } else {
+    side.inert = false;
+    side.removeAttribute('aria-hidden');
+  }
+  return compact;
 }
 
 /** Disable component selection and search while an AI request is running. */

@@ -1,18 +1,27 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EFFECTS } from '../src/effects/registry.js';
 
 let buildNav;
 let applySearch;
 let markCurrent;
 let setNavigationLocked;
+let openSidebar;
+let closeSidebar;
 let selectedEffect;
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 beforeEach(async () => {
   vi.resetModules();
-  ({ buildNav, applySearch, markCurrent, setNavigationLocked } = await import('../src/pages/library/nav.js'));
+  ({ buildNav, applySearch, markCurrent, setNavigationLocked, openSidebar, closeSidebar } =
+    await import('../src/pages/library/nav.js'));
   document.body.innerHTML = `
+    <button id="menuToggle"></button>
+    <div id="sideOverlay"></div>
+    <aside id="sidePanel"><button id="sideClose"></button><input id="sideSearchInput"></aside>
     <input id="searchInput">
-    <input id="sideSearchInput">
     <span id="catalogTotal"></span>
     <span id="catalogCount"></span>
     <span id="allComponentsCount"></span>
@@ -102,5 +111,33 @@ describe('component library navigation', () => {
 
     setNavigationLocked(false);
     expect(document.querySelector('.component-card').disabled).toBe(false);
+  });
+
+  it('keeps a closed mobile sidebar out of keyboard navigation and restores focus', () => {
+    const matchMedia = vi.fn().mockReturnValue({ matches: true });
+    vi.stubGlobal('matchMedia', matchMedia);
+    const side = document.querySelector('#sidePanel');
+    const close = document.querySelector('#sideClose');
+    const toggle = document.querySelector('#menuToggle');
+
+    closeSidebar();
+    expect(side.inert).toBe(true);
+    expect(side.getAttribute('aria-hidden')).toBe('true');
+
+    openSidebar();
+    expect(side.inert).toBe(false);
+    expect(side.getAttribute('aria-hidden')).toBe('false');
+    expect(document.activeElement).toBe(close);
+
+    closeSidebar();
+    expect(side.inert).toBe(true);
+    expect(document.activeElement).toBe(toggle);
+
+    openSidebar();
+    matchMedia.mockReturnValue({ matches: false });
+    closeSidebar();
+    expect(side.inert).toBe(false);
+    expect(side.hasAttribute('aria-hidden')).toBe(false);
+    expect(document.activeElement).toBe(document.querySelector('#sideSearchInput'));
   });
 });

@@ -3368,3 +3368,15 @@ pre {
     font-size: .8rem;
   }
 }
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .app .component-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar .search {
+    display: none;
+  }
+}

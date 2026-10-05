@@ -47,6 +47,7 @@ function wire() {
     }
   });
   window.addEventListener('resize', () => { if (window.innerWidth > 900) closeSidebar(); });
+  closeSidebar();
 }
 
 function boot() {
