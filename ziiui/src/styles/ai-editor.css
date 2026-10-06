@@ -1,12 +1,13 @@
-body { overflow: hidden }
+body {
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 .ai-page { display: flex; flex-direction: column; height: 100dvh }
 .ai-page-head, .ai-lock-banner { flex: none }
 .ai-page-head {
   display: flex; align-items: center; gap: .75rem;
   padding: .85rem clamp(1rem, 2.5vw, 2rem); border-bottom: 1px solid var(--line);
   background: var(--header-bg); flex-wrap: wrap;
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  backdrop-filter: saturate(180%) blur(14px);
 }
 .ai-page-head h1 { margin: 0; font-size: 1.05rem; font-weight: 720; letter-spacing: -.02em; display: flex; align-items: center; gap: .5rem }
 .ai-page-head h1 i { color: var(--acc) }
@@ -93,7 +94,5 @@ body { overflow: hidden }
 }
 
 .ai-page-col .ai-preview-frame {
-  background:
-    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--acc) 5%, transparent), transparent 48%),
-    var(--stage-bg);
+  background: var(--stage-bg);
 }

@@ -1,6 +1,7 @@
 /* Category navigation, searchable component list, and mobile drawer. */
 import { $ } from '../../lib/dom.js';
 import { EFFECTS, CATEGORIES } from '../../effects/registry.js';
+import { getComponentVideoSource } from '../../effects/videos.js';
 
 const CATEGORY_ICONS = {
   All: 'ri-apps-2-line',
@@ -21,6 +22,8 @@ let navigationLocked = false;
 let displayEffects = [...EFFECTS];
 let visibleCardCount = 12;
 const CARD_INCREMENT = 12;
+const MAX_ACTIVE_CARD_VIDEOS = 3;
+const activeCardVideoEntries = new Set();
 const collapsedCategories = new Set();
 
 function searchQuery() {
@@ -91,30 +94,6 @@ function makeEffectButton(effect) {
   return button;
 }
 
-function createCardVisual(effect) {
-  const visual = document.createElement('span');
-  visual.className = `component-card-visual preview-${effect.cat.toLowerCase()} preview-${effect.id}`;
-  visual.dataset.component = effect.id;
-
-  if (effect.cat === 'Text') {
-    const text = document.createElement('span');
-    text.className = 'preview-word';
-    text.textContent = effect.text || effect.name;
-    visual.append(text);
-    if (/shimmer|wave/i.test(effect.id)) visual.classList.add('is-shimmer');
-  } else if (effect.cat === 'Interactive') {
-    visual.innerHTML = '<span class="preview-window preview-window-a"></span><span class="preview-window preview-window-b"></span><span class="preview-cursor"></span>';
-  } else if (effect.cat === 'Scroll' || effect.cat === 'Web') {
-    visual.innerHTML = '<span class="preview-panel preview-panel-a"></span><span class="preview-panel preview-panel-b"></span><span class="preview-panel preview-panel-c"></span>';
-  } else if (effect.cat === 'Shader') {
-    visual.innerHTML = '<span class="preview-shader"></span><span class="preview-reflection"></span>';
-  } else if (effect.cat === 'Footer') {
-    visual.innerHTML = '<span class="preview-footer-line"></span><span class="preview-footer-line"></span><span class="preview-footer-line"></span><span class="preview-footer-mark"></span>';
-  } else if (effect.cat === 'Cursor') {
-    visual.innerHTML = '<span class="preview-cursor-card"></span><span class="preview-cursor-tag"></span><span class="preview-cursor-dot"></span>';
-  }
-  return visual;
-}
 
 function renderList() {
   const nav = $('nav');
@@ -202,67 +181,93 @@ function renderList() {
   renderCards(visible);
 }
 
-function getComponentVideoSource(effect) {
-  const sourceMap = {
-    maskdrag: 'https://videos.pexels.com/video-files/19026925/19026925-uhd_2560_1440_25fps.mp4',
-    microhover: 'https://videos.pexels.com/video-files/2878715/2878715-hd_1920_1080_25fps.mp4',
-    scrollmask: 'https://videos.pexels.com/video-files/19026925/19026925-uhd_2560_1440_25fps.mp4',
-    pinrotate: 'https://videos.pexels.com/video-files/3837780/3837780-hd_1920_1080_25fps.mp4',
-    default: 'https://videos.pexels.com/video-files/19026925/19026925-uhd_2560_1440_25fps.mp4'
-  };
-  return sourceMap[effect.id] || sourceMap.default;
+let activePlayingCard = null;
+
+function hasHoverCapability() {
+  return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
 }
 
-function shouldAutoplayCardVideo() {
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    return false;
-  }
-  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
-    return true;
-  }
-  return false;
+function loadCardVideo(video) {
+  if (!video || video.dataset.loaded === 'true') return;
+  const src = video.dataset.src;
+  if (!src) return;
+  video.src = src;
+  video.dataset.loaded = 'true';
+  video.load();
 }
 
-function setCardVideoPlayback(card, video, shouldPlay) {
+function playCardVideo(card, video) {
+  if (!card || !video || video.dataset.failed === 'true') return;
+
+  loadCardVideo(video);
+
+  // Ensure inactive videos are paused — only one video plays at a time
+  if (activePlayingCard && activePlayingCard.video !== video) {
+    pauseCardVideo(activePlayingCard.card, activePlayingCard.video);
+  }
+
+  const playPromise = video.play();
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        card.dataset.videoState = 'playing';
+        video.dataset.videoState = 'playing';
+        activePlayingCard = { card, video };
+      })
+      .catch(() => {
+        card.dataset.videoState = 'paused';
+        video.dataset.videoState = 'paused';
+      });
+  }
+}
+
+function pauseCardVideo(card, video) {
   if (!card || !video) return;
-  if (!shouldPlay) {
+  try {
     video.pause();
-    if (video.currentTime > 0) video.currentTime = 0;
-    card.dataset.videoState = 'paused';
-    return;
+  } catch (_) {}
+  card.dataset.videoState = 'paused';
+  video.dataset.videoState = 'paused';
+  if (activePlayingCard && activePlayingCard.video === video) {
+    activePlayingCard = null;
   }
-  if (video.dataset.videoState === 'playing') return;
-  video.play().then(() => {
-    card.dataset.videoState = 'playing';
-  }).catch(() => {
-    card.dataset.videoState = 'paused';
-  });
 }
 
 function bindCardVideo(card, video) {
   if (!card || !video) return;
-  const updateOnHover = (shouldPlay) => {
-    const canAutoplay = shouldAutoplayCardVideo();
-    if (!canAutoplay) {
-      setCardVideoPlayback(card, video, false);
-      return;
+
+  const onEnter = () => {
+    if (hasHoverCapability()) {
+      playCardVideo(card, video);
     }
-    setCardVideoPlayback(card, video, shouldPlay);
   };
 
-  card.addEventListener('mouseenter', () => updateOnHover(true));
-  card.addEventListener('mouseleave', () => updateOnHover(false));
-  card.addEventListener('focusin', () => updateOnHover(true));
-  card.addEventListener('focusout', () => updateOnHover(false));
+  const onLeave = () => {
+    if (hasHoverCapability()) {
+      pauseCardVideo(card, video);
+    }
+  };
 
-  video.addEventListener('ended', () => {
-    if (card.matches(':hover') || document.activeElement === card) {
-      video.currentTime = 0;
-      setCardVideoPlayback(card, video, true);
+  video.addEventListener('error', () => {
+    video.dataset.failed = 'true';
+    pauseCardVideo(card, video);
+    // If an external URL failed, attempt fallback to local placeholder
+    if (video.dataset.src && !video.dataset.src.startsWith('/preview-placeholder')) {
+      video.dataset.src = '/preview-placeholder-2.mp4';
+      video.dataset.failed = 'false';
+      video.dataset.loaded = 'false';
+      loadCardVideo(video);
       return;
     }
-    setCardVideoPlayback(card, video, false);
+    video.style.display = 'none';
+    const fallback = card.querySelector('.component-card-fallback');
+    if (fallback) fallback.style.opacity = '1';
   });
+
+  card.addEventListener('mouseenter', onEnter);
+  card.addEventListener('mouseleave', onLeave);
+  card.addEventListener('focusin', onEnter);
+  card.addEventListener('focusout', onLeave);
 }
 
 function renderCards(effects) {
@@ -270,25 +275,44 @@ function renderCards(effects) {
   if (!grid) return;
   grid.replaceChildren();
 
+  // Reset any active playback reference
+  if (activePlayingCard && activePlayingCard.video) {
+    try { activePlayingCard.video.pause(); } catch (_) {}
+    activePlayingCard = null;
+  }
+
   const observer = 'IntersectionObserver' in window
     ? new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         const card = entry.target;
         const video = card.querySelector('.component-card-video');
         if (!video) return;
-        if (!entry.isIntersecting) {
-          setCardVideoPlayback(card, video, false);
-          return;
+
+        // Lazy load video stream as card approaches/enters viewport
+        if (entry.isIntersecting && video.dataset.loaded !== 'true') {
+          loadCardVideo(video);
         }
-        const isHovered = card.matches(':hover') || document.activeElement === card;
-        if (shouldAutoplayCardVideo() && !isHovered) {
-          setCardVideoPlayback(card, video, true);
+
+        const isDesktop = hasHoverCapability();
+
+        if (isDesktop) {
+          // On desktop: pause if scrolled out of viewport while playing
+          if (!entry.isIntersecting) {
+            pauseCardVideo(card, video);
+          }
+        } else {
+          // On mobile: play when centered in viewport, pause when exiting
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            playCardVideo(card, video);
+          } else if (!entry.isIntersecting) {
+            pauseCardVideo(card, video);
+          }
         }
       });
     }, {
       root: null,
-      threshold: 0.2,
-      rootMargin: '0px 0px -5% 0px'
+      threshold: [0, 0.5],
+      rootMargin: '60px 0px 60px 0px'
     })
     : null;
 
@@ -312,7 +336,8 @@ function renderCards(effects) {
     media.setAttribute('aria-hidden', 'true');
 
     video.className = 'component-card-video';
-    video.src = getComponentVideoSource(effect);
+    video.dataset.src = getComponentVideoSource(effect);
+    video.dataset.loaded = 'false';
     video.muted = true;
     video.playsInline = true;
     video.loop = true;
@@ -320,25 +345,22 @@ function renderCards(effects) {
     video.setAttribute('playsinline', 'true');
     video.setAttribute('muted', 'true');
     video.setAttribute('aria-hidden', 'true');
-    video.poster = '';
 
     fallback.className = 'component-card-fallback';
     fallback.setAttribute('aria-hidden', 'true');
 
-    if (!video.canPlayType('video/mp4')) {
-      video.removeAttribute('src');
-    }
-
     media.append(video, fallback);
-
     card.append(media);
+
     card.addEventListener('click', () => {
       if (onSelectEffect) onSelectEffect(effect, true);
     });
+
     bindCardVideo(card, video);
     if (observer) observer.observe(card);
     grid.append(card);
   });
+
   const more = $('seeMore');
   if (more) {
     const remaining = Math.max(0, effects.length - visibleCardCount);
