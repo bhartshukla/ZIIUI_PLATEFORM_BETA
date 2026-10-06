@@ -62,6 +62,17 @@ function onComponentChange() {
 function togglePanel(force) {
   if (!el.panel || !el.fab) return;
   const open = typeof force === 'boolean' ? force : el.panel.hidden;
+  if (!store.cur && open) {
+    el.panel.hidden = false;
+    el.fab.classList.add('is-open');
+    el.fab.setAttribute('aria-expanded', 'true');
+    if (el.headSub) el.headSub.textContent = 'Choose a component';
+    renderSelected();
+    if (chat) chat.render([], 'Choose a component first before editing with AI.');
+    updateContextIndicator();
+    setTimeout(() => { try { el.prompt.focus(); } catch (_) { /* ignore */ } }, 40);
+    return;
+  }
   el.panel.hidden = !open;
   el.fab.classList.toggle('is-open', open);
   el.fab.setAttribute('aria-expanded', String(open));

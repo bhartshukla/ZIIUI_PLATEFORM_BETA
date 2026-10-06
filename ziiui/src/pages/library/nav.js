@@ -74,21 +74,17 @@ function renderCategories() {
   });
 }
 
-function makeEffectButton(effect, index) {
+function makeEffectButton(effect) {
   const button = document.createElement('button');
   const name = document.createElement('span');
-  const number = document.createElement('span');
   button.type = 'button';
   button.className = 'component-link';
   button.dataset.id = effect.id;
   button.setAttribute('aria-current', 'false');
   name.className = 'component-link-name';
   name.textContent = effect.cat === 'Cursor' ? effect.name.replace(/^Cursor:\s*/, '') : effect.name;
-  number.className = 'component-link-number';
-  number.textContent = String(index).padStart(2, '0');
-  number.setAttribute('aria-hidden', 'true');
   button.title = effect.name + ' — ' + effect.note;
-  button.append(name, number);
+  button.append(name);
   button.addEventListener('click', () => {
     if (onSelectEffect) onSelectEffect(effect, true);
   });
@@ -158,7 +154,7 @@ function renderList() {
       icon.setAttribute('aria-hidden', 'true');
       label.textContent = category;
       total.className = 'component-group-count';
-      total.textContent = String(effects.length).padStart(2, '0');
+      total.textContent = String(effects.length);
       total.setAttribute('aria-hidden', 'true');
       heading.append(icon, label, total);
       heading.addEventListener('click', () => onShowCategory(category));
@@ -183,7 +179,7 @@ function renderList() {
       list.id = listId;
       list.hidden = collapsedCategories.has(category);
       effects.forEach((effect) => {
-        list.append(makeEffectButton(effect, EFFECTS.indexOf(effect) + 1));
+        list.append(makeEffectButton(effect));
       });
       group.append(heading, toggle, list);
       nav.append(group);
@@ -206,59 +202,141 @@ function renderList() {
   renderCards(visible);
 }
 
+function getComponentVideoSource(effect) {
+  const sourceMap = {
+    maskdrag: 'https://videos.pexels.com/video-files/19026925/19026925-uhd_2560_1440_25fps.mp4',
+    microhover: 'https://videos.pexels.com/video-files/2878715/2878715-hd_1920_1080_25fps.mp4',
+    scrollmask: 'https://videos.pexels.com/video-files/19026925/19026925-uhd_2560_1440_25fps.mp4',
+    pinrotate: 'https://videos.pexels.com/video-files/3837780/3837780-hd_1920_1080_25fps.mp4',
+    default: 'https://videos.pexels.com/video-files/19026925/19026925-uhd_2560_1440_25fps.mp4'
+  };
+  return sourceMap[effect.id] || sourceMap.default;
+}
+
+function shouldAutoplayCardVideo() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return false;
+  }
+  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+    return true;
+  }
+  return false;
+}
+
+function setCardVideoPlayback(card, video, shouldPlay) {
+  if (!card || !video) return;
+  if (!shouldPlay) {
+    video.pause();
+    if (video.currentTime > 0) video.currentTime = 0;
+    card.dataset.videoState = 'paused';
+    return;
+  }
+  if (video.dataset.videoState === 'playing') return;
+  video.play().then(() => {
+    card.dataset.videoState = 'playing';
+  }).catch(() => {
+    card.dataset.videoState = 'paused';
+  });
+}
+
+function bindCardVideo(card, video) {
+  if (!card || !video) return;
+  const updateOnHover = (shouldPlay) => {
+    const canAutoplay = shouldAutoplayCardVideo();
+    if (!canAutoplay) {
+      setCardVideoPlayback(card, video, false);
+      return;
+    }
+    setCardVideoPlayback(card, video, shouldPlay);
+  };
+
+  card.addEventListener('mouseenter', () => updateOnHover(true));
+  card.addEventListener('mouseleave', () => updateOnHover(false));
+  card.addEventListener('focusin', () => updateOnHover(true));
+  card.addEventListener('focusout', () => updateOnHover(false));
+
+  video.addEventListener('ended', () => {
+    if (card.matches(':hover') || document.activeElement === card) {
+      video.currentTime = 0;
+      setCardVideoPlayback(card, video, true);
+      return;
+    }
+    setCardVideoPlayback(card, video, false);
+  });
+}
+
 function renderCards(effects) {
   const grid = $('componentGrid');
   if (!grid) return;
   grid.replaceChildren();
 
+  const observer = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const card = entry.target;
+        const video = card.querySelector('.component-card-video');
+        if (!video) return;
+        if (!entry.isIntersecting) {
+          setCardVideoPlayback(card, video, false);
+          return;
+        }
+        const isHovered = card.matches(':hover') || document.activeElement === card;
+        if (shouldAutoplayCardVideo() && !isHovered) {
+          setCardVideoPlayback(card, video, true);
+        }
+      });
+    }, {
+      root: null,
+      threshold: 0.2,
+      rootMargin: '0px 0px -5% 0px'
+    })
+    : null;
+
   effects.slice(0, visibleCardCount).forEach((effect) => {
     const card = document.createElement('button');
-    const art = document.createElement('span');
-    const category = document.createElement('span');
-    const number = document.createElement('span');
-    const visual = createCardVisual(effect);
-    const body = document.createElement('span');
-    const name = document.createElement('span');
-    const note = document.createElement('span');
-    const tag = document.createElement('span');
-    const action = document.createElement('span');
-    const actionIcon = document.createElement('i');
-    const index = EFFECTS.indexOf(effect) + 1;
+    const media = document.createElement('div');
+    const video = document.createElement('video');
+    const fallback = document.createElement('span');
 
     card.type = 'button';
     card.className = 'component-card';
     card.dataset.id = effect.id;
     card.setAttribute('aria-current', String(effect.id === activeEffectId));
-    card.setAttribute('aria-label', `${effect.name}: ${effect.note}`);
-    card.title = `Preview ${effect.name}`;
+    card.setAttribute('aria-label', `Open ${effect.name} component`);
+    card.title = effect.name;
     card.disabled = navigationLocked;
-    art.className = 'component-card-art';
-    art.dataset.category = effect.cat.toLowerCase();
-    art.dataset.component = effect.id;
-    art.setAttribute('aria-hidden', 'true');
-    category.className = 'component-card-category';
-    category.textContent = effect.cat;
-    number.className = 'component-card-number';
-    number.textContent = String(index).padStart(2, '0');
-    number.setAttribute('aria-hidden', 'true');
-    art.append(category, number, visual);
 
-    body.className = 'component-card-body';
-    name.className = 'component-card-name';
-    name.textContent = effect.name;
-    note.className = 'component-card-note';
-    note.textContent = effect.note;
-    tag.className = 'component-card-tag';
-    tag.textContent = effect.cat;
-    action.className = 'component-card-action';
-    actionIcon.className = 'ri-arrow-right-line';
-    actionIcon.setAttribute('aria-hidden', 'true');
-    action.append(actionIcon);
-    body.append(name, note, tag, action);
-    card.append(art, body);
+    media.className = 'component-card-art';
+    media.dataset.category = effect.cat.toLowerCase();
+    media.dataset.component = effect.id;
+    media.setAttribute('aria-hidden', 'true');
+
+    video.className = 'component-card-video';
+    video.src = getComponentVideoSource(effect);
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    video.preload = 'metadata';
+    video.setAttribute('playsinline', 'true');
+    video.setAttribute('muted', 'true');
+    video.setAttribute('aria-hidden', 'true');
+    video.poster = '';
+
+    fallback.className = 'component-card-fallback';
+    fallback.setAttribute('aria-hidden', 'true');
+
+    if (!video.canPlayType('video/mp4')) {
+      video.removeAttribute('src');
+    }
+
+    media.append(video, fallback);
+
+    card.append(media);
     card.addEventListener('click', () => {
       if (onSelectEffect) onSelectEffect(effect, true);
     });
+    bindCardVideo(card, video);
+    if (observer) observer.observe(card);
     grid.append(card);
   });
   const more = $('seeMore');

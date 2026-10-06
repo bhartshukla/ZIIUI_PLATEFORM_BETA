@@ -241,7 +241,7 @@ export function showDiscovery(category = 'All', options = {}) {
   if (content) content.hidden = false;
   if (error) error.hidden = true;
   if (fab) {
-    fab.hidden = true;
+    fab.hidden = false;
     fab.classList.remove('is-open');
     fab.setAttribute('aria-expanded', 'false');
   }
