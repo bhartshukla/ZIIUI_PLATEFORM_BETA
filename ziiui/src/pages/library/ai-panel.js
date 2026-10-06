@@ -70,7 +70,7 @@ function togglePanel(force) {
     renderSelected();
     if (chat) chat.render([], 'Choose a component first before editing with AI.');
     updateContextIndicator();
-    setTimeout(() => { try { el.prompt.focus(); } catch (_) { /* ignore */ } }, 40);
+    syncAIInputState();
     return;
   }
   el.panel.hidden = !open;
@@ -82,12 +82,24 @@ function togglePanel(force) {
   }
 }
 
+function syncAIInputState() {
+  const hasSelection = !!store.cur;
+  if (el.prompt) {
+    el.prompt.disabled = !hasSelection || isBusy();
+    el.prompt.placeholder = hasSelection ? 'Describe the change you want to make…' : 'Select a component first to start editing';
+  }
+  if (el.send) {
+    el.send.disabled = !hasSelection || isBusy();
+  }
+}
+
 function renderSelected() {
   const cur = store.cur;
   if (!el.sel) return;
   if (!cur) {
     if (el.headSub) el.headSub.textContent = 'No component selected';
     el.sel.innerHTML = '<span class="ai-sel-empty">Select a component first to start editing.</span>';
+    syncAIInputState();
     return;
   }
   if (el.headSub) el.headSub.textContent = 'Selected: ' + cur.name;
@@ -103,16 +115,18 @@ function renderSelected() {
       openModal();
     });
   }
+  syncAIInputState();
 }
 
 function renderChat() {
   if (!chat) return;
-  if (!store.cur) { chat.render([], 'Select a component to start editing.'); return; }
+  if (!store.cur) { chat.render([], 'Select a component to start editing.'); syncAIInputState(); return; }
   const s = getComponentState(store.cur.id);
   chat.render(
     s ? s.chatHistory : [],
     'Hi! Pick a component on the left, then tell me what you want to change. Your conversation will be saved automatically.'
   );
+  syncAIInputState();
 }
 
 function updateContextIndicator() {
@@ -149,6 +163,7 @@ async function generate() {
 
   el.prompt.value = '';
   if (el.send) el.send.disabled = true;
+  syncAIInputState();
   setNavigationLocked(true);
   pushChatMessage(compState, 'user', request);
   chat.add('user', request);
@@ -199,7 +214,7 @@ async function generate() {
     const wasActive = isActiveRequest(req);
     endRequest(req);
     if (wasActive) {
-      if (el.send) el.send.disabled = false;
+      syncAIInputState();
       setNavigationLocked(false);
     }
   }
