@@ -113,9 +113,9 @@
         <div class="component-grid" id="componentGrid" aria-label="Component gallery"></div>
         <p class="catalog-empty gallery-empty" id="galleryEmpty" hidden>
           No components found. Try another search.
-          <button class="clear-search" id="clearSearch" type="button">Clear search</button>
+          <button class="clear-search" id="clearSearch" type="button"><i class="ri-close-circle-line" aria-hidden="true"></i> Clear search</button>
         </p>
-        <button class="see-more" id="seeMore" type="button" hidden>See more components</button>
+        <button class="see-more" id="seeMore" type="button" hidden><i class="ri-arrow-down-line" aria-hidden="true"></i> See more components</button>
       </section>
 
       <div class="component-detail" id="componentDetail" hidden>
@@ -127,7 +127,7 @@
           <p class="detail-breadcrumb"><span id="detailCategory"></span><span aria-hidden="true">/</span><strong id="detailName"></strong></p>
         </div>
         <p class="route-error" id="routeError" role="status" hidden>
-          Component not found. <button id="routeErrorBack" type="button">Back to Components</button>
+          Component not found. <button id="routeErrorBack" type="button"><i class="ri-arrow-left-line" aria-hidden="true"></i> Back to Components</button>
         </p>
         <div id="componentDetailContent">
       <section class="card" id="previewCard" aria-labelledby="pname">
@@ -180,7 +180,7 @@
               <label class="tf"><span id="tlabel">Text</span>
                 <textarea id="text" rows="3" spellcheck="false" autocomplete="off" aria-describedby="hint"></textarea>
               </label>
-              <button class="b" id="replay" type="button" aria-label="Replay animation">Replay</button>
+              <button class="b" id="replay" type="button" aria-label="Replay animation"><i class="ri-refresh-line" aria-hidden="true"></i> Replay</button>
             </div>
             <div id="hint"></div>
           </div>
@@ -193,7 +193,7 @@
             <h2 id="codetitle">Generated code</h2>
             <span class="meta" id="label"></span>
           </div>
-          <button class="b" id="copy" type="button" aria-label="Copy full component">Copy full component</button>
+          <button class="b" id="copy" type="button" aria-label="Copy full component"><i class="ri-file-copy-line" aria-hidden="true"></i> Copy full component</button>
         </div>
         <div class="code-toolbar">
           <div class="code-tabs" id="codeTabs" role="tablist" aria-label="Component code language">
@@ -304,7 +304,7 @@
         <button class="ai-btn" id="aiApply" type="button"><i class="ri-check-double-line" aria-hidden="true"></i> Apply Changes Temporarily</button>
         <button class="ai-btn" id="aiResetBtn" type="button"><i class="ri-arrow-go-back-line" aria-hidden="true"></i> Reset to Original</button>
         <button class="ai-btn" id="aiCopyBtn" type="button"><i class="ri-file-copy-line" aria-hidden="true"></i> Copy Code</button>
-        <button class="ai-btn ghost" id="aiModalClose2" type="button">Close</button>
+        <button class="ai-btn ghost" id="aiModalClose2" type="button"><i class="ri-close-line" aria-hidden="true"></i> Close</button>
       </footer>
     </div>
   </div>

@@ -355,7 +355,7 @@ function renderCards(effects) {
   if (more) {
     const remaining = Math.max(0, effects.length - visibleCardCount);
     more.hidden = remaining === 0;
-    more.textContent = `See more components (${remaining} remaining)`;
+    more.innerHTML = `<i class="ri-arrow-down-line" aria-hidden="true"></i> See more components (${remaining} remaining)`;
     more.disabled = navigationLocked;
   }
 }

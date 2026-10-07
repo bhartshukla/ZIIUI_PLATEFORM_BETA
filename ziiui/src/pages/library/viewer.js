@@ -291,11 +291,19 @@ export async function onCopy() {
   const btn = $('copy');
   let ok = false;
   try { ok = await copyText(code); } catch (err) { report(err, 'copy'); }
-  if (btn) { btn.textContent = ok ? 'Copied full component!' : 'Copy failed'; btn.dataset.state = ok ? 'ok' : 'fail'; }
+  if (btn) {
+    btn.innerHTML = ok
+      ? '<i class="ri-check-line" aria-hidden="true"></i> Copied full component!'
+      : '<i class="ri-close-line" aria-hidden="true"></i> Copy failed';
+    btn.dataset.state = ok ? 'ok' : 'fail';
+  }
   say(ok ? 'Code copied to clipboard' : 'Copy failed.');
   clearTimeout(copyReset);
   copyReset = setTimeout(() => {
-    if (btn) { btn.textContent = 'Copy full component'; delete btn.dataset.state; }
+    if (btn) {
+      btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy full component';
+      delete btn.dataset.state;
+    }
     copyBusy = false;
   }, 1800);
 }

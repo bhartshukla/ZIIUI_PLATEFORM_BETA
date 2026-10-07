@@ -160,6 +160,15 @@ function resetToOriginal() {
 
 async function copyCode() {
   const ok = await copyText(el.code.value);
+  const btn = $('aiCopyBtn');
+  if (btn) {
+    btn.innerHTML = ok
+      ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
+      : '<i class="ri-close-line" aria-hidden="true"></i> Copy failed';
+    setTimeout(() => {
+      if (btn) btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy';
+    }, 1800);
+  }
   say(ok ? 'Code copied to clipboard' : 'Copy failed.');
   chat.add('sys', ok ? 'Code copied to clipboard.' : 'Copy failed.');
 }

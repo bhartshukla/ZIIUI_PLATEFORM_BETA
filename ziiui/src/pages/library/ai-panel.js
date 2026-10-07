@@ -322,6 +322,15 @@ function resetToOriginal() {
 
 async function copyEdited() {
   const ok = await copyText(el.code ? el.code.value : '');
+  const btn = $('aiCopyBtn');
+  if (btn) {
+    btn.innerHTML = ok
+      ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
+      : '<i class="ri-close-line" aria-hidden="true"></i> Copy failed';
+    setTimeout(() => {
+      if (btn) btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy Code';
+    }, 1800);
+  }
   chat.add('sys', ok ? 'Edited code copied to clipboard.' : 'Copy failed.');
   say(ok ? 'Edited code copied to clipboard' : 'Copy failed.');
 }
