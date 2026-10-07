@@ -7,8 +7,9 @@ import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../lib/preview.js';
 import {
   loadAIState, loadAISettings, getAIState, getAISettings, setAutoPreview, getComponentState,
   getActiveComponentId, saveActiveComponentId, persistAIState, pushChatMessage, addCodeVersion,
-  setCurrentCode, describeContext
+  setCurrentCode, describeContext, getOrCreateComponentState
 } from '../ai/state.js';
+import { EFFECTS, BY_ID } from '../effects/registry.js';
 import { generateCode } from '../ai/client.js';
 import { describeAIError } from '../ai/prompt.js';
 import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, consumePendingMarker, isDuplicateRequest } from '../ai/request.js';
@@ -177,9 +178,23 @@ function boot() {
   loadAIState();
   el.auto.checked = !!getAISettings().autoPreview;
 
-  const saved = getActiveComponentId();
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramId = urlParams.get('component') || urlParams.get('id');
+  const saved = paramId || getActiveComponentId();
+  let startId = saved && getComponentState(saved) ? saved : null;
+
+  if (!startId && paramId) {
+    const found = BY_ID[paramId] || EFFECTS.find((e) => e.name.toLowerCase() === paramId.toLowerCase());
+    if (found) {
+      const initialCode = typeof found.code === 'function' ? found.code() : '';
+      getOrCreateComponentState(found.id, found.name, found.cat, initialCode);
+      startId = found.id;
+    }
+  }
+
   const ids = Object.keys(getAIState().components);
-  const startId = saved && getComponentState(saved) ? saved : (ids[0] || null);
+  if (!startId) startId = ids[0] || null;
+
   populatePicker();
   setActive(startId);
   if (startId) el.select.value = startId;

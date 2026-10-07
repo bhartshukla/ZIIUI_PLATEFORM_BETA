@@ -251,17 +251,7 @@ function bindCardVideo(card, video) {
   video.addEventListener('error', () => {
     video.dataset.failed = 'true';
     pauseCardVideo(card, video);
-    // If an external URL failed, attempt fallback to local placeholder
-    if (video.dataset.src && !video.dataset.src.startsWith('/preview-placeholder')) {
-      video.dataset.src = '/preview-placeholder-2.mp4';
-      video.dataset.failed = 'false';
-      video.dataset.loaded = 'false';
-      loadCardVideo(video);
-      return;
-    }
     video.style.display = 'none';
-    const fallback = card.querySelector('.component-card-fallback');
-    if (fallback) fallback.style.opacity = '1';
   });
 
   card.addEventListener('mouseenter', onEnter);
@@ -319,8 +309,6 @@ function renderCards(effects) {
   effects.slice(0, visibleCardCount).forEach((effect) => {
     const card = document.createElement('button');
     const media = document.createElement('div');
-    const video = document.createElement('video');
-    const fallback = document.createElement('span');
 
     card.type = 'button';
     card.className = 'component-card';
@@ -335,29 +323,31 @@ function renderCards(effects) {
     media.dataset.component = effect.id;
     media.setAttribute('aria-hidden', 'true');
 
-    video.className = 'component-card-video';
-    video.dataset.src = getComponentVideoSource(effect);
-    video.dataset.loaded = 'false';
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-    video.preload = 'metadata';
-    video.setAttribute('playsinline', 'true');
-    video.setAttribute('muted', 'true');
-    video.setAttribute('aria-hidden', 'true');
+    const videoSrc = getComponentVideoSource(effect);
+    if (videoSrc) {
+      const video = document.createElement('video');
+      video.className = 'component-card-video';
+      video.dataset.src = videoSrc;
+      video.dataset.loaded = 'false';
+      video.muted = true;
+      video.playsInline = true;
+      video.loop = true;
+      video.preload = 'metadata';
+      video.setAttribute('playsinline', 'true');
+      video.setAttribute('muted', 'true');
+      video.setAttribute('aria-hidden', 'true');
 
-    fallback.className = 'component-card-fallback';
-    fallback.setAttribute('aria-hidden', 'true');
+      media.append(video);
+      bindCardVideo(card, video);
+      if (observer) observer.observe(card);
+    }
 
-    media.append(video, fallback);
     card.append(media);
 
     card.addEventListener('click', () => {
       if (onSelectEffect) onSelectEffect(effect, true);
     });
 
-    bindCardVideo(card, video);
-    if (observer) observer.observe(card);
     grid.append(card);
   });
 

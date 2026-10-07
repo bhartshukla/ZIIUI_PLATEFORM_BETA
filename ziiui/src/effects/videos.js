@@ -2,161 +2,159 @@
  * Centralized video asset mapping for ZiiUI components.
  * ONE source of truth for all component card preview videos.
  *
- * To change a component's video, simply update its URL value below.
- * Supported keys include kebab-case slug, component name, or effect ID.
+ * To change a component's video, update its filename or URL below.
+ * You can use:
+ *   - Local filename inside /public/videos/ (e.g. "Split Scroll.mp4")
+ *   - Absolute path (e.g. "/my-videos/Split Scroll.mp4")
+ *   - Full CDN or external video URL (e.g. "https://example.com/video.mp4")
  *
- * Example:
- *   "micro-hover": "https://videos.pexels.com/video-files/...mp4"
- *   or
- *   "micro-hover": "https://www.pexels.com/video/a-close-up-shot-of-a-person-soldering-5736195/"
+ * If a component has no video defined or the file is missing,
+ * it returns null and no fake/default video is shown.
  */
 
+/**
+ * Base directory for local component preview videos (inside public/ folder).
+ * Defaults to '/videos/'. Update this single setting if your assets move.
+ */
+export const VIDEO_BASE_PATH = '/videos/';
+
+/**
+ * Component-specific video filename mapping.
+ * Uses exact component names as specified.
+ */
 export const COMPONENT_VIDEOS = {
   // Web
-  'split-scroll': '/preview-placeholder-1.mp4',
+  'Split Scroll': 'Split Scroll.mp4',
 
   // Interactive
-  'draggable-mask': '/preview-placeholder-1.mp4',
-  'micro-hover': '/preview-placeholder-2.mp4',
-  'hover-section': '/preview-placeholder-3.mp4',
+  'Draggable Mask': 'Draggable Mask.mp4',
+  'Micro Hover': 'Micro Hover.mp4',
+  'Hover Section': 'Hover Section.mp4',
 
   // Scroll
-  'list-reveal': '/preview-placeholder-1.mp4',
-  'scroll-stand': '/preview-placeholder-2.mp4',
-  'scrolling-mask': '/preview-placeholder-3.mp4',
-  'pin-rotate-sections': '/preview-placeholder-1.mp4',
-  'images-flow': '/preview-placeholder-2.mp4',
-  'clip-path-reveal': '/preview-placeholder-3.mp4',
+  'List Reveal': 'List Reveal.mp4',
+  'Scroll Stand': 'Scroll Stand.mp4',
+  'Scrolling Mask': 'Scrolling Mask.mp4',
+  'Pin Rotate Sections': 'Pin Rotate Sections.mp4',
+  'Images Flow': 'Images Flow.mp4',
+  'Clip Path Reveal': 'Clip Path Reveal.mp4',
 
   // Shader
-  'noisy-pixel': '/preview-placeholder-1.mp4',
-  'mirror-effect': '/preview-placeholder-2.mp4',
+  'Noisy Pixel': 'Noisy Pixel.mp4',
+  'Mirror Effect': 'Mirror Effect.mp4',
 
   // Footer
-  'sticky-footer': '/preview-placeholder-3.mp4',
-  'editorial-footer': '/preview-placeholder-1.mp4',
+  'Sticky Footer': 'Sticky Footer.mp4',
+  'Editorial Footer': 'Editorial Footer.mp4',
 
   // Text
-  'text-effect': '/preview-placeholder-2.mp4',
-  'custom-variants': '/preview-placeholder-3.mp4',
-  'text-roll': '/preview-placeholder-1.mp4',
-  'text-roll-custom': '/preview-placeholder-2.mp4',
-  'text-scramble': '/preview-placeholder-3.mp4',
-  'text-shimmer': '/preview-placeholder-1.mp4',
-  'shimmer-wave': '/preview-placeholder-2.mp4',
-  'shimmer-wave-colour': '/preview-placeholder-3.mp4',
+  'Text Effect': 'Text Effect.mp4',
+  'Custom Variants': 'Custom Variants.mp4',
+  'Text Roll': 'Text Roll.mp4',
+  'Text Roll (custom)': 'Text Roll (custom).mp4',
+  'Text Scramble': 'Text Scramble.mp4',
+  'Text Shimmer': 'Text Shimmer.mp4',
+  'Shimmer Wave': 'Shimmer Wave.mp4',
+  'Shimmer Wave (colour)': 'Shimmer Wave (colour).mp4',
 
   // Cursor
-  'expand': '/preview-placeholder-1.mp4',
-  'icon-label': '/preview-placeholder-2.mp4',
-  'image-reveal': '/preview-placeholder-3.mp4',
-
-  // Default fallback
-  'default': '/preview-placeholder-2.mp4'
+  'Expand': 'Expand.mp4',
+  'Icon Label': 'Icon Label.mp4',
+  'Image Reveal': 'Image Reveal.mp4'
 };
 
 /**
- * Mapping between effect registry IDs and standard video mapping keys.
+ * Alias map linking effect IDs to their canonical component names.
  */
-const EFFECT_ID_ALIASES = {
-  splitsection: 'split-scroll',
-  maskdrag: 'draggable-mask',
-  microhover: 'micro-hover',
-  hoversection: 'hover-section',
-  listreveal: 'list-reveal',
-  scrolldown: 'scroll-stand',
-  scrollmask: 'scrolling-mask',
-  pinrotate: 'pin-rotate-sections',
-  imageflow: 'images-flow',
-  clipreveal: 'clip-path-reveal',
-  noisypixel: 'noisy-pixel',
-  mirror: 'mirror-effect',
-  footer1: 'sticky-footer',
-  footer2: 'editorial-footer',
-  effect: 'text-effect',
-  fancy: 'custom-variants',
-  roll: 'text-roll',
-  roll2: 'text-roll-custom',
-  scramble: 'text-scramble',
-  shimmer: 'text-shimmer',
-  wave: 'shimmer-wave',
-  wave2: 'shimmer-wave-colour',
-  cursor1: 'expand',
-  cursor2: 'icon-label',
-  cursor3: 'image-reveal'
+const EFFECT_ID_TO_NAME = {
+  splitsection: 'Split Scroll',
+  maskdrag: 'Draggable Mask',
+  microhover: 'Micro Hover',
+  hoversection: 'Hover Section',
+  listreveal: 'List Reveal',
+  scrolldown: 'Scroll Stand',
+  scrollmask: 'Scrolling Mask',
+  pinrotate: 'Pin Rotate Sections',
+  imageflow: 'Images Flow',
+  clipreveal: 'Clip Path Reveal',
+  noisypixel: 'Noisy Pixel',
+  mirror: 'Mirror Effect',
+  footer1: 'Sticky Footer',
+  footer2: 'Editorial Footer',
+  effect: 'Text Effect',
+  fancy: 'Custom Variants',
+  roll: 'Text Roll',
+  roll2: 'Text Roll (custom)',
+  scramble: 'Text Scramble',
+  shimmer: 'Text Shimmer',
+  wave: 'Shimmer Wave',
+  wave2: 'Shimmer Wave (colour)',
+  cursor1: 'Expand',
+  cursor2: 'Icon Label',
+  cursor3: 'Image Reveal'
 };
 
 /**
- * Normalize an effect name or ID into a standardized lookup slug.
+ * Resolve a filename or URL into a final playable source path.
+ * Returns null if empty.
  */
-function normalizeKey(str) {
-  if (!str || typeof str !== 'string') return '';
-  return str
-    .toLowerCase()
-    .replace(/^cursor:\s*/, '')
-    .replace(/[()]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/_+/g, '-');
-}
+export function resolveVideoSourceUrl(rawPath) {
+  if (!rawPath || typeof rawPath !== 'string') return null;
+  const trimmed = rawPath.trim();
+  if (!trimmed) return null;
 
-/**
- * Transforms external webpage URLs (such as Pexels video detail pages)
- * into direct playable video media URLs.
- */
-export function resolveVideoSourceUrl(rawUrl) {
-  if (!rawUrl || typeof rawUrl !== 'string') {
-    return COMPONENT_VIDEOS.default || '/preview-placeholder-2.mp4';
-  }
-
-  const trimmed = rawUrl.trim();
-
-  // If the user supplied a Pexels webpage URL (e.g. https://www.pexels.com/video/...-5736195/)
-  // extract the numeric video ID and point to the direct Pexels CDN stream
-  const pexelsWebpageMatch = trimmed.match(/pexels\.com\/video\/(?:[a-zA-Z0-9_-]+-)?(\d+)\/?/i);
-  if (pexelsWebpageMatch && pexelsWebpageMatch[1]) {
-    const videoId = pexelsWebpageMatch[1];
+  // External video detail URLs (e.g. Pexels page) -> direct stream
+  const pexelsMatch = trimmed.match(/pexels\.com\/video\/(?:[a-zA-Z0-9_-]+-)?(\d+)\/?/i);
+  if (pexelsMatch && pexelsMatch[1]) {
+    const videoId = pexelsMatch[1];
     return `https://videos.pexels.com/video-files/${videoId}/${videoId}-sd_640_360_25fps.mp4`;
   }
 
-  return trimmed;
+  // Absolute URL or root-relative path
+  if (/^(?:https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  // Relative filename placed in the centralized video directory
+  const base = VIDEO_BASE_PATH.endsWith('/') ? VIDEO_BASE_PATH : `${VIDEO_BASE_PATH}/`;
+  return `${base}${encodeURI(trimmed)}`;
 }
 
 /**
- * Lookup the video source URL for a given effect object, ID, or component name.
+ * Look up the video source URL for a given effect object, ID, or component name.
+ * Returns null if no video is mapped (never returns a fake/default video).
  *
- * @param {Object|string} effect - Effect registry object or string identifier
- * @returns {string} Direct video source URL
+ * @param {Object|string} effect - Effect registry item or identifier
+ * @returns {string|null} Direct video URL, or null if none
  */
 export function getComponentVideoSource(effect) {
-  if (!effect) return resolveVideoSourceUrl(COMPONENT_VIDEOS.default);
+  if (!effect) return null;
 
   const rawId = typeof effect === 'string' ? effect : (effect.id || '');
   const rawName = typeof effect === 'object' && effect.name ? effect.name : '';
 
-  // 1. Check exact match by ID or key in COMPONENT_VIDEOS
-  if (COMPONENT_VIDEOS[rawId]) {
+  // 1. Exact match on rawName (e.g. "Split Scroll", "Text Roll (custom)")
+  if (rawName && COMPONENT_VIDEOS[rawName]) {
+    return resolveVideoSourceUrl(COMPONENT_VIDEOS[rawName]);
+  }
+
+  // 2. Strip "Cursor: " prefix if present (e.g. "Cursor: Expand" -> "Expand")
+  const strippedName = rawName.replace(/^Cursor:\s*/i, '').trim();
+  if (strippedName && COMPONENT_VIDEOS[strippedName]) {
+    return resolveVideoSourceUrl(COMPONENT_VIDEOS[strippedName]);
+  }
+
+  // 3. ID lookup via canonical alias
+  const canonicalName = EFFECT_ID_TO_NAME[rawId];
+  if (canonicalName && COMPONENT_VIDEOS[canonicalName]) {
+    return resolveVideoSourceUrl(COMPONENT_VIDEOS[canonicalName]);
+  }
+
+  // 4. Exact match on rawId in COMPONENT_VIDEOS
+  if (rawId && COMPONENT_VIDEOS[rawId]) {
     return resolveVideoSourceUrl(COMPONENT_VIDEOS[rawId]);
   }
 
-  // 2. Check alias from registry ID
-  const aliasKey = EFFECT_ID_ALIASES[rawId];
-  if (aliasKey && COMPONENT_VIDEOS[aliasKey]) {
-    return resolveVideoSourceUrl(COMPONENT_VIDEOS[aliasKey]);
-  }
-
-  // 3. Check normalized name
-  const nameSlug = normalizeKey(rawName);
-  if (nameSlug && COMPONENT_VIDEOS[nameSlug]) {
-    return resolveVideoSourceUrl(COMPONENT_VIDEOS[nameSlug]);
-  }
-
-  // 4. Check normalized ID
-  const idSlug = normalizeKey(rawId);
-  if (idSlug && COMPONENT_VIDEOS[idSlug]) {
-    return resolveVideoSourceUrl(COMPONENT_VIDEOS[idSlug]);
-  }
-
-  // 5. Fallback to default
-  return resolveVideoSourceUrl(COMPONENT_VIDEOS.default || '/preview-placeholder-2.mp4');
+  // No video exists for this component — do not return any default video
+  return null;
 }

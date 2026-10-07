@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ziiui — AI Context Viewer</title>
-<meta name="theme-color" content="#0c0e12">
-<link rel="icon" href="/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ziiui — AI Context</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
 
   <script>
-    /* Apply the saved theme before first paint (prevents a flash). */
     (function () {
       try {
         var saved = localStorage.getItem('ziiui-theme');
@@ -26,65 +25,48 @@
 <body>
 
 <header>
-  <h1><i class="ri-database-2-line"></i> ziiui — AI Context Viewer</h1>
-  <span class="badge" id="schemaBadge">schema v2</span>
-  <span class="meta" id="metaLine">Reading localStorage…</span>
+  <h1><i class="ri-chat-history-line" aria-hidden="true"></i> ziiui — AI Context</h1>
   <div class="toolbar">
-    <a class="btn" href="index.html"><i class="ri-arrow-left-line"></i>Library</a>
-    <a class="btn" href="ai.html"><i class="ri-sparkling-2-line"></i>AI Editor</a>
-    <button class="btn" id="refreshBtn" type="button"><i class="ri-refresh-line"></i>Refresh</button>
-    <button class="btn" id="exportBtn" type="button"><i class="ri-download-2-line"></i>Export</button>
-    <button class="btn" id="importBtn" type="button"><i class="ri-upload-2-line"></i>Import</button>
-    <input type="file" id="importFile" accept="application/json" hidden>
-    <button class="btn" id="themeBtn" type="button"><i class="ri-moon-line"></i>Theme</button>
-    <button class="btn danger" id="clearAllBtn" type="button"><i class="ri-delete-bin-6-line"></i>Clear All</button>
+    <a class="btn" href="index.html"><i class="ri-arrow-left-line" aria-hidden="true"></i> Library</a>
+    <a class="btn" href="ai.html"><i class="ri-sparkling-2-line" aria-hidden="true"></i> AI Editor</a>
+    <button class="btn" id="refreshBtn" type="button"><i class="ri-refresh-line" aria-hidden="true"></i> Refresh</button>
+    <button class="btn" id="themeBtn" type="button"><i class="ri-moon-line" aria-hidden="true"></i> Theme</button>
+    <button class="btn danger" id="clearAllBtn" type="button"><i class="ri-delete-bin-6-line" aria-hidden="true"></i> Clear History</button>
   </div>
 </header>
 
 <main>
   <div class="notice" id="emptyNotice" hidden>
-    <i class="ri-information-line"></i>
-    No saved AI state found. Open <b>index.html</b>, use the AI Editor, then come back and refresh.
+    <i class="ri-information-line" aria-hidden="true"></i>
+    No saved AI conversations yet. Open a component in the library or the AI Editor to start chatting.
   </div>
 
   <div class="layout" id="layout" hidden>
     <section class="card">
-      <div class="card-head"><i class="ri-list-check-2"></i>Components</div>
+      <div class="card-head"><i class="ri-chat-3-line" aria-hidden="true"></i> Conversations</div>
       <ul class="comp-list" id="compList"></ul>
     </section>
 
     <section class="card" id="detailCard" hidden>
-      <div class="card-head" id="detailHead"><i class="ri-sparkling-2-line"></i>Select a component</div>
-      <div class="tabs" id="detailTabs" role="tablist" aria-label="Component details">
-        <button class="tab active" id="tab-overview" role="tab" aria-selected="true" aria-controls="pane-overview" tabindex="0" data-tab="overview" type="button"><i class="ri-dashboard-line" aria-hidden="true"></i>Overview</button>
-        <button class="tab" id="tab-chat" role="tab" aria-selected="false" aria-controls="pane-chat" tabindex="-1" data-tab="chat" type="button"><i class="ri-chat-3-line" aria-hidden="true"></i>Chat</button>
-        <button class="tab" id="tab-versions" role="tab" aria-selected="false" aria-controls="pane-versions" tabindex="-1" data-tab="versions" type="button"><i class="ri-git-branch-line" aria-hidden="true"></i>Versions</button>
-        <button class="tab" id="tab-original" role="tab" aria-selected="false" aria-controls="pane-original" tabindex="-1" data-tab="original" type="button"><i class="ri-file-code-line" aria-hidden="true"></i>Original</button>
-        <button class="tab" id="tab-current" role="tab" aria-selected="false" aria-controls="pane-current" tabindex="-1" data-tab="current" type="button"><i class="ri-file-edit-line" aria-hidden="true"></i>Current</button>
+      <div class="card-head detail-head">
+        <div class="detail-title">
+          <i class="ri-sparkling-2-line" aria-hidden="true"></i>
+          <span id="detailCompName">Component</span>
+        </div>
+        <a class="btn primary" id="openInEditorBtn" href="#">
+          <i class="ri-edit-line" aria-hidden="true"></i> Continue in AI Editor
+        </a>
       </div>
 
-      <div class="pane" id="pane-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
-        <div class="stats" id="statsGrid"></div>
-        <div class="empty" id="overviewEmpty" hidden>No activity yet for this component.</div>
+      <div class="chat-container">
+        <div class="chat-stream" id="chatMsgs" role="log" aria-label="Conversation history"></div>
+        <div class="empty" id="chatEmpty" hidden>No conversation messages yet for this component.</div>
       </div>
-
-      <div class="pane" id="pane-chat" role="tabpanel" aria-labelledby="tab-chat" tabindex="0" hidden>
-        <div id="chatMsgs"></div>
-        <div class="empty" id="chatEmpty" hidden>No chat messages for this component.</div>
-      </div>
-
-      <div class="pane" id="pane-versions" role="tabpanel" aria-labelledby="tab-versions" tabindex="0" hidden>
-        <div id="versionsList"></div>
-        <div class="empty" id="versionsEmpty" hidden>No AI versions yet.</div>
-      </div>
-
-      <div class="pane" id="pane-original" role="tabpanel" aria-labelledby="tab-original" tabindex="0" hidden><pre id="originalCode"></pre></div>
-      <div class="pane" id="pane-current" role="tabpanel" aria-labelledby="tab-current" tabindex="0" hidden><pre id="currentCode"></pre></div>
     </section>
   </div>
 </main>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script type="module" src="/src/pages/context.js"></script>
 </body>
