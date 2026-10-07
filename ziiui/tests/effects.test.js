@@ -59,3 +59,20 @@ describe('text effect options', () => {
     }
   });
 });
+
+describe('component video system', async () => {
+  const { getComponentVideoSource, COMPONENT_VIDEOS } = await import('../src/effects/videos.js');
+
+  it('maps each component to its component-specific video filename', () => {
+    expect(getComponentVideoSource('Split Scroll')).toContain('Split%20Scroll.mp4');
+    expect(getComponentVideoSource('Micro Hover')).toContain('Micro%20Hover.mp4');
+    expect(getComponentVideoSource('Draggable Mask')).toContain('Draggable%20Mask.mp4');
+    expect(getComponentVideoSource('Cursor: Expand')).toContain('Expand.mp4');
+  });
+
+  it('returns null and NO fake/default video when a component is not mapped or null', () => {
+    expect(getComponentVideoSource(null)).toBeNull();
+    expect(getComponentVideoSource('Nonexistent Effect')).toBeNull();
+  });
+});
+

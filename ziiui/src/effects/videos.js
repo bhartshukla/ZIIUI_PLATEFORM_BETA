@@ -130,8 +130,9 @@ export function resolveVideoSourceUrl(rawPath) {
 export function getComponentVideoSource(effect) {
   if (!effect) return null;
 
+  const str = typeof effect === 'string' ? effect : '';
   const rawId = typeof effect === 'string' ? effect : (effect.id || '');
-  const rawName = typeof effect === 'object' && effect.name ? effect.name : '';
+  const rawName = typeof effect === 'object' && effect.name ? effect.name : str;
 
   // 1. Exact match on rawName (e.g. "Split Scroll", "Text Roll (custom)")
   if (rawName && COMPONENT_VIDEOS[rawName]) {
