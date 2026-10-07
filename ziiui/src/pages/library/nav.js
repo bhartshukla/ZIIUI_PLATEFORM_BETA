@@ -22,8 +22,6 @@ let navigationLocked = false;
 let displayEffects = [...EFFECTS];
 let visibleCardCount = 12;
 const CARD_INCREMENT = 12;
-const MAX_ACTIVE_CARD_VIDEOS = 3;
-const activeCardVideoEntries = new Set();
 const collapsedCategories = new Set();
 
 function searchQuery() {
