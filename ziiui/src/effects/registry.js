@@ -73,8 +73,8 @@ export const EFFECTS = [
     text: 'ziiui — modern web', code: () => textPage(tpl('shimmer.css'), null) },
   { id: 'wave', name: 'Shimmer Wave', cat: 'Text', note: '3D wave through each letter', previewSize: 'compact',
     text: 'ziiui creative', code: () => wavePage({ base: '#71717a', grad: '#ffffff', z: 10, s: 1.1, r: 10 }) },
-  { id: 'wave2', name: 'Shimmer Wave (colour)', cat: 'Text', note: 'Blue wave, custom depth', previewSize: 'compact',
-    text: 'ziiui interactive web', code: () => wavePage({ base: '#0D74CE', grad: '#5EB1EF', z: 1, s: 1.1, r: 20 }) },
+  { id: 'wave2', name: 'Shimmer Wave (colour)', cat: 'Text', note: 'Monochrome wave, custom depth', previewSize: 'compact',
+    text: 'ziiui interactive web', code: () => wavePage({ base: '#71717a', grad: '#ffffff', z: 1, s: 1.1, r: 20 }) },
 
   /* ----- Cursor ----- */
   { id: 'cursor1', name: 'Cursor: Expand', cat: 'Cursor', note: 'Custom cursor expands over an image', previewSize: 'compact',

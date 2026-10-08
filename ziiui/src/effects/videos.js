@@ -59,8 +59,11 @@ export const COMPONENT_VIDEOS = {
 
   // Cursor
   'Expand': 'Expand.mp4',
+  'Cursor: Expand': 'Expand.mp4',
   'Icon Label': 'Icon Label.mp4',
-  'Image Reveal': 'Image Reveal.mp4'
+  'Cursor: Icon Label': 'Icon Label.mp4',
+  'Image Reveal': 'Image Reveal.mp4',
+  'Cursor: Image Reveal': 'Image Reveal.mp4'
 };
 
 /**

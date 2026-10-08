@@ -17,7 +17,7 @@ main { width: 100%; }
   max-width: 900px; color: #fff;
 }
 .intro h2 span, .outro h2 span {
-  color: #ff6b35; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+  color: #ffffff; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;
 }
 .intro h2 svg, .outro h2 svg { width: 0.75em; height: 0.75em; display: inline-block; vertical-align: middle; }
 .intro p, .outro p {
@@ -31,7 +31,7 @@ main { width: 100%; }
 }
 .pin-card .overlay {
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(255,107,53,.08), transparent 60%), #0a0a0a;
+  background: #0a0a0a;
   pointer-events: none; opacity: 0;
 }
 .pin-card > span {

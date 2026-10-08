@@ -47,9 +47,7 @@ body {
 }
 .intro .section-text, .outro .section-text { color: #1c1c1c; }
 .intro .section-text h1, .outro .section-text h1 {
-  background: linear-gradient(135deg, #1c1c1c 0%, #4a4a4a 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1c1c1c;
 }
 .flow .section-text { color: #ffffff; font-family: 'Instrument Serif', serif; }
 .flow .section-text p {
