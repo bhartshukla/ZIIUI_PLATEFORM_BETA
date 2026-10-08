@@ -2785,8 +2785,10 @@ pre {
 }
 
 @media (min-width: 1200px) {
-  .component-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .component-grid,
+  .app .component-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -2803,12 +2805,14 @@ pre {
     align-items: flex-start;
   }
 
-  .component-grid {
+  .component-grid,
+  .app .component-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .workspace-intro {
     min-height: 0;
     gap: 1.25rem;
@@ -2827,56 +2831,19 @@ pre {
     text-align: right;
   }
 
-  .component-grid {
+  .component-grid,
+  .app .component-grid {
     grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
   }
 
   .component-card {
-    grid-template-columns: 104px minmax(0, 1fr);
-    grid-template-rows: minmax(112px, auto);
-    min-height: 112px;
+    min-height: 180px;
+    width: 100%;
   }
 
   .component-card-art {
-    min-height: 112px;
-  }
-
-  .component-card-art::before {
-    width: 100px;
-    height: 100px;
-  }
-
-  .component-card-art::after {
-    width: 70px;
-    height: 70px;
-  }
-
-  .component-card-body {
-    align-self: center;
-    padding: .8rem .85rem;
-  }
-}
-
-@media (max-width: 380px) {
-  .workspace-intro {
-    padding: 1.2rem;
-  }
-
-  .catalog-heading {
-    align-items: flex-start;
-  }
-
-  .shuffle-btn {
-    min-height: 40px;
-    padding-inline: .65rem;
-  }
-
-  .shuffle-btn span {
-    font-size: .7rem;
-  }
-
-  .component-card {
-    grid-template-columns: 88px minmax(0, 1fr);
+    min-height: 180px;
   }
 }
 
@@ -3131,22 +3098,22 @@ pre {
 }
 
 .app .component-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: .8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
 }
 
-@media (min-width: 1060px) and (max-width: 1180px) {
-  .app .component-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 901px) and (max-width: 1180px) {
+  .app .component-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; }
 }
 
 @media (max-width: 900px) {
-  .app .component-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app .component-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 640px) {
   .topnav { display: none; }
   .search { flex: 1 1 auto; }
-  .app .component-grid { grid-template-columns: minmax(0, 1fr); }
+  .app .component-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
 }
 .app .component-group-heading {
   color: var(--fg);
