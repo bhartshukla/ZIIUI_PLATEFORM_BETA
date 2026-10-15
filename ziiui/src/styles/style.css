@@ -604,8 +604,8 @@ nav.locked button[data-id] {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  min-height: 280px;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -2583,6 +2583,19 @@ pre {
   justify-content: space-between;
   gap: 1rem;
   padding-inline: .15rem;
+  cursor: default;
+  transition: none;
+}
+
+.catalog-heading:hover,
+.catalog-kicker:hover,
+#catalogTitle:hover,
+.catalog-description:hover,
+.catalog-total:hover {
+  color: inherit;
+  background: inherit;
+  transform: none;
+  box-shadow: none;
 }
 
 .catalog-heading>div {
@@ -2597,6 +2610,8 @@ pre {
   font-weight: 750;
   letter-spacing: .12em;
   text-transform: uppercase;
+  cursor: default;
+  transition: none;
 }
 
 .catalog-heading h2 {
@@ -2604,6 +2619,8 @@ pre {
   font-size: clamp(1.2rem, 2vw, 1.55rem);
   font-weight: 720;
   letter-spacing: -.04em;
+  cursor: default;
+  transition: none;
 }
 
 .shuffle-btn {
@@ -2676,7 +2693,7 @@ pre {
   font-size: .76rem;
   font-weight: 620;
   cursor: pointer;
-  transition: color .16s ease, border-color .16s ease, background .16s ease;
+  transition: none;
 }
 
 .category-filter>i {
@@ -2684,15 +2701,23 @@ pre {
   font-size: .95rem;
 }
 
-.category-filter:hover {
-  color: var(--fg);
-  border-color: var(--line2);
+.category-filter:hover,
+.app .category-filter:hover {
+  color: var(--mute) !important;
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.category-filter[aria-pressed="true"] {
-  border-color: var(--acc-line);
-  background: var(--acc-soft);
-  color: var(--acc);
+.category-filter[aria-pressed="true"],
+.category-filter[aria-pressed="true"]:hover,
+.app .category-filter[aria-pressed="true"],
+.app .category-filter[aria-pressed="true"]:hover {
+  border-color: var(--acc-line) !important;
+  background: var(--acc-soft) !important;
+  color: var(--acc) !important;
+  transform: none !important;
 }
 
 .category-filter:disabled {
@@ -2732,10 +2757,11 @@ pre {
   font-weight: 650;
 }
 
-.component-grid {
+.component-grid,
+.app .component-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
-  gap: clamp(1.25rem, 2.5vw, 2rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 450px), 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
   min-width: 0;
 }
 
@@ -2743,8 +2769,8 @@ pre {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  min-height: 280px;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2812,12 +2838,19 @@ pre {
   scroll-margin-top: calc(var(--header-h) + 1rem);
 }
 
-@media (min-width: 1200px) {
-
+@media (min-width: 1400px) {
   .component-grid,
   .app .component-grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
     gap: 1.5rem;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1399px) {
+  .component-grid,
+  .app .component-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -2867,12 +2900,13 @@ pre {
   }
 
   .component-card {
-    min-height: 210px;
+    min-height: 180px;
+    aspect-ratio: 16 / 9;
     width: 100%;
   }
 
   .component-card-art {
-    min-height: 210px;
+    min-height: 180px;
   }
 }
 
@@ -3129,13 +3163,13 @@ pre {
 }
 
 .app .component-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
 }
 
 @media (min-width: 901px) and (max-width: 1180px) {
   .app .component-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.1rem;
   }
 }
@@ -3365,7 +3399,7 @@ pre {
 
 @media (min-width: 901px) and (max-width: 1180px) {
   .app .component-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -3662,7 +3696,7 @@ pre {
 
 @media (min-width: 901px) and (max-width: 1180px) {
   .app .component-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
