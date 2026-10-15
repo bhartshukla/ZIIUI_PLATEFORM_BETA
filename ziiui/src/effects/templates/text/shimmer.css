@@ -1,11 +1,11 @@
 #t {
   font-family: ui-monospace, Menlo, monospace;
   font-size: clamp(1.1rem, 5vw, 1.7rem);
-  color: #71717a;
+  color: #717171;
   animation: shimmer 1.5s ease-in-out infinite alternate;
 }
 @keyframes shimmer {
-  from { color: #71717a; text-shadow: none; }
+  from { color: #717171; text-shadow: none; }
   to   { color: #ffffff; text-shadow: 0 0 12px rgba(255, 255, 255, 0.4); }
 }
 @media (prefers-reduced-motion: reduce) {

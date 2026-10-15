@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Outfit:wght@200;300;400&family=DM+Mono:wght@300&display=swap');
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --cream: #f0ebe4; --muted: rgba(255, 255, 255, 0.75);
-  --accent: #c8a97d; --dark: #080808;
+  --cream: #eeeeee; --muted: rgba(255, 255, 255, 0.75);
+  --accent: #cccccc; --dark: #080808;
 }
 html { overflow-x: hidden; scrollbar-width: none; }
 html::-webkit-scrollbar { display: none; }
