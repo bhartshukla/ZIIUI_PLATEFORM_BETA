@@ -179,10 +179,34 @@ function renderList() {
   renderCards(visible);
 }
 
-let activePlayingCard = null;
+let cardObserver = null;
+let userInteracted = false;
 
-function hasHoverCapability() {
-  return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+function prefersReducedMotion() {
+  return !!(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+function unlockAutoplayOnUserGesture() {
+  if (userInteracted || typeof window === 'undefined') return;
+  userInteracted = true;
+  window.removeEventListener('pointerdown', unlockAutoplayOnUserGesture);
+  window.removeEventListener('keydown', unlockAutoplayOnUserGesture);
+  window.removeEventListener('scroll', unlockAutoplayOnUserGesture);
+
+  const grid = $('componentGrid');
+  if (!grid || prefersReducedMotion()) return;
+  grid.querySelectorAll('.component-card-video').forEach((video) => {
+    const card = video.closest('.component-card');
+    if (card && card.dataset.videoState !== 'playing' && video.dataset.failed !== 'true') {
+      playCardVideo(card, video);
+    }
+  });
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pointerdown', unlockAutoplayOnUserGesture, { passive: true, once: true });
+  window.addEventListener('keydown', unlockAutoplayOnUserGesture, { passive: true, once: true });
+  window.addEventListener('scroll', unlockAutoplayOnUserGesture, { passive: true, once: true });
 }
 
 function loadCardVideo(video) {
@@ -196,6 +220,10 @@ function loadCardVideo(video) {
 
 function playCardVideo(card, video) {
   if (!card || !video || video.dataset.failed === 'true') return;
+  if (prefersReducedMotion()) {
+    pauseCardVideo(card, video);
+    return;
+  }
 
   loadCardVideo(video);
 
@@ -230,11 +258,21 @@ function pauseCardVideo(card, video) {
 function bindCardVideo(card, video) {
   if (!card || !video) return;
 
-  // Video autoplay is driven by viewport visibility, remaining independent of hover
+  // Video autoplay is driven by viewport visibility, remaining independent of hover.
+  // If video is missing or fails to load, remove it cleanly without fake/default video.
   video.addEventListener('error', () => {
     video.dataset.failed = 'true';
     pauseCardVideo(card, video);
-    video.style.display = 'none';
+    video.remove();
+  });
+}
+
+export function pauseAllCardVideos() {
+  const grid = $('componentGrid');
+  if (!grid) return;
+  grid.querySelectorAll('.component-card-video').forEach((video) => {
+    const card = video.closest('.component-card');
+    pauseCardVideo(card, video);
   });
 }
 
@@ -243,21 +281,21 @@ function renderCards(effects) {
   if (!grid) return;
   grid.replaceChildren();
 
-  // Reset any active playback reference
-  if (activePlayingCard && activePlayingCard.video) {
-    try { activePlayingCard.video.pause(); } catch (_) {}
-    activePlayingCard = null;
+  // Reset any active observer
+  if (cardObserver) {
+    cardObserver.disconnect();
+    cardObserver = null;
   }
 
-  const observer = 'IntersectionObserver' in window
+  const observer = ('IntersectionObserver' in window && !prefersReducedMotion())
     ? new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         const card = entry.target;
         const video = card.querySelector('.component-card-video');
-        if (!video) return;
+        if (!video || video.dataset.failed === 'true') return;
 
-        // Lazy load and autoplay when visible in viewport; pause when outside
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
+        // Autoplay when visible in viewport; pause when outside for performance
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
           playCardVideo(card, video);
         } else if (!entry.isIntersecting) {
           pauseCardVideo(card, video);
@@ -265,10 +303,12 @@ function renderCards(effects) {
       });
     }, {
       root: null,
-      threshold: [0, 0.15, 0.5],
-      rootMargin: '60px 0px 60px 0px'
+      threshold: [0, 0.1, 0.5],
+      rootMargin: '100px 0px 100px 0px'
     })
     : null;
+
+  cardObserver = observer;
 
   effects.slice(0, visibleCardCount).forEach((effect) => {
     const card = document.createElement('button');
@@ -294,19 +334,26 @@ function renderCards(effects) {
       video.dataset.src = videoSrc;
       video.dataset.loaded = 'false';
       video.muted = true;
+      video.defaultMuted = true;
       video.playsInline = true;
       video.loop = true;
       video.autoplay = true;
+      video.controls = false;
       video.preload = 'metadata';
-      video.setAttribute('playsinline', 'true');
-      video.setAttribute('muted', 'true');
-      video.setAttribute('autoplay', 'true');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.setAttribute('muted', '');
+      video.setAttribute('autoplay', '');
+      video.setAttribute('loop', '');
+      video.removeAttribute('controls');
       video.setAttribute('aria-hidden', 'true');
 
       media.append(video);
       bindCardVideo(card, video);
-      if (observer) {
-        observer.observe(card);
+      if (cardObserver) {
+        cardObserver.observe(card);
+      } else if (!prefersReducedMotion()) {
+        playCardVideo(card, video);
       }
     }
 
@@ -362,6 +409,9 @@ export function buildNav(onSelect, showCategory) {
 
 export function markCurrent(effect, scrollIntoView) {
   activeEffectId = effect ? effect.id : null;
+  if (effect) {
+    pauseAllCardVideos();
+  }
   const nav = $('nav');
   [nav, $('componentGrid')].filter(Boolean).forEach((container) => {
     container.querySelectorAll('[data-id]').forEach((button) => {

@@ -24,6 +24,7 @@ export const EFFECTS = [
     code: full('splitsection', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap'),
+      css('https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css'),
       js(GSAP('3.12.5')), js(SCROLLTRIGGER('3.12.5')),
       js('https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js')
     ]) },
@@ -72,9 +73,9 @@ export const EFFECTS = [
   { id: 'shimmer', name: 'Text Shimmer', cat: 'Text', note: 'Light sweep across text', previewSize: 'compact',
     text: 'ziiui — modern web', code: () => textPage(tpl('shimmer.css'), null) },
   { id: 'wave', name: 'Shimmer Wave', cat: 'Text', note: '3D wave through each letter', previewSize: 'compact',
-    text: 'ziiui creative', code: () => wavePage({ base: '#71717a', grad: '#ffffff', z: 10, s: 1.1, r: 10 }) },
+    text: 'ziiui creative', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 10, s: 1.1, r: 10 }) },
   { id: 'wave2', name: 'Shimmer Wave (colour)', cat: 'Text', note: 'Monochrome wave, custom depth', previewSize: 'compact',
-    text: 'ziiui interactive web', code: () => wavePage({ base: '#71717a', grad: '#ffffff', z: 1, s: 1.1, r: 20 }) },
+    text: 'ziiui interactive web', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 1, s: 1.1, r: 20 }) },
 
   /* ----- Cursor ----- */
   { id: 'cursor1', name: 'Cursor: Expand', cat: 'Cursor', note: 'Custom cursor expands over an image', previewSize: 'compact',
@@ -113,6 +114,7 @@ export const EFFECTS = [
     code: full('pinrotate', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap'),
+      css('https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css'),
       js(GSAP('3.13.0')), js(SCROLLTRIGGER('3.13.0')),
       js('https://unpkg.com/lenis@1.3.15/dist/lenis.min.js')
     ]) },
