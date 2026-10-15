@@ -21,15 +21,50 @@ export function injectDebug(code) {
 
 const urls = new WeakMap();
 
-/** Load HTML into an iframe through a Blob URL (revoking the previous one). */
+/** Load HTML into an iframe safely and immediately using srcdoc (with blob/data fallback). */
 export function setFrameHTML(frame, source) {
   if (!frame) return;
+  const content = String(source == null ? '' : source);
   const old = urls.get(frame);
-  if (old) URL.revokeObjectURL(old);
-  const blob = new Blob([String(source == null ? '' : source)], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  urls.set(frame, url);
-  frame.src = url;
+  if (old) {
+    URL.revokeObjectURL(old);
+    urls.delete(frame);
+  }
+
+  // Use srcdoc as primary mechanism for sandboxed iframes (instant parsing, no cross-origin blob restrictions)
+  if ('srcdoc' in frame) {
+    if (frame.hasAttribute('src')) {
+      frame.removeAttribute('src');
+    }
+    frame.srcdoc = content;
+    return;
+  }
+
+  // Fallback for environments where srcdoc is not supported
+  try {
+    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    urls.set(frame, url);
+    frame.src = url;
+  } catch (_) {
+    frame.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+  }
+}
+
+/** Clear an iframe completely to stop running animation loops and release resources. */
+export function clearFrameHTML(frame) {
+  if (!frame) return;
+  const old = urls.get(frame);
+  if (old) {
+    URL.revokeObjectURL(old);
+    urls.delete(frame);
+  }
+  if ('srcdoc' in frame) {
+    frame.srcdoc = '';
+  }
+  if (frame.hasAttribute('src')) {
+    frame.removeAttribute('src');
+  }
 }
 
 export function errorDoc(title, message) {
