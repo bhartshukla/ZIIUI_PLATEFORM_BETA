@@ -1,5 +1,5 @@
 .cur3-wrap { position: relative; margin: auto; padding: 1.5rem; min-height: 220px; max-width: 320px; }
-.cur3-cap { margin: 0; color: #d8dbe2; font-size: .95rem; }
+.cur3-cap { margin: 0; color: #dadada; font-size: .95rem; }
 .cur3 {
   position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; overflow: hidden;
   width: 160px; height: 0; border-radius: 8px;

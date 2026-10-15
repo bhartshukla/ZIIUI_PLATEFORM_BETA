@@ -89,9 +89,9 @@ body {
   display: flex; flex-direction: column;
   justify-content: flex-end; padding: 2.6rem 2.2rem;
 }
-.card-wrap:nth-child(1) .card-back { background: #141009; border-radius: 3px 0 0 3px; }
-.card-wrap:nth-child(2) .card-back { background: #0c1310; border-radius: 0; }
-.card-wrap:nth-child(3) .card-back { background: #0b0d16; border-radius: 0 3px 3px 0; }
+.card-wrap:nth-child(1) .card-back { background: #141414; border-radius: 3px 0 0 3px; }
+.card-wrap:nth-child(2) .card-back { background: #101010; border-radius: 0; }
+.card-wrap:nth-child(3) .card-back { background: #0d0d0d; border-radius: 0 3px 3px 0; }
 .back-tag {
   font-size: .64rem; letter-spacing: .34em;
   text-transform: uppercase; color: var(--gold); margin-bottom: .9rem;

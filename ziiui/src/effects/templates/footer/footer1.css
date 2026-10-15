@@ -6,7 +6,7 @@ html, body { width: 100vw; overflow-x: hidden; font-family: "Raleway", sans-seri
   margin-bottom: 60vh;
   position: relative;
   z-index: 10;
-  background: #FFF6EF;
+  background: #f5f5f5;
   padding: 60px 80px;
   display: flex;
   align-items: center;

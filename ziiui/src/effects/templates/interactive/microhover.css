@@ -3,7 +3,7 @@ html, body { height: 100%; }
 body {
   font-family: "DM Sans", system-ui, sans-serif;
   background: #0a0a0a;
-  color: #ece8e1;
+  color: #e5e5e5;
   -webkit-font-smoothing: antialiased;
 }
 .about-hero {
@@ -31,7 +31,7 @@ body {
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(236, 232, 225, 0.55);
+  color: rgba(230, 230, 230, 0.55);
   margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
 }
 .about-hero__copy { position: relative; margin-inline: auto; }
@@ -43,7 +43,7 @@ body {
   font-size: clamp(2rem, 5vw, 3.25rem);
   line-height: 1.28;
   letter-spacing: -0.02em;
-  color: #f5f2ec;
+  color: #f0f0f0;
   pointer-events: none;
 }
 .about-hero__keyword {
@@ -60,7 +60,7 @@ body {
   transition: color 0.2s ease;
 }
 .about-hero__keyword:hover,
-.about-hero__keyword:focus-visible { color: #e8dcc8; }
+.about-hero__keyword:focus-visible { color: #dcdcdc; }
 .about-hero__keyword:focus-visible {
   outline: 1px dotted rgba(255, 255, 255, 0.6);
   outline-offset: 6px;

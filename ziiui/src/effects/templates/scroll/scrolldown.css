@@ -4,7 +4,6 @@
   --font: "Outfit", Arial, sans-serif;
   --bg: #ffffff;
   --grey: #737373;
-  --pink: #111111;
   --dark: #111111;
   --card-w: 17vw;
   --card-h: 22vw;
@@ -53,9 +52,9 @@ body {
 }
 .stand-heading {
   font-size: 4vw; font-weight: 600; line-height: 0.92;
-  letter-spacing: -0.04em; text-align: center; color: var(--pink);
+  letter-spacing: -0.04em; text-align: center; color: var(--dark);
 }
-.stand-heading .word { display: inline-block; color: var(--pink); }
+.stand-heading .word { display: inline-block; color: var(--dark); }
 .stand-sub {
   font-size: 0.9rem; font-weight: 600; line-height: 1.4;
   text-align: center; color: var(--grey); max-width: 360px;
@@ -74,7 +73,7 @@ body {
   flex-shrink: 0; transform-origin: 50% 100%;
   transform-style: preserve-3d;
   border-radius: 4px; overflow: hidden;
-  background: #e8e9ef; will-change: transform;
+  background: #e8e8e8; will-change: transform;
 }
 .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .outro { padding: 5rem 4vw 6rem; }
