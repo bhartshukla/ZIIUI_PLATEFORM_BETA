@@ -109,32 +109,42 @@
             display: inline-flex;
             align-items: center;
             gap: 0.55rem;
-            font-weight: 450;
+            font-weight: 350;
             font-size: 1rem;
             color: var(--fg);
             text-decoration: none;
             flex: none;
             letter-spacing: -0.01em;
+            transition: none;
+        }
+
+        .topbar__brand span {
+            font-weight: 350;
         }
 
         .topbar__brand:hover,
         .topbar__brand:focus,
-        .topbar__brand:active {
+        .topbar__brand:active,
+        .topbar__brand:hover *,
+        .topbar__brand * {
             color: var(--fg) !important;
             background: transparent !important;
             transform: none !important;
             opacity: 1 !important;
             filter: none !important;
+            box-shadow: none !important;
+            text-decoration: none !important;
+            transition: none !important;
         }
 
         .topbar__mark {
             width: 26px;
             height: 26px;
             border-radius: 6px;
-            background: var(--fg);
+            background: var(--fg) !important;
             display: grid;
             place-items: center;
-            color: #000000;
+            color: #000000 !important;
             font-weight: 800;
             font-size: 0.95rem;
             line-height: 1;
@@ -143,11 +153,11 @@
 
         .topbar__beta {
             font-size: 0.6rem;
-            font-weight: 400;
+            font-weight: 350 !important;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: var(--fg-2);
-            background: var(--surface-2);
+            color: var(--fg-2) !important;
+            background: var(--surface-2) !important;
             border: 1px solid var(--border-2);
             border-radius: 999px;
             padding: 0.12rem 0.5rem;
