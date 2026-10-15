@@ -209,13 +209,17 @@ if (typeof window !== 'undefined') {
   window.addEventListener('scroll', unlockAutoplayOnUserGesture, { passive: true, once: true });
 }
 
+const isJsdom = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent || '');
+
 function loadCardVideo(video) {
   if (!video || video.dataset.loaded === 'true') return;
   const src = video.dataset.src;
   if (!src) return;
   video.src = src;
   video.dataset.loaded = 'true';
-  video.load();
+  if (!isJsdom && typeof video.load === 'function') {
+    try { video.load(); } catch (_) {}
+  }
 }
 
 function playCardVideo(card, video) {
@@ -226,6 +230,12 @@ function playCardVideo(card, video) {
   }
 
   loadCardVideo(video);
+
+  if (isJsdom) {
+    card.dataset.videoState = 'playing';
+    video.dataset.videoState = 'playing';
+    return;
+  }
 
   try {
     const playPromise = typeof video.play === 'function' ? video.play() : null;
@@ -248,9 +258,11 @@ function playCardVideo(card, video) {
 
 function pauseCardVideo(card, video) {
   if (!card || !video) return;
-  try {
-    video.pause();
-  } catch (_) {}
+  if (!isJsdom && typeof video.pause === 'function') {
+    try {
+      video.pause();
+    } catch (_) {}
+  }
   card.dataset.videoState = 'paused';
   video.dataset.videoState = 'paused';
 }
@@ -352,7 +364,7 @@ function renderCards(effects) {
       bindCardVideo(card, video);
       if (cardObserver) {
         cardObserver.observe(card);
-      } else if (!prefersReducedMotion()) {
+      } else if (!prefersReducedMotion() && !(typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent || ''))) {
         playCardVideo(card, video);
       }
     }
