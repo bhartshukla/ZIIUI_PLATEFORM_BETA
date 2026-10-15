@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
 
@@ -141,7 +142,11 @@
         </div>
         <div class="pbody">
           <div class="stage">
-            <iframe id="frame" title="Effect preview" sandbox="allow-scripts" loading="lazy"></iframe>
+            <div class="preview-loader" id="previewLoader" hidden aria-hidden="true">
+              <i class="ri-loader-4-line preview-spin"></i>
+              <span>Loading preview…</span>
+            </div>
+            <iframe id="frame" title="Effect preview" sandbox="allow-scripts"></iframe>
           </div>
         </div>
         <div class="pfoot" id="pnote"></div>
