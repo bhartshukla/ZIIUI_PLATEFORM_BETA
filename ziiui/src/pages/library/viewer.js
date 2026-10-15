@@ -1,7 +1,7 @@
 /* The effect viewer: text controls, code generation, live preview, copy. */
 import { $, esc, norm, say, report } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
-import { injectDebug, setFrameHTML, errorDoc } from '../../lib/preview.js';
+import { injectDebug, setFrameHTML, clearFrameHTML, errorDoc } from '../../lib/preview.js';
 import { FIELD_LABELS } from '../../effects/registry.js';
 import { isBusy } from '../../ai/request.js';
 import { store, hooks, activeCode } from './store.js';
@@ -16,24 +16,74 @@ let nonce = 0;
 let copyBusy = false;
 let copyReset = null;
 let codeTab = 'html';
+let previewLoadSafetyTimer = null;
+
+export function showPreviewLoading() {
+  clearTimeout(previewLoadSafetyTimer);
+  const loader = $('previewLoader');
+  if (loader) {
+    loader.hidden = false;
+    loader.classList.remove('hidden');
+    loader.setAttribute('aria-hidden', 'false');
+  }
+  previewLoadSafetyTimer = setTimeout(() => {
+    hidePreviewLoading();
+  }, 6000);
+}
+
+export function hidePreviewLoading() {
+  clearTimeout(previewLoadSafetyTimer);
+  previewLoadSafetyTimer = null;
+  const loader = $('previewLoader');
+  if (loader) {
+    loader.classList.add('hidden');
+    loader.setAttribute('aria-hidden', 'true');
+    setTimeout(() => {
+      if (loader && loader.classList.contains('hidden')) loader.hidden = true;
+    }, 200);
+  }
+}
+
+function wireFrameEvents() {
+  const frame = $('frame');
+  if (frame && !frame.__ziiuiWired) {
+    frame.__ziiuiWired = true;
+    frame.addEventListener('load', () => {
+      hidePreviewLoading();
+    });
+  }
+}
+
+const codeSplitCache = new Map();
+const MAX_SPLIT_CACHE = 25;
 
 export function splitComponentCode(source) {
-  const document = new DOMParser().parseFromString(String(source || ''), 'text/html');
+  const src = String(source || '');
+  if (codeSplitCache.has(src)) return codeSplitCache.get(src);
+
+  const document = new DOMParser().parseFromString(src, 'text/html');
   const styleBlocks = [...document.querySelectorAll('style')].map((node) => node.textContent.trim()).filter(Boolean);
   const stylesheets = [...document.querySelectorAll('link[rel~="stylesheet"][href]')]
     .map((node) => `@import url(${JSON.stringify(node.getAttribute('href'))});`);
   const scripts = [...document.querySelectorAll('script')].map((node) => {
-    const src = node.getAttribute('src');
-    return src ? `// External script: ${src}` : node.textContent.trim();
+    const scriptSrc = node.getAttribute('src');
+    return scriptSrc ? `// External script: ${scriptSrc}` : node.textContent.trim();
   }).filter(Boolean);
   const markup = document.documentElement.cloneNode(true);
   markup.querySelectorAll('style, script, link[rel~="stylesheet"]').forEach((node) => node.remove());
 
-  return {
+  const result = {
     html: `<!DOCTYPE html>\n${markup.outerHTML}`,
     css: [...stylesheets, ...styleBlocks].join('\n\n'),
     js: scripts.join('\n\n')
   };
+
+  if (codeSplitCache.size >= MAX_SPLIT_CACHE) {
+    const firstKey = codeSplitCache.keys().next().value;
+    codeSplitCache.delete(firstKey);
+  }
+  codeSplitCache.set(src, result);
+  return result;
 }
 
 function renderCodeView(source = activeCode()) {
@@ -86,10 +136,19 @@ function updatePreviewHeight(effect) {
   frame.classList.add(effect.previewSize === 'large' ? 'preview-large' : 'preview-compact');
 }
 
+const buildCache = new Map();
+const MAX_BUILD_CACHE = 50;
+
+function getBuildCacheKey(id, opts, per, preset) {
+  return opts ? `${id}:${per}:${preset}` : id;
+}
+
 /** Render `code` (default: the active code) in the preview iframe. */
 export function play(code) {
   const src = code || activeCode();
   if (!src) return;
+  wireFrameEvents();
+  showPreviewLoading();
   nonce++;
   setFrameHTML($('frame'), injectDebug(src + '\n<!-- ' + nonce + ' -->'));
 }
@@ -115,9 +174,24 @@ export function rebuild() {
     const ta = $('text');
     const raw = norm(ta ? ta.value : '');
     const empty = !raw.trim();
-    const generated = cur.opts ? cur.code($('per').value, $('preset').value) : cur.code();
+    const perVal = cur.opts && $('per') ? $('per').value : '';
+    const presetVal = cur.opts && $('preset') ? $('preset').value : '';
+
+    let generated;
+    const cacheKey = getBuildCacheKey(cur.id, cur.opts, perVal, presetVal);
+    if (buildCache.has(cacheKey)) {
+      generated = buildCache.get(cacheKey);
+    } else {
+      generated = cur.opts ? cur.code(perVal, presetVal) : cur.code();
+      if (buildCache.size >= MAX_BUILD_CACHE) {
+        const firstKey = buildCache.keys().next().value;
+        buildCache.delete(firstKey);
+      }
+      buildCache.set(cacheKey, generated);
+    }
+
     store.html = String(generated).replace(/__TEXT__/g, () => esc(empty ? PLACEHOLDER : raw));
-    $('label').textContent = cur.name + (cur.opts ? ' · ' + $('per').value + ' · ' + $('preset').value : '');
+    $('label').textContent = cur.name + (cur.opts ? ' · ' + perVal + ' · ' + presetVal : '');
     $('frame').title = 'Preview of ' + cur.name;
     updateHint(empty);
 
@@ -128,6 +202,7 @@ export function rebuild() {
     store.html = '';
     const out = $('code-out');
     if (out) out.textContent = 'Could not build this effect: ' + err.message;
+    hidePreviewLoading();
     setFrameHTML($('frame'), injectDebug(errorDoc('Build error', err.message)));
     report(err, 'rebuild');
   }
@@ -202,6 +277,8 @@ export function selectEffect(e, fromUser, options = {}) {
   if (options.updateURL !== false && fromUser) {
     window.history.pushState({ componentId: e.id }, '', componentURL(e.id));
   }
+  wireFrameEvents();
+  showPreviewLoading();
   store.cur = e;
   store.dirty = false;
   setDetailView(e);
@@ -220,7 +297,6 @@ export function selectEffect(e, fromUser, options = {}) {
   if (fromUser) {
     say('Previewing ' + e.name + (e.cat === 'Cursor' ? '. Its text field is below the preview.' : ''));
     if (window.matchMedia('(max-width: 900px)').matches) closeSidebar();
-    const preview = $('previewCard');
     const detail = $('componentDetail');
     if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -248,6 +324,8 @@ export function showDiscovery(category = 'All', options = {}) {
   const panel = $('aiPanel');
   if (panel) panel.hidden = true;
   document.body.style.overflow = '';
+  hidePreviewLoading();
+  clearFrameHTML($('frame'));
   store.cur = null;
   store.html = '';
   store.edited = '';
@@ -274,6 +352,8 @@ export function showMissingComponent() {
   if (fab) fab.hidden = true;
   const panel = $('aiPanel');
   if (panel) panel.hidden = true;
+  hidePreviewLoading();
+  clearFrameHTML($('frame'));
   store.cur = null;
   store.html = '';
   store.edited = '';
