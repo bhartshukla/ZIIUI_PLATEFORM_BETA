@@ -36,6 +36,17 @@
   box-sizing: border-box;
 }
 
+[class^="ri-"], [class*=" ri-"] {
+  font-family: 'remixicon' !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="ri-"]::before, [class*=" ri-"]::before {
+  font-family: 'remixicon' !important;
+}
+
 [hidden] {
   display: none !important;
 }

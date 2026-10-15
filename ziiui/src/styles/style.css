@@ -52,7 +52,17 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[class^="ri-"], [class*=" ri-"] {
+  font-family: 'remixicon' !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="ri-"]::before, [class*=" ri-"]::before {
+  font-family: 'remixicon' !important;
 }
 
 [hidden] {
@@ -186,16 +196,26 @@ body {
   flex: none;
   border-radius: 8px;
   padding: .25rem .4rem;
-  height: 44px
+  height: 44px;
+  font-weight: 450;
+  letter-spacing: -.01em;
+}
+
+.logo span {
+  font-weight: 400;
 }
 
 .logo:hover,
 .logo:focus,
-.logo:active {
-  background: transparent;
-  transform: none;
-  opacity: 1;
-  color: var(--fg);
+.logo:active,
+.logo:hover .logo-mark,
+.logo-mark:hover {
+  background: transparent !important;
+  transform: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+  color: var(--fg) !important;
 }
 
 .logo-mark {
@@ -207,11 +227,7 @@ body {
   object-fit: contain;
   border-radius: 6px;
   transition: none;
-}
-
-.logo-mark:hover {
   transform: none;
-  filter: none;
 }
 
 .beta-badge {
@@ -575,7 +591,7 @@ nav.locked button[data-id] {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
-  min-height: 180px;
+  min-height: 230px;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -583,12 +599,12 @@ nav.locked button[data-id] {
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
-  transition: transform .22s cubic-bezier(0.2, 0, 0, 1), border-color .2s ease, box-shadow .2s ease;
+  transition: transform .24s cubic-bezier(0.2, 0, 0, 1), border-color .2s ease, box-shadow .2s ease;
   will-change: transform;
 }
 
 .component-card:hover {
-  transform: scale(1.02);
+  transform: scale(1.025);
   border-color: var(--line2);
   box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
 }
@@ -2704,8 +2720,8 @@ pre {
 
 .component-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-  gap: clamp(1rem, 2vw, 1.25rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: clamp(1.15rem, 2.2vw, 1.75rem);
   min-width: 0;
 }
 
@@ -2714,7 +2730,7 @@ pre {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
-  min-height: 190px;
+  min-height: 230px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2725,13 +2741,13 @@ pre {
   text-align: left;
   outline: none;
   box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
-  transition: transform .22s cubic-bezier(0.2, 0, 0, 1), border-color .2s ease, box-shadow .2s ease;
+  transition: transform .24s cubic-bezier(0.2, 0, 0, 1), border-color .2s ease, box-shadow .2s ease;
   will-change: transform;
 }
 
 .component-card:hover {
   border-color: var(--line2);
-  transform: scale(1.02);
+  transform: scale(1.025);
   box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
 }
 
@@ -2838,12 +2854,12 @@ pre {
   }
 
   .component-card {
-    min-height: 180px;
+    min-height: 210px;
     width: 100%;
   }
 
   .component-card-art {
-    min-height: 180px;
+    min-height: 210px;
   }
 }
 
@@ -3459,14 +3475,13 @@ pre {
 }
 
 .component-card {
-  transform: none;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--bg) 34%, transparent);
 }
 
 .component-card:hover {
-  transform: none;
+  transform: scale(1.025);
   border-color: var(--line2);
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--bg) 30%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--bg) 30%, transparent);
 }
 
 .component-card-art {

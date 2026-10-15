@@ -199,23 +199,22 @@ function playCardVideo(card, video) {
 
   loadCardVideo(video);
 
-  // Ensure inactive videos are paused — only one video plays at a time
-  if (activePlayingCard && activePlayingCard.video !== video) {
-    pauseCardVideo(activePlayingCard.card, activePlayingCard.video);
-  }
-
-  const playPromise = video.play();
-  if (playPromise !== undefined) {
-    playPromise
-      .then(() => {
-        card.dataset.videoState = 'playing';
-        video.dataset.videoState = 'playing';
-        activePlayingCard = { card, video };
-      })
-      .catch(() => {
-        card.dataset.videoState = 'paused';
-        video.dataset.videoState = 'paused';
-      });
+  try {
+    const playPromise = typeof video.play === 'function' ? video.play() : null;
+    if (playPromise !== undefined && playPromise !== null) {
+      playPromise
+        .then(() => {
+          card.dataset.videoState = 'playing';
+          video.dataset.videoState = 'playing';
+        })
+        .catch(() => {
+          card.dataset.videoState = 'paused';
+          video.dataset.videoState = 'paused';
+        });
+    }
+  } catch (_) {
+    card.dataset.videoState = 'paused';
+    video.dataset.videoState = 'paused';
   }
 }
 
@@ -226,36 +225,17 @@ function pauseCardVideo(card, video) {
   } catch (_) {}
   card.dataset.videoState = 'paused';
   video.dataset.videoState = 'paused';
-  if (activePlayingCard && activePlayingCard.video === video) {
-    activePlayingCard = null;
-  }
 }
 
 function bindCardVideo(card, video) {
   if (!card || !video) return;
 
-  const onEnter = () => {
-    if (hasHoverCapability()) {
-      playCardVideo(card, video);
-    }
-  };
-
-  const onLeave = () => {
-    if (hasHoverCapability()) {
-      pauseCardVideo(card, video);
-    }
-  };
-
+  // Video autoplay is driven by viewport visibility, remaining independent of hover
   video.addEventListener('error', () => {
     video.dataset.failed = 'true';
     pauseCardVideo(card, video);
     video.style.display = 'none';
   });
-
-  card.addEventListener('mouseenter', onEnter);
-  card.addEventListener('mouseleave', onLeave);
-  card.addEventListener('focusin', onEnter);
-  card.addEventListener('focusout', onLeave);
 }
 
 function renderCards(effects) {
@@ -276,30 +256,16 @@ function renderCards(effects) {
         const video = card.querySelector('.component-card-video');
         if (!video) return;
 
-        // Lazy load video stream as card approaches/enters viewport
-        if (entry.isIntersecting && video.dataset.loaded !== 'true') {
-          loadCardVideo(video);
-        }
-
-        const isDesktop = hasHoverCapability();
-
-        if (isDesktop) {
-          // On desktop: pause if scrolled out of viewport while playing
-          if (!entry.isIntersecting) {
-            pauseCardVideo(card, video);
-          }
-        } else {
-          // On mobile: play when centered in viewport, pause when exiting
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            playCardVideo(card, video);
-          } else if (!entry.isIntersecting) {
-            pauseCardVideo(card, video);
-          }
+        // Lazy load and autoplay when visible in viewport; pause when outside
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
+          playCardVideo(card, video);
+        } else if (!entry.isIntersecting) {
+          pauseCardVideo(card, video);
         }
       });
     }, {
       root: null,
-      threshold: [0, 0.5],
+      threshold: [0, 0.15, 0.5],
       rootMargin: '60px 0px 60px 0px'
     })
     : null;
@@ -330,14 +296,18 @@ function renderCards(effects) {
       video.muted = true;
       video.playsInline = true;
       video.loop = true;
+      video.autoplay = true;
       video.preload = 'metadata';
       video.setAttribute('playsinline', 'true');
       video.setAttribute('muted', 'true');
+      video.setAttribute('autoplay', 'true');
       video.setAttribute('aria-hidden', 'true');
 
       media.append(video);
       bindCardVideo(card, video);
-      if (observer) observer.observe(card);
+      if (observer) {
+        observer.observe(card);
+      }
     }
 
     card.append(media);

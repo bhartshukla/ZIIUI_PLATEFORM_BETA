@@ -116,7 +116,7 @@ body {
   transition: color .22s, border-color .22s;
 }
 .back-cta:hover { color: var(--gold); border-color: var(--gold); }
-.back-cta svg { width: 13px; height: 13px; }
+.back-cta svg, .back-cta i { width: 13px; height: 13px; font-size: 13px; display: inline-flex; align-items: center; }
 .outro {
   height: 60vh; display: flex; align-items: center; justify-content: center;
   font-family: 'Bebas Neue', sans-serif;

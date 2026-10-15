@@ -11,8 +11,14 @@ body { align-items: center; justify-content: center; }
   opacity: 0; transform: translate(-2px, -2px) scale(.3);
   transition: opacity .15s ease-in-out, transform .15s ease-in-out;
 }
-.cur2.show { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+.cur2-icon {
+  font-size: 18px;
+  color: #ffffff;
+  line-height: 1;
+  display: inline-block;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
 .cur2-tag {
-  margin-left: 1rem; margin-top: .25rem; border-radius: 4px; background: #22c55e; color: #fafaf9;
-  padding: .1rem .55rem; font-size: .8rem; white-space: nowrap;
+  margin-left: 0.75rem; margin-top: .25rem; border-radius: 4px; background: #ffffff; color: #000000;
+  font-weight: 600; padding: .1rem .55rem; font-size: .8rem; white-space: nowrap;
 }

@@ -34,6 +34,17 @@
         * { box-sizing: border-box }
         *::before, *::after { box-sizing: border-box }
 
+        [class^="ri-"], [class*=" ri-"] {
+            font-family: 'remixicon' !important;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        [class^="ri-"]::before, [class*=" ri-"]::before {
+            font-family: 'remixicon' !important;
+        }
+
         html, body { margin: 0; padding: 0 }
 
         html {
@@ -98,7 +109,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.55rem;
-            font-weight: 650;
+            font-weight: 450;
             font-size: 1rem;
             color: var(--fg);
             text-decoration: none;
@@ -106,10 +117,14 @@
             letter-spacing: -0.01em;
         }
 
-        .topbar__brand:hover {
-            color: var(--fg);
-            background: transparent;
-            transform: none;
+        .topbar__brand:hover,
+        .topbar__brand:focus,
+        .topbar__brand:active {
+            color: var(--fg) !important;
+            background: transparent !important;
+            transform: none !important;
+            opacity: 1 !important;
+            filter: none !important;
         }
 
         .topbar__mark {
