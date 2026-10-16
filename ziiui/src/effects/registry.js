@@ -20,82 +20,119 @@ const full = (template, head) => () => templatePage(template, head);
 
 export const EFFECTS = [
   /* ----- Web ----- */
-  { id: 'splitsection', name: 'Split Scroll', cat: 'Web', field: 'none', previewSize: 'large',
+  {
+    id: 'splitsection', name: 'Split Scroll', cat: 'Web', field: 'none', previewSize: 'large',
     note: 'Cards split apart and flip on scroll', text: '',
     code: full('splitsection', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap'),
       css('https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css'),
       js(GSAP), js(SCROLLTRIGGER), js(LENIS)
-    ]) },
+    ])
+  },
 
   /* ----- Interactive ----- */
-  { id: 'maskdrag', name: 'Draggable Mask', cat: 'Interactive', field: 'none', previewSize: 'large',
+  {
+    id: 'maskdrag', name: 'Draggable Mask', cat: 'Interactive', field: 'none', previewSize: 'large',
     note: 'Drag canvas windows over a video', text: '',
-    code: full('maskdrag') },
-  { id: 'microhover', name: 'Micro Hover', cat: 'Interactive', field: 'none', previewSize: 'large',
+    code: full('maskdrag')
+  },
+  {
+    id: 'microhover', name: 'Micro Hover', cat: 'Interactive', field: 'none', previewSize: 'large',
     note: 'Photo burst on keyword hover', text: '',
     code: full('microhover', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500&family=DM+Serif+Display&display=swap'),
       js(GSAP)
-    ]) },
-  { id: 'hoversection', name: 'Hover Section', cat: 'Interactive', field: 'none', previewSize: 'large',
+    ])
+  },
+  {
+    id: 'hoversection', name: 'Hover Section', cat: 'Interactive', field: 'none', previewSize: 'large',
     note: 'Project list with floating thumbnail', text: '',
-    code: full('hoversection', [js(GSAP)]) },
+    code: full('hoversection', [js(GSAP)])
+  },
 
   /* ----- Footer ----- */
-  { id: 'footer1', name: 'Sticky Footer', cat: 'Footer', field: 'none', previewSize: 'large',
+  {
+    id: 'footer1', name: 'Sticky Footer', cat: 'Footer', field: 'none', previewSize: 'large',
     note: 'Sticky footer with smooth scroll reveal', text: '',
-    code: full('footer1', [js(LENIS)]) },
-  { id: 'footer2', name: 'Editorial Footer', cat: 'Footer', field: 'none', previewSize: 'large',
+    code: full('footer1', [js(LENIS)])
+  },
+  {
+    id: 'footer2', name: 'Editorial Footer', cat: 'Footer', field: 'none', previewSize: 'large',
     note: 'Split text animated footer with magnetic links', text: '',
     code: full('footer2', [
       css('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'),
       js(GSAP), js(SCROLLTRIGGER)
-    ]) },
+    ])
+  },
 
   /* ----- Text ----- */
-  { id: 'effect', name: 'Text Effect', cat: 'Text', note: 'Split by char, word or line', previewSize: 'compact',
+  {
+    id: 'effect', name: 'Text Effect', cat: 'Text', note: 'Split by char, word or line', previewSize: 'compact',
     text: 'ziiui — creative interfaces with motion-primitives', opts: true,
-    code: (per, preset) => splitEffectPage(per, preset) },
-  { id: 'fancy', name: 'Custom Variants', cat: 'Text', note: 'Random spring, rotation, colour', previewSize: 'compact',
+    code: (per, preset) => splitEffectPage(per, preset)
+  },
+  {
+    id: 'fancy', name: 'Custom Variants', cat: 'Text', note: 'Random spring, rotation, colour', previewSize: 'compact',
     text: 'ziiui — creative web effects',
-    code: () => textPage(tpl('fancy.css'), tpl('fancy.js')) },
-  { id: 'roll', name: 'Text Roll', cat: 'Text', note: 'Letters roll up in sequence', previewSize: 'compact',
+    code: () => textPage(tpl('fancy.css'), tpl('fancy.js'))
+  },
+  {
+    id: 'roll', name: 'Text Roll', cat: 'Text', note: 'Letters roll up in sequence', previewSize: 'compact',
     text: 'ziiui motion',
-    code: () => rollPage({ dur: 0.5, ease: 'cubic-bezier(.4,0,.2,1)', from: '100%', to: '-100%', a: 0.1, b: 0.2 }) },
-  { id: 'roll2', name: 'Text Roll (custom)', cat: 'Text', note: 'Rolls down, custom easing', previewSize: 'compact',
+    code: () => rollPage({ dur: 0.5, ease: 'cubic-bezier(.4,0,.2,1)', from: '100%', to: '-100%', a: 0.1, b: 0.2 })
+  },
+  {
+    id: 'roll2', name: 'Text Roll (custom)', cat: 'Text', note: 'Rolls down, custom easing', previewSize: 'compact',
     text: 'ziiui digital',
-    code: () => rollPage({ dur: 0.3, ease: 'cubic-bezier(.175,.885,.32,1.1)', from: '-100%', to: '100%', a: 0.05, b: 0.05 }) },
-  { id: 'scramble', name: 'Text Scramble', cat: 'Text', note: 'Random glyphs resolve to text', previewSize: 'compact',
-    text: 'ziiui motion', code: () => scramblePage() },
-  { id: 'shimmer', name: 'Text Shimmer', cat: 'Text', note: 'Light sweep across text', previewSize: 'compact',
-    text: 'ziiui — modern web', code: () => textPage(tpl('shimmer.css'), null) },
-  { id: 'wave', name: 'Shimmer Wave', cat: 'Text', note: '3D wave through each letter', previewSize: 'compact',
-    text: 'ziiui creative', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 10, s: 1.1, r: 10 }) },
-  { id: 'wave2', name: 'Shimmer Wave (colour)', cat: 'Text', note: 'Monochrome wave, custom depth', previewSize: 'compact',
-    text: 'ziiui interactive web', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 1, s: 1.1, r: 20 }) },
+    code: () => rollPage({ dur: 0.3, ease: 'cubic-bezier(.175,.885,.32,1.1)', from: '-100%', to: '100%', a: 0.05, b: 0.05 })
+  },
+  {
+    id: 'scramble', name: 'Text Scramble', cat: 'Text', note: 'Random glyphs resolve to text', previewSize: 'compact',
+    text: 'ziiui motion', code: () => scramblePage()
+  },
+  {
+    id: 'shimmer', name: 'Text Shimmer', cat: 'Text', note: 'Light sweep across text', previewSize: 'compact',
+    text: 'ziiui — modern web', code: () => textPage(tpl('shimmer.css'), null)
+  },
+  {
+    id: 'wave', name: 'Shimmer Wave', cat: 'Text', note: '3D wave through each letter', previewSize: 'compact',
+    text: 'ziiui creative', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 10, s: 1.1, r: 10 })
+  },
+  {
+    id: 'wave2', name: 'Shimmer Wave (colour)', cat: 'Text', note: 'Monochrome wave, custom depth', previewSize: 'compact',
+    text: 'ziiui interactive web', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 1, s: 1.1, r: 20 })
+  },
 
   /* ----- Cursor ----- */
-  { id: 'cursor1', name: 'Cursor: Expand', cat: 'Cursor', note: 'Custom cursor expands over an image', previewSize: 'compact',
+  {
+    id: 'cursor1', name: 'Cursor: Expand', cat: 'Cursor', note: 'Custom cursor expands over an image', previewSize: 'compact',
     text: 'Explore', opts: false,
-    code: () => cursorPage(tpl('cursor1.css'), tpl('cursor1.html'), tpl('cursor1.js')) },
-  { id: 'cursor2', name: 'Cursor: Icon Label', cat: 'Cursor', note: 'Pointer icon with a trailing tag', previewSize: 'compact',
+    code: () => cursorPage(tpl('cursor1.css'), tpl('cursor1.html'), tpl('cursor1.js'))
+  },
+  {
+    id: 'cursor2', name: 'Cursor: Icon Label', cat: 'Cursor', note: 'Pointer icon with a trailing tag', previewSize: 'compact',
     text: 'ziiui creative web', opts: false,
-    code: () => cursorPage(tpl('cursor2.css'), tpl('cursor2.html'), tpl('cursor2.js')) },
-  { id: 'cursor3', name: 'Cursor: Image Reveal', cat: 'Cursor', note: 'Photo preview follows the pointer', previewSize: 'compact',
+    code: () => cursorPage(tpl('cursor2.css'), tpl('cursor2.html'), tpl('cursor2.js'))
+  },
+  {
+    id: 'cursor3', name: 'Cursor: Image Reveal', cat: 'Cursor', note: 'Photo preview follows the pointer', previewSize: 'compact',
     text: 'ziiui — digital motion design', opts: false,
-    code: () => cursorPage(tpl('cursor3.css'), tpl('cursor3.html'), tpl('cursor3.js')) },
+    code: () => cursorPage(tpl('cursor3.css'), tpl('cursor3.html'), tpl('cursor3.js'))
+  },
 
   /* ----- Scroll ----- */
-  { id: 'listreveal', name: 'List Reveal', cat: 'Scroll', field: 'none', previewSize: 'large',
+  {
+    id: 'listreveal', name: 'List Reveal', cat: 'Scroll', field: 'none', previewSize: 'large',
     note: 'Pinned list with image preview', text: '',
     code: full('list', [
       css('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap'),
       js(LENIS), js(GSAP), js(SCROLLTRIGGER)
-    ]) },
-  { id: 'scrolldown', name: 'Scroll Stand', cat: 'Scroll', field: 'none', previewSize: 'large',
+    ])
+  },
+  {
+    id: 'scrolldown', name: 'Scroll Stand', cat: 'Scroll', field: 'none', previewSize: 'large',
     note: '3D cards rise on scroll', text: '',
     code: full('scrolldown', [
       ...fontPreconnect(),
@@ -104,41 +141,54 @@ export const EFFECTS = [
       js(SCROLLTRIGGER),
       js('https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js'),
       js(LENIS)
-    ]) },
-  { id: 'scrollmask', name: 'Scrolling Mask', cat: 'Scroll', field: 'none', previewSize: 'large',
+    ])
+  },
+  {
+    id: 'scrollmask', name: 'Scrolling Mask', cat: 'Scroll', field: 'none', previewSize: 'large',
     note: 'Video revealed through scrolling text', text: '',
-    code: full('scrollmask', [js(GSAP), js(SCROLLTRIGGER)]) },
-  { id: 'pinrotate', name: 'Pin Rotate Sections', cat: 'Scroll', field: 'none', previewSize: 'large',
+    code: full('scrollmask', [js(GSAP), js(SCROLLTRIGGER)])
+  },
+  {
+    id: 'pinrotate', name: 'Pin Rotate Sections', cat: 'Scroll', field: 'none', previewSize: 'large',
     note: 'Pinned cards rotate into view', text: '',
     code: full('pinrotate', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap'),
       css('https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css'),
       js(GSAP), js(SCROLLTRIGGER), js(LENIS)
-    ]) },
-  { id: 'imageflow', name: 'Images Flow', cat: 'Scroll', field: 'none', previewSize: 'large',
+    ])
+  },
+  {
+    id: 'imageflow', name: 'Images Flow', cat: 'Scroll', field: 'none', previewSize: 'large',
     note: '3D image flythrough on scroll', text: '',
     code: full('imageflow', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;600&display=swap'),
       css('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap'),
       js(GSAP), js(SCROLLTRIGGER), js(LENIS)
-    ]) },
-  { id: 'clipreveal', name: 'Clip Path Reveal', cat: 'Scroll', field: 'none', previewSize: 'large',
+    ])
+  },
+  {
+    id: 'clipreveal', name: 'Clip Path Reveal', cat: 'Scroll', field: 'none', previewSize: 'large',
     note: 'Full-screen panels reveal on scroll', text: '',
     code: full('clipreveal', [
       ...fontPreconnect(),
       css('https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Outfit:wght@200;300;400&family=DM+Mono:wght@300&display=swap'),
       js(LENIS), js(GSAP), js(SCROLLTRIGGER)
-    ]) },
+    ])
+  },
 
   /* ----- Shader ----- */
-  { id: 'noisypixel', name: 'Noisy Pixel', cat: 'Shader', field: 'none', previewSize: 'large',
+  {
+    id: 'noisypixel', name: 'Noisy Pixel', cat: 'Shader', field: 'none', previewSize: 'large',
     note: 'WebGL pixel dissolve reveal', text: '',
-    code: full('noisy', [js(THREE), js(GSAP), js(SCROLLTRIGGER)]) },
-  { id: 'mirror', name: 'Mirror Effect', cat: 'Shader', field: 'none', previewSize: 'large',
+    code: full('noisy', [js(THREE), js(GSAP), js(SCROLLTRIGGER)])
+  },
+  {
+    id: 'mirror', name: 'Mirror Effect', cat: 'Shader', field: 'none', previewSize: 'large',
     note: 'Sobel-edge dissolve between two images', text: '',
-    code: full('mirror', [js(THREE)]) }
+    code: full('mirror', [js(THREE)])
+  }
 ];
 
 /** Sidebar group order. */

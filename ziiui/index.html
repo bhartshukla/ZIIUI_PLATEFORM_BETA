@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ziiui — Creative Web Effects, Motion & Interactive Components</title>
+  <title>ziiui - Creative Web Effects, Motion & Interactive Components</title>
   <meta name="description"
     content="ziiui — production-ready creative web effects, cursor animations, motion design and WebGL shaders. Copy-paste standalone code.">
   <meta name="theme-color" content="#000000">
@@ -14,7 +14,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
 
   <script>
@@ -33,8 +34,8 @@
 
 <body>
 
-  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation"
-    aria-expanded="false" aria-controls="sidePanel">
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false"
+    aria-controls="sidePanel">
     <i class="ri-menu-line" aria-hidden="true"></i>
   </button>
   <div class="side-overlay" id="sideOverlay" aria-hidden="true"></div>
@@ -49,7 +50,7 @@
         <a href="#" class="active">Components</a>
         <a href="ai.html">AI</a>
         <a href="context.html">Context</a>
-        <a href="docs.html">Docs</a>
+        <a href="docs.html" target="_blank">Docs</a>
       </nav>
       <div class="search-navbar-slot" id="searchNavbarSlot"></div>
       <div class="search" id="componentSearch" role="search">
@@ -81,13 +82,14 @@
           <p class="side-label">Components</p>
           <p class="sidebar-total"><span id="catalogTotal"></span></p>
         </div>
-        <button class="shuffle-btn sidebar-shuffle" id="shuffleComponents" type="button" aria-label="Shuffle components">
+        <button class="shuffle-btn sidebar-shuffle" id="shuffleComponents" type="button"
+          aria-label="Shuffle components">
           <i class="ri-shuffle-line" aria-hidden="true"></i>
         </button>
       </div>
       <div class="search-slot" id="searchDrawerSlot"></div>
-      <button class="component-link all-components-link" id="allComponentsFilter" type="button"
-        data-category="All" aria-pressed="true">
+      <button class="component-link all-components-link" id="allComponentsFilter" type="button" data-category="All"
+        aria-pressed="true">
         <i class="ri-apps-2-line" aria-hidden="true"></i>
         <span class="component-link-name">All Components</span>
         <span class="all-components-count" id="allComponentsCount"></span>
@@ -115,9 +117,11 @@
         <div class="component-grid" id="componentGrid" aria-label="Component gallery"></div>
         <p class="catalog-empty gallery-empty" id="galleryEmpty" hidden>
           No components found. Try another search.
-          <button class="clear-search" id="clearSearch" type="button"><i class="ri-close-circle-line" aria-hidden="true"></i> Clear search</button>
+          <button class="clear-search" id="clearSearch" type="button"><i class="ri-close-circle-line"
+              aria-hidden="true"></i> Clear search</button>
         </p>
-        <button class="see-more" id="seeMore" type="button" hidden><i class="ri-arrow-down-line" aria-hidden="true"></i> See more components</button>
+        <button class="see-more" id="seeMore" type="button" hidden><i class="ri-arrow-down-line" aria-hidden="true"></i>
+          See more components</button>
       </section>
 
       <div class="component-detail" id="componentDetail" hidden>
@@ -126,101 +130,107 @@
             <i class="ri-arrow-left-line" aria-hidden="true"></i>
             <span>All Components</span>
           </button>
-          <p class="detail-breadcrumb"><span id="detailCategory"></span><span aria-hidden="true">/</span><strong id="detailName"></strong></p>
+          <p class="detail-breadcrumb"><span id="detailCategory"></span><span aria-hidden="true">/</span><strong
+              id="detailName"></strong></p>
         </div>
         <p class="route-error" id="routeError" role="status" hidden>
-          Component not found. <button id="routeErrorBack" type="button"><i class="ri-arrow-left-line" aria-hidden="true"></i> Back to Components</button>
+          Component not found. <button id="routeErrorBack" type="button"><i class="ri-arrow-left-line"
+              aria-hidden="true"></i> Back to Components</button>
         </p>
         <div id="componentDetailContent">
-      <section class="card" id="previewCard" aria-labelledby="pname">
-        <div class="card-head">
-          <div class="ttl">
-            <span class="kick">Preview</span>
-            <h2 id="pname"></h2>
-          </div>
-          <span class="chip" id="pcat"></span>
-        </div>
-        <div class="pbody">
-          <div class="stage">
-            <div class="preview-loader" id="previewLoader" hidden aria-hidden="true">
-              <i class="ri-loader-4-line preview-spin"></i>
-              <span>Loading preview…</span>
+          <section class="card" id="previewCard" aria-labelledby="pname">
+            <div class="card-head">
+              <div class="ttl">
+                <span class="kick">Preview</span>
+                <h2 id="pname"></h2>
+              </div>
+              <span class="chip" id="pcat"></span>
             </div>
-            <iframe id="frame" title="Effect preview" sandbox="allow-scripts"></iframe>
-          </div>
-        </div>
-        <div class="pfoot" id="pnote"></div>
-        <div class="cslot" id="cslot" hidden>
-          <p class="cs-hint">
-            <i class="ri-arrow-up-line" aria-hidden="true"></i>
-            This text appears inside the preview above
-          </p>
-        </div>
-      </section>
-
-      <section class="card" id="ccard" aria-labelledby="ctitle">
-        <div class="card-head">
-          <h2 class="kick" id="ctitle">Controls</h2>
-        </div>
-        <div class="controls" id="controls">
-          <div id="opts" hidden>
-            <label>Split by
-              <select id="per">
-                <option>char</option>
-                <option>word</option>
-                <option>line</option>
-              </select>
-            </label>
-            <label>Preset
-              <select id="preset">
-                <option>fade</option>
-                <option>blur</option>
-                <option>fade-in-blur</option>
-                <option>scale</option>
-                <option>slide</option>
-              </select>
-            </label>
-          </div>
-          <div class="tblock" id="tblock">
-            <div class="trow">
-              <label class="tf"><span id="tlabel">Text</span>
-                <textarea id="text" rows="3" spellcheck="false" autocomplete="off" aria-describedby="hint"></textarea>
-              </label>
-              <button class="b" id="replay" type="button" aria-label="Replay animation"><i class="ri-refresh-line" aria-hidden="true"></i> Replay</button>
+            <div class="pbody">
+              <div class="stage">
+                <div class="preview-loader" id="previewLoader" hidden aria-hidden="true">
+                  <i class="ri-loader-4-line preview-spin"></i>
+                  <span>Loading preview…</span>
+                </div>
+                <iframe id="frame" title="Effect preview" sandbox="allow-scripts"></iframe>
+              </div>
             </div>
-            <div id="hint"></div>
-          </div>
-        </div>
-      </section>
+            <div class="pfoot" id="pnote"></div>
+            <div class="cslot" id="cslot" hidden>
+              <p class="cs-hint">
+                <i class="ri-arrow-up-line" aria-hidden="true"></i>
+                This text appears inside the preview above
+              </p>
+            </div>
+          </section>
 
-      <section class="card" id="docs" aria-labelledby="codetitle">
-        <div class="card-head">
-          <div class="ttl">
-            <h2 id="codetitle">Generated code</h2>
-            <span class="meta" id="label"></span>
-          </div>
-          <button class="b" id="copy" type="button" aria-label="Copy full component"><i class="ri-file-copy-line" aria-hidden="true"></i> Copy full component</button>
-        </div>
-        <div class="code-toolbar">
-          <div class="code-tabs" id="codeTabs" role="tablist" aria-label="Component code language">
-            <button class="code-tab" id="codeTabHtml" type="button" role="tab" data-code-tab="html"
-              aria-selected="true" aria-controls="codePanel">HTML</button>
-            <button class="code-tab" id="codeTabCss" type="button" role="tab" data-code-tab="css"
-              aria-selected="false" aria-controls="codePanel" tabindex="-1">CSS</button>
-            <button class="code-tab" id="codeTabJs" type="button" role="tab" data-code-tab="js"
-              aria-selected="false" aria-controls="codePanel" tabindex="-1">JavaScript</button>
-          </div>
-        </div>
-        <pre id="codePanel" tabindex="0" role="tabpanel" aria-labelledby="codeTabHtml"><code id="code-out"></code></pre>
-      </section>
+          <section class="card" id="ccard" aria-labelledby="ctitle">
+            <div class="card-head">
+              <h2 class="kick" id="ctitle">Controls</h2>
+            </div>
+            <div class="controls" id="controls">
+              <div id="opts" hidden>
+                <label>Split by
+                  <select id="per">
+                    <option>char</option>
+                    <option>word</option>
+                    <option>line</option>
+                  </select>
+                </label>
+                <label>Preset
+                  <select id="preset">
+                    <option>fade</option>
+                    <option>blur</option>
+                    <option>fade-in-blur</option>
+                    <option>scale</option>
+                    <option>slide</option>
+                  </select>
+                </label>
+              </div>
+              <div class="tblock" id="tblock">
+                <div class="trow">
+                  <label class="tf"><span id="tlabel">Text</span>
+                    <textarea id="text" rows="3" spellcheck="false" autocomplete="off"
+                      aria-describedby="hint"></textarea>
+                  </label>
+                  <button class="b" id="replay" type="button" aria-label="Replay animation"><i class="ri-refresh-line"
+                      aria-hidden="true"></i> Replay</button>
+                </div>
+                <div id="hint"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" id="docs" aria-labelledby="codetitle">
+            <div class="card-head">
+              <div class="ttl">
+                <h2 id="codetitle">Generated code</h2>
+                <span class="meta" id="label"></span>
+              </div>
+              <button class="b" id="copy" type="button" aria-label="Copy full component"><i class="ri-file-copy-line"
+                  aria-hidden="true"></i> Copy full component</button>
+            </div>
+            <div class="code-toolbar">
+              <div class="code-tabs" id="codeTabs" role="tablist" aria-label="Component code language">
+                <button class="code-tab" id="codeTabHtml" type="button" role="tab" data-code-tab="html"
+                  aria-selected="true" aria-controls="codePanel">HTML</button>
+                <button class="code-tab" id="codeTabCss" type="button" role="tab" data-code-tab="css"
+                  aria-selected="false" aria-controls="codePanel" tabindex="-1">CSS</button>
+                <button class="code-tab" id="codeTabJs" type="button" role="tab" data-code-tab="js"
+                  aria-selected="false" aria-controls="codePanel" tabindex="-1">JavaScript</button>
+              </div>
+            </div>
+            <pre id="codePanel" tabindex="0" role="tabpanel"
+              aria-labelledby="codeTabHtml"><code id="code-out"></code></pre>
+          </section>
         </div>
       </div>
       <div id="status" class="sr" role="status" aria-live="polite"></div>
     </main>
   </div>
 
-  <button class="ai-fab" id="aiFab" type="button" aria-label="Edit current component with AI"
-    aria-expanded="false" aria-controls="aiPanel" title="Edit with AI" data-tooltip="Edit with AI" hidden>
+  <button class="ai-fab" id="aiFab" type="button" aria-label="Edit current component with AI" aria-expanded="false"
+    aria-controls="aiPanel" title="Edit with AI" data-tooltip="Edit with AI" hidden>
     <i class="ri-sparkling-2-line" aria-hidden="true"></i>
     <span class="ai-fab-label">Edit with AI</span>
   </button>
@@ -263,8 +273,8 @@
     <div class="ai-msgs" id="aiMsgs" role="log" aria-live="polite" aria-label="AI conversation"></div>
     <div class="ai-input">
       <label class="sr" for="aiPrompt">Tell AI what you want to change</label>
-      <textarea id="aiPrompt" rows="2" placeholder="Tell AI what you want to change…"
-        spellcheck="false" autocomplete="off"></textarea>
+      <textarea id="aiPrompt" rows="2" placeholder="Tell AI what you want to change…" spellcheck="false"
+        autocomplete="off"></textarea>
       <div class="ai-actions">
         <span class="ai-hint">Enter to send · Shift + Enter for a new line</span>
         <button class="ai-btn primary" id="aiSend" type="button">
@@ -289,7 +299,8 @@
           <i class="ri-close-line" aria-hidden="true"></i>
         </button>
       </header>
-      <p class="ai-modal-status" id="aiModalStatus" role="status" aria-live="polite">Original component is unchanged.</p>
+      <p class="ai-modal-status" id="aiModalStatus" role="status" aria-live="polite">Original component is unchanged.
+      </p>
       <div class="ai-modal-body">
         <div class="ai-pane">
           <div class="ai-pane-head">
@@ -306,11 +317,16 @@
         </div>
       </div>
       <footer class="ai-modal-foot">
-        <button class="ai-btn primary" id="aiRun" type="button"><i class="ri-play-line" aria-hidden="true"></i> Run Preview</button>
-        <button class="ai-btn" id="aiApply" type="button"><i class="ri-check-double-line" aria-hidden="true"></i> Apply Changes Temporarily</button>
-        <button class="ai-btn" id="aiResetBtn" type="button"><i class="ri-arrow-go-back-line" aria-hidden="true"></i> Reset to Original</button>
-        <button class="ai-btn" id="aiCopyBtn" type="button"><i class="ri-file-copy-line" aria-hidden="true"></i> Copy Code</button>
-        <button class="ai-btn ghost" id="aiModalClose2" type="button"><i class="ri-close-line" aria-hidden="true"></i> Close</button>
+        <button class="ai-btn primary" id="aiRun" type="button"><i class="ri-play-line" aria-hidden="true"></i> Run
+          Preview</button>
+        <button class="ai-btn" id="aiApply" type="button"><i class="ri-check-double-line" aria-hidden="true"></i> Apply
+          Changes Temporarily</button>
+        <button class="ai-btn" id="aiResetBtn" type="button"><i class="ri-arrow-go-back-line" aria-hidden="true"></i>
+          Reset to Original</button>
+        <button class="ai-btn" id="aiCopyBtn" type="button"><i class="ri-file-copy-line" aria-hidden="true"></i> Copy
+          Code</button>
+        <button class="ai-btn ghost" id="aiModalClose2" type="button"><i class="ri-close-line" aria-hidden="true"></i>
+          Close</button>
       </footer>
     </div>
   </div>

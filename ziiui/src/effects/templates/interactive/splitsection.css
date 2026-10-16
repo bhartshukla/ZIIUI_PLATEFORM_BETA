@@ -1,25 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap');
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
-  --cream: #ffffff; --ink: #0d0d0d;
-  --gold: #ffffff; --muted: #888888;
+  --cream: #f5f0e8;
+  --ink:   #0d0d0d;
+  --gold:  #c9a84c;
+  --muted: #7a7568;
   --card-h: 520px;
   --img: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1800&q=90&auto=format&fit=crop');
 }
+
 html { scroll-behavior: auto; }
+
 body {
-  background: var(--ink); color: var(--cream);
-  font-family: 'DM Sans', sans-serif; overflow-x: hidden;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
 }
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  opacity: .028;
+  background-size: 160px;
+}
+
+/* ── HERO ── */
 .hero {
-  height: 100vh; display: flex; flex-direction: column;
+  height: 100vh;
+  display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 1.1rem; text-align: center;
   position: relative; overflow: hidden;
 }
 .hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: transparent;
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 55% 38%, rgba(201,168,76,.11) 0%, transparent 62%);
   pointer-events: none;
 }
 .hero-label {
@@ -45,65 +66,106 @@ body {
 }
 .scroll-hint span {
   display: block; width: 1px; height: 46px;
-  background: var(--gold);
+  background: linear-gradient(to bottom, var(--gold), transparent);
   animation: drip 1.7s ease-in-out infinite;
 }
 @keyframes drip {
-  0%, 100% { opacity: .3; transform: scaleY(.55); transform-origin: top; }
-  50% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+  0%,100% { opacity:.3; transform:scaleY(.55); transform-origin:top; }
+  50%      { opacity:1;  transform:scaleY(1);   transform-origin:top; }
 }
-.scroll-section { height: 300vh; position: relative; }
+
+/* ── SCROLL SECTION ── */
+.scroll-section {
+  height: 300vh;
+  position: relative;
+}
+
 .sticky-wrap {
-  position: sticky; top: 0; height: 100vh;
-  overflow: hidden; display: flex;
-  align-items: center; justify-content: center;
+  position: sticky; top: 0;
+  height: 100vh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
 }
+
+/* ── STAGE ──
+   Three card-wraps sit side by side.
+   'gap' starts at 0 and is driven open by GSAP via JS.
+   clip-path on each wrap hides inner edges → seamless split.
+*/
 .stage {
-  width: 100%; height: var(--card-h);
-  position: relative; display: flex;
-  align-items: stretch; gap: 0px;
-  transform: scale(1.06); will-change: transform;
+  width: 100%;
+  height: var(--card-h);
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  /* gap controlled via JS / GSAP */
+  gap: 0px;
+  transform: scale(1.06);
+  will-change: transform;
 }
+
+/* ── CARD WRAP ──
+   clip-path is set by JS; starts as full-width reveal.
+*/
 .card-wrap {
-  flex: 1; height: 100%; position: relative;
+  flex: 1;
+  height: 100%;
+  position: relative;
   will-change: clip-path;
 }
+
+/* ── CARD (flip element) ── */
 .card {
-  width: 100%; height: 100%; position: relative;
-  transform-style: preserve-3d; will-change: transform;
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
+
+/* ── FACES ── */
 .card-face {
   position: absolute; inset: 0;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden; overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
 }
+
+/* FRONT: background-image trick for seamless slice */
 .card-front {
   background-image: var(--img);
-  background-size: 300% 100%; background-repeat: no-repeat;
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
 }
-.card-wrap:nth-child(1) .card-front { background-position: 0% center; border-radius: 3px 0 0 3px; }
-.card-wrap:nth-child(2) .card-front { background-position: 50% center; border-radius: 0; }
+.card-wrap:nth-child(1) .card-front { background-position: 0%   center; border-radius: 3px 0 0 3px; }
+.card-wrap:nth-child(2) .card-front { background-position: 50%  center; border-radius: 0; }
 .card-wrap:nth-child(3) .card-front { background-position: 100% center; border-radius: 0 3px 3px 0; }
+
+/* BACK */
 .card-back {
   transform: rotateY(180deg);
   display: flex; flex-direction: column;
-  justify-content: flex-end; padding: 2.6rem 2.2rem;
+  justify-content: flex-end;
+  padding: 2.6rem 2.2rem;
 }
-.card-wrap:nth-child(1) .card-back { background: #141414; border-radius: 3px 0 0 3px; }
-.card-wrap:nth-child(2) .card-back { background: #101010; border-radius: 0; }
-.card-wrap:nth-child(3) .card-back { background: #0d0d0d; border-radius: 0 3px 3px 0; }
+.card-wrap:nth-child(1) .card-back { background: #141009; border-radius: 3px 0 0 3px; }
+.card-wrap:nth-child(2) .card-back { background: #0c1310; border-radius: 0; }
+.card-wrap:nth-child(3) .card-back { background: #0b0d16; border-radius: 0 3px 3px 0; }
+
+/* ── BACK CONTENT ── */
 .back-tag {
   font-size: .64rem; letter-spacing: .34em;
-  text-transform: uppercase; color: var(--gold); margin-bottom: .9rem;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: .9rem;
 }
 .back-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(2rem, 3.6vw, 3.2rem);
-  line-height: .98; color: var(--cream); margin-bottom: .9rem;
+  line-height: .98; color: var(--cream);
+  margin-bottom: .9rem;
 }
 .back-body {
   font-size: .88rem; font-weight: 300;
-  line-height: 1.75; color: var(--muted); max-width: 26ch;
+  line-height: 1.75; color: var(--muted);
+  max-width: 26ch;
 }
 .back-cta {
   display: inline-flex; align-items: center; gap: .45rem;
@@ -116,9 +178,12 @@ body {
   transition: color .22s, border-color .22s;
 }
 .back-cta:hover { color: var(--gold); border-color: var(--gold); }
-.back-cta svg, .back-cta i { width: 13px; height: 13px; font-size: 13px; display: inline-flex; align-items: center; }
+.back-cta svg { width: 13px; height: 13px; }
+
+/* ── OUTRO ── */
 .outro {
-  height: 60vh; display: flex; align-items: center; justify-content: center;
+  height: 60vh;
+  display: flex; align-items: center; justify-content: center;
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(2rem, 5vw, 4rem);
   color: var(--muted); letter-spacing: .04em;
