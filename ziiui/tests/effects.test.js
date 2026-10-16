@@ -8,11 +8,12 @@ function inlineScripts(html) {
 }
 
 describe('effects registry', () => {
-  it('has 25 uniquely-identified effects', () => {
-    expect(EFFECTS).toHaveLength(25);
+  it('has 26 uniquely-identified effects', () => {
+    expect(EFFECTS).toHaveLength(26);
     expect(new Set(EFFECTS.map((e) => e.id)).size).toBe(EFFECTS.length);
     expect(BY_ID.pinrotate).toBeTruthy();
     expect(BY_ID.imageflow).toBeTruthy();
+    expect(BY_ID.snakehover).toBeTruthy();
   });
 
   it('puts every effect in a known category', () => {

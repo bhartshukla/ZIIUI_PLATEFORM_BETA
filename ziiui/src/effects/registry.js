@@ -51,6 +51,15 @@ export const EFFECTS = [
     note: 'Project list with floating thumbnail', text: '',
     code: full('hoversection', [js(GSAP)])
   },
+  {
+    id: 'snakehover', name: 'Snake Hover', cat: 'Interactive', field: 'none', previewSize: 'large',
+    note: 'Dynamic SVG ink snake trail on tile hover', text: '',
+    code: full('snakehover', [
+      ...fontPreconnect(),
+      css('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap'),
+      js(GSAP)
+    ])
+  },
 
   /* ----- Footer ----- */
   {

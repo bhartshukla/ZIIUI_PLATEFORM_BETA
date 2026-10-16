@@ -30,6 +30,7 @@ export const COMPONENT_VIDEOS = {
   'Draggable Mask': 'Draggable Mask.mp4',
   'Micro Hover': 'Micro Hover.mp4',
   'Hover Section': 'Hover Section.mp4',
+  'Snake Hover': 'Snake Hover.mp4',
 
   // Scroll
   'List Reveal': 'List Reveal.mp4',
@@ -74,6 +75,7 @@ const EFFECT_ID_TO_NAME = {
   maskdrag: 'Draggable Mask',
   microhover: 'Micro Hover',
   hoversection: 'Hover Section',
+  snakehover: 'Snake Hover',
   listreveal: 'List Reveal',
   scrolldown: 'Scroll Stand',
   scrollmask: 'Scrolling Mask',

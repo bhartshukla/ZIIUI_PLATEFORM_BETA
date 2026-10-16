@@ -1,0 +1,109 @@
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: #f5f2ed;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 494 / 557;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  object-position: center;
+}
+
+.tile .frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.ink {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.5);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ink svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tile:nth-child(1) .ink-a path { stroke: #c9a55a; }
+.tile:nth-child(1) .ink-b path { stroke: #f4f0e8; }
+.tile:nth-child(2) .ink-a path { stroke: #6b9bc4; }
+.tile:nth-child(2) .ink-b path { stroke: #f0eef4; }
+.tile:nth-child(3) .ink-a path { stroke: #c4865a; }
+.tile:nth-child(3) .ink-b path { stroke: #f2efe8; }
+.tile:nth-child(4) .ink-a path { stroke: #c9a84a; }
+.tile:nth-child(4) .ink-b path { stroke: #f4f2ea; }
+.tile:nth-child(5) .ink-a path { stroke: #5a9070; }
+.tile:nth-child(5) .ink-b path { stroke: #f0f2ee; }
+.tile:nth-child(6) .ink-a path { stroke: #d4946a; }
+.tile:nth-child(6) .ink-b path { stroke: #f2ebe4; }
+
+.label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  color: #1a1a1a;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.75) 0%, transparent 100%);
+}
+
+.label-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.label-sub {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgba(26, 26, 26, 0.7);
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 1rem;
+  }
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+}
