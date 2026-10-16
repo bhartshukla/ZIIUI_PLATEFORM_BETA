@@ -1,0 +1,154 @@
+body {
+  min-height: 100dvh;
+  margin: 0;
+  overflow-x: hidden;
+  font-family: system-ui, sans-serif;
+  color: #1a1a1a;
+  background: #ece8e1;
+}
+
+.folder-footer,
+.folder-footer * {
+  box-sizing: border-box;
+}
+
+.folder-footer {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.folder-footer .layer {
+  width: 100%;
+  display: flex;
+}
+
+.folder-footer .folder {
+  position: relative;
+  flex: 1;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.folder-footer .photos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(22rem, 100%);
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.folder-footer .folder:hover .photos {
+  overflow: visible;
+}
+
+.folder-footer .photo {
+  position: absolute;
+  top: 50%;
+  width: 7.5rem;
+  height: 11rem;
+}
+
+.folder-footer .photo:nth-child(1) {
+  left: 18%;
+  transform-origin: top left;
+}
+
+.folder-footer .photo:nth-child(2) {
+  left: 50%;
+  transform-origin: center center;
+}
+
+.folder-footer .photo:nth-child(3) {
+  left: 82%;
+  transform-origin: top right;
+}
+
+.folder-footer .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.folder-footer .panel {
+  position: relative;
+  height: 100%;
+  padding: 12px 18px;
+  pointer-events: none;
+}
+
+.folder-footer .panel::before {
+  content: "";
+  position: absolute;
+  top: -48px;
+  left: 0;
+  width: min(360px, 100%);
+  height: 48px;
+  clip-path: polygon(0 0, 78% 0, 100% 100%, 0 100%);
+}
+
+.folder-footer .panel--1,
+.folder-footer .panel--1::before {
+  background: #f5e04a;
+}
+
+.folder-footer .panel--2,
+.folder-footer .panel--2::before {
+  background: #d4d4d4;
+}
+
+.folder-footer .panel--3,
+.folder-footer .panel--3::before {
+  background: #e8e4dc;
+}
+
+.folder-footer .panel--4,
+.folder-footer .panel--4::before {
+  background: #9c9c9c;
+}
+
+.folder-footer .panel--5,
+.folder-footer .panel--5::before {
+  background: #ffcc4d;
+}
+
+.folder-footer .folder.muted .panel,
+.folder-footer .folder.muted .panel::before {
+  background: #dad6cf;
+}
+
+.folder-footer .folder.muted .panel p,
+.folder-footer .folder.muted .panel h1 {
+  color: #8a8680;
+}
+
+.folder-footer .panel p {
+  position: absolute;
+  top: -28px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.folder-footer .panel h1 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.folder-footer .target {
+  position: absolute;
+  top: -52px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: auto;
+}

@@ -40,8 +40,12 @@ function setActiveCategory(category) {
 }
 
 function matchesSearch(effect, query) {
-  return !query || [effect.name, effect.note, effect.cat]
+  return !query || [effect.name, effect.note, ...(effect.categories || [effect.cat])]
     .some((value) => String(value || '').toLowerCase().includes(query));
+}
+
+function belongsToCategory(effect, category) {
+  return (effect.categories || [effect.cat]).includes(category);
 }
 
 function renderCategories() {
@@ -52,7 +56,7 @@ function renderCategories() {
   ['All', ...CATEGORIES].forEach((category) => {
     const count = category === 'All'
       ? EFFECTS.length
-      : EFFECTS.filter((effect) => effect.cat === category).length;
+      : EFFECTS.filter((effect) => belongsToCategory(effect, category)).length;
     if (!count) return;
 
     const button = document.createElement('button');
@@ -101,14 +105,14 @@ function renderList() {
   const query = searchQuery();
   const searched = displayEffects.filter((effect) => matchesSearch(effect, query));
   const visible = searched.filter((effect) =>
-    activeCategory === 'All' || effect.cat === activeCategory
+    activeCategory === 'All' || belongsToCategory(effect, activeCategory)
   );
 
   if (nav) {
     nav.replaceChildren();
 
     CATEGORIES.forEach((category) => {
-      const effects = searched.filter((effect) => effect.cat === category);
+      const effects = searched.filter((effect) => belongsToCategory(effect, category));
       if (!effects.length) return;
 
       const group = document.createElement('section');
@@ -464,14 +468,14 @@ export function showMoreComponents() {
 
 export function shuffleComponents() {
   CATEGORIES.forEach((category) => {
-    const group = displayEffects.filter((effect) => effect.cat === category);
+    const group = displayEffects.filter((effect) => belongsToCategory(effect, category));
     for (let index = group.length - 1; index > 0; index--) {
       const swapIndex = Math.floor(Math.random() * (index + 1));
       [group[index], group[swapIndex]] = [group[swapIndex], group[index]];
     }
     const queue = [...group];
     displayEffects = displayEffects.map((effect) =>
-      effect.cat === category ? queue.shift() : effect
+      belongsToCategory(effect, category) ? queue.shift() : effect
     );
   });
   renderList();

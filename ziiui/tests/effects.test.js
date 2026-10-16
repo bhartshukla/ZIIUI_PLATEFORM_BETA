@@ -8,12 +8,21 @@ function inlineScripts(html) {
 }
 
 describe('effects registry', () => {
-  it('has 26 uniquely-identified effects', () => {
-    expect(EFFECTS).toHaveLength(26);
+  it('has 27 uniquely-identified effects', () => {
+    expect(EFFECTS).toHaveLength(27);
     expect(new Set(EFFECTS.map((e) => e.id)).size).toBe(EFFECTS.length);
     expect(BY_ID.pinrotate).toBeTruthy();
     expect(BY_ID.imageflow).toBeTruthy();
     expect(BY_ID.snakehover).toBeTruthy();
+  });
+
+  it('registers Folder Footer in both Footer and Interactive categories', () => {
+    expect(BY_ID.folderfooter.categories).toEqual(['Footer', 'Interactive']);
+    expect(BY_ID.folderfooter.cat).toBe('Footer');
+    expect(BY_ID.folderfooter.code()).toContain('gsap@3.12.5');
+    expect(hasTemplate('folderfooter.html')).toBe(true);
+    expect(hasTemplate('folderfooter.css')).toBe(true);
+    expect(hasTemplate('folderfooter.js')).toBe(true);
   });
 
   it('puts every effect in a known category', () => {
@@ -76,4 +85,3 @@ describe('component video system', async () => {
     expect(getComponentVideoSource('Nonexistent Effect')).toBeNull();
   });
 });
-

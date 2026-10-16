@@ -67,6 +67,18 @@ describe('component library navigation', () => {
     expect(document.querySelector('#categoryFilters [data-category="Scroll"]').getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('shows Folder Footer in both categories while keeping one All Components card', () => {
+    document.querySelector('#categoryFilters [data-category="Footer"]').click();
+    expect(document.querySelectorAll('.component-card[data-id="folderfooter"]')).toHaveLength(1);
+
+    document.querySelector('#categoryFilters [data-category="Interactive"]').click();
+    expect(document.querySelectorAll('.component-card[data-id="folderfooter"]')).toHaveLength(1);
+
+    document.querySelector('#allComponentsFilter').click();
+    expect(document.querySelectorAll('.component-card[data-id="folderfooter"]')).toHaveLength(1);
+    expect(document.querySelectorAll('.component-link[data-id="folderfooter"]')).toHaveLength(2);
+  });
+
   it('uses one search field and shows an empty state for no matches', () => {
     const search = document.querySelector('#searchInput');
     search.value = 'wave';

@@ -75,6 +75,12 @@ export const EFFECTS = [
       js(GSAP), js(SCROLLTRIGGER)
     ])
   },
+  {
+    id: 'folderfooter', name: 'Folder Footer', cat: 'Footer', categories: ['Footer', 'Interactive'],
+    field: 'none', previewSize: 'large',
+    note: 'Folders reveal a burst of photos on hover', text: '',
+    code: full('folderfooter', [js('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js')])
+  },
 
   /* ----- Text ----- */
   {
