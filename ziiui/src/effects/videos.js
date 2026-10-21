@@ -56,15 +56,7 @@ export const COMPONENT_VIDEOS = {
   'Text Scramble': 'Text Scramble.mp4',
   'Text Shimmer': 'Text Shimmer.mp4',
   'Shimmer Wave': 'Shimmer Wave.mp4',
-  'Shimmer Wave (colour)': 'Shimmer Wave (colour).mp4',
-
-  // Cursor
-  'Expand': 'Expand.mp4',
-  'Cursor: Expand': 'Expand.mp4',
-  'Icon Label': 'Icon Label.mp4',
-  'Cursor: Icon Label': 'Icon Label.mp4',
-  'Image Reveal': 'Image Reveal.mp4',
-  'Cursor: Image Reveal': 'Image Reveal.mp4'
+  'Shimmer Wave (colour)': 'Shimmer Wave (colour).mp4'
 };
 
 /**
@@ -95,10 +87,7 @@ const EFFECT_ID_TO_NAME = {
   scramble: 'Text Scramble',
   shimmer: 'Text Shimmer',
   wave: 'Shimmer Wave',
-  wave2: 'Shimmer Wave (colour)',
-  cursor1: 'Expand',
-  cursor2: 'Icon Label',
-  cursor3: 'Image Reveal'
+  wave2: 'Shimmer Wave (colour)'
 };
 
 /**

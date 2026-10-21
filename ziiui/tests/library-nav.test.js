@@ -186,6 +186,8 @@ describe('component library navigation', () => {
   it('renders Menus category immediately after Web with its two components', () => {
     const categoryButtons = [...document.querySelectorAll('#categoryFilters .category-filter')];
     const categoryNames = categoryButtons.map((btn) => btn.dataset.category);
+    expect(categoryNames).not.toContain('Cursor');
+    expect(document.querySelector('.component-group[data-category="Cursor"]')).toBeNull();
     expect(categoryNames).toContain('Menus');
     const webIndex = categoryNames.indexOf('Web');
     const menusIndex = categoryNames.indexOf('Menus');

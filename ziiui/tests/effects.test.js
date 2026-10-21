@@ -8,9 +8,10 @@ function inlineScripts(html) {
 }
 
 describe('effects registry', () => {
-  it('has 29 uniquely-identified effects', () => {
-    expect(EFFECTS).toHaveLength(29);
+  it('has 26 uniquely-identified effects', () => {
+    expect(EFFECTS).toHaveLength(26);
     expect(new Set(EFFECTS.map((e) => e.id)).size).toBe(EFFECTS.length);
+    expect(CATEGORIES).not.toContain('Cursor');
     expect(BY_ID.pinrotate).toBeTruthy();
     expect(BY_ID.imageflow).toBeTruthy();
     expect(BY_ID.snakehover).toBeTruthy();
@@ -18,6 +19,9 @@ describe('effects registry', () => {
     expect(BY_ID.blockreveal.cat).toBe('Menus');
     expect(BY_ID.revealmenu).toBeTruthy();
     expect(BY_ID.revealmenu.cat).toBe('Menus');
+    expect(BY_ID.cursor1).toBeUndefined();
+    expect(BY_ID.cursor2).toBeUndefined();
+    expect(BY_ID.cursor3).toBeUndefined();
   });
 
   it('registers Folder Footer in both Footer and Interactive categories', () => {
@@ -38,7 +42,7 @@ describe('effects registry', () => {
     EFFECTS.forEach((e) => e.code('char', 'fade'));
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
-    expect(hasTemplate('cursor1.css')).toBe(true);
+    expect(hasTemplate('blockreveal.css')).toBe(true);
     expect(hasTemplate('nope.css')).toBe(false);
   });
 });
@@ -81,7 +85,7 @@ describe('component video system', async () => {
     expect(getComponentVideoSource('Split Scroll')).toContain('Split%20Scroll.mp4');
     expect(getComponentVideoSource('Micro Hover')).toContain('Micro%20Hover.mp4');
     expect(getComponentVideoSource('Draggable Mask')).toContain('Draggable%20Mask.mp4');
-    expect(getComponentVideoSource('Cursor: Expand')).toContain('Expand.mp4');
+    expect(getComponentVideoSource('Sticky Footer')).toContain('Sticky%20Footer.mp4');
   });
 
   it('returns null and NO fake/default video when a component is not mapped or null', () => {

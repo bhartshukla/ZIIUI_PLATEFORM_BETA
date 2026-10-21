@@ -6,7 +6,7 @@
  */
 import { tpl } from './templates.js';
 import {
-  templatePage, textPage, cursorPage, rollPage, wavePage, scramblePage,
+  templatePage, textPage, rollPage, wavePage, scramblePage,
   splitEffectPage, scriptSrc as js, linkHref as css, fontPreconnect
 } from './builders.js';
 
@@ -141,23 +141,6 @@ export const EFFECTS = [
     text: 'ziiui interactive web', code: () => wavePage({ base: '#717171', grad: '#ffffff', z: 1, s: 1.1, r: 20 })
   },
 
-  /* ----- Cursor ----- */
-  {
-    id: 'cursor1', name: 'Cursor: Expand', cat: 'Cursor', note: 'Custom cursor expands over an image', previewSize: 'compact',
-    text: 'Explore', opts: false,
-    code: () => cursorPage(tpl('cursor1.css'), tpl('cursor1.html'), tpl('cursor1.js'))
-  },
-  {
-    id: 'cursor2', name: 'Cursor: Icon Label', cat: 'Cursor', note: 'Pointer icon with a trailing tag', previewSize: 'compact',
-    text: 'ziiui creative web', opts: false,
-    code: () => cursorPage(tpl('cursor2.css'), tpl('cursor2.html'), tpl('cursor2.js'))
-  },
-  {
-    id: 'cursor3', name: 'Cursor: Image Reveal', cat: 'Cursor', note: 'Photo preview follows the pointer', previewSize: 'compact',
-    text: 'ziiui — digital motion design', opts: false,
-    code: () => cursorPage(tpl('cursor3.css'), tpl('cursor3.html'), tpl('cursor3.js'))
-  },
-
   /* ----- Scroll ----- */
   {
     id: 'listreveal', name: 'List Reveal', cat: 'Scroll', field: 'none', previewSize: 'large',
@@ -228,9 +211,9 @@ export const EFFECTS = [
 ];
 
 /** Sidebar group order. */
-export const CATEGORIES = ['Web', 'Menus', 'Interactive', 'Scroll', 'Shader', 'Footer', 'Text', 'Cursor'];
+export const CATEGORIES = ['Web', 'Menus', 'Interactive', 'Scroll', 'Shader', 'Footer', 'Text'];
 
 /** Custom label for the editable text field of specific effects. */
-export const FIELD_LABELS = { cursor1: 'Cursor label', cursor2: 'Cursor tag', cursor3: 'Caption text' };
+export const FIELD_LABELS = {};
 
 export const BY_ID = Object.fromEntries(EFFECTS.map((e) => [e.id, e]));

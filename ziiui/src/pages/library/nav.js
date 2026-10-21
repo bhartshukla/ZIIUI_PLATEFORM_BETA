@@ -10,7 +10,6 @@ const CATEGORY_ICONS = {
   Interactive: 'ri-cursor-line',
   Footer: 'ri-layout-bottom-line',
   Text: 'ri-font-size-2',
-  Cursor: 'ri-mouse-line',
   Scroll: 'ri-scroll-to-bottom-line',
   Shader: 'ri-contrast-2-line'
 };
@@ -88,7 +87,7 @@ function makeEffectButton(effect) {
   button.dataset.id = effect.id;
   button.setAttribute('aria-current', 'false');
   name.className = 'component-link-name';
-  name.textContent = effect.cat === 'Cursor' ? effect.name.replace(/^Cursor:\s*/, '') : effect.name;
+  name.textContent = effect.name;
   button.title = effect.name + ' — ' + effect.note;
   button.append(name);
   button.addEventListener('click', () => {
