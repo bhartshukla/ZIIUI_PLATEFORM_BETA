@@ -44,16 +44,6 @@ export function textPage(css, js) {
   });
 }
 
-export function cursorPage(css, bodyHtml, js) {
-  return buildDoc({
-    title: 'ziiui — Cursor Effect',
-    head: [linkHref('https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css')],
-    css: tpl('base.css') + '\n' + tpl('cursor-shared.css') + '\n' + css,
-    body: bodyHtml,
-    js
-  });
-}
-
 export function fullPage(css, bodyHtml, js, head) {
   return buildDoc({ title: 'ziiui — Effect', head: head || [], css, body: bodyHtml, js });
 }
