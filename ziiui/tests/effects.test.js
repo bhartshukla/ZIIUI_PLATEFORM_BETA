@@ -8,12 +8,16 @@ function inlineScripts(html) {
 }
 
 describe('effects registry', () => {
-  it('has 27 uniquely-identified effects', () => {
-    expect(EFFECTS).toHaveLength(27);
+  it('has 29 uniquely-identified effects', () => {
+    expect(EFFECTS).toHaveLength(29);
     expect(new Set(EFFECTS.map((e) => e.id)).size).toBe(EFFECTS.length);
     expect(BY_ID.pinrotate).toBeTruthy();
     expect(BY_ID.imageflow).toBeTruthy();
     expect(BY_ID.snakehover).toBeTruthy();
+    expect(BY_ID.blockreveal).toBeTruthy();
+    expect(BY_ID.blockreveal.cat).toBe('Menus');
+    expect(BY_ID.revealmenu).toBeTruthy();
+    expect(BY_ID.revealmenu.cat).toBe('Menus');
   });
 
   it('registers Folder Footer in both Footer and Interactive categories', () => {

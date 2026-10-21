@@ -182,4 +182,23 @@ describe('component library navigation', () => {
     expect(side.hasAttribute('aria-hidden')).toBe(false);
     expect(document.activeElement).toBe(document.querySelector('#searchInput'));
   });
+
+  it('renders Menus category immediately after Web with its two components', () => {
+    const categoryButtons = [...document.querySelectorAll('#categoryFilters .category-filter')];
+    const categoryNames = categoryButtons.map((btn) => btn.dataset.category);
+    expect(categoryNames).toContain('Menus');
+    const webIndex = categoryNames.indexOf('Web');
+    const menusIndex = categoryNames.indexOf('Menus');
+    expect(menusIndex).toBe(webIndex + 1);
+
+    const menusFilter = document.querySelector('#categoryFilters [data-category="Menus"]');
+    menusFilter.click();
+    expect(document.querySelectorAll('.component-card')).toHaveLength(2);
+    expect(document.querySelector('.component-card[data-id="blockreveal"]')).not.toBeNull();
+    expect(document.querySelector('.component-card[data-id="revealmenu"]')).not.toBeNull();
+
+    const sidebarGroup = document.querySelector('.component-group[data-category="Menus"]');
+    expect(sidebarGroup).not.toBeNull();
+    expect(sidebarGroup.querySelectorAll('.component-link')).toHaveLength(2);
+  });
 });

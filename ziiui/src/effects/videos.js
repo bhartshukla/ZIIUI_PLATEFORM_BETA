@@ -72,6 +72,8 @@ export const COMPONENT_VIDEOS = {
  */
 const EFFECT_ID_TO_NAME = {
   splitsection: 'Split Scroll',
+  blockreveal: 'Block Reveal Animation',
+  revealmenu: 'Reveal Menu',
   maskdrag: 'Draggable Mask',
   microhover: 'Micro Hover',
   hoversection: 'Hover Section',
