@@ -22,13 +22,6 @@ describe('component code tabs', () => {
   });
 
   it('correctly splits Block Reveal Animation and Reveal Menu code', () => {
-    console.log('has blockreveal.css:', hasTemplate('blockreveal.css'));
-    console.log('tpl blockreveal.css length:', tpl('blockreveal.css').length);
-    console.log('tpl revealmenu.css length:', tpl('revealmenu.css').length);
-    console.log('tpl revealmenu.css content:', JSON.stringify(tpl('revealmenu.css').slice(0, 100)));
-    console.log('tpl blockreveal.html length:', tpl('blockreveal.html').length);
-    console.log('tpl blockreveal.js length:', tpl('blockreveal.js').length);
-    console.log('has revealmenu.css:', hasTemplate('revealmenu.css'));
     const blockSections = splitComponentCode(BY_ID.blockreveal.code());
     expect(blockSections.html).toContain('id="squareContainer"');
     expect(blockSections.html).toContain('class="menuContent"');
