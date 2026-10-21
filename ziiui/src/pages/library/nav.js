@@ -6,6 +6,7 @@ import { getComponentVideoSource } from '../../effects/videos.js';
 const CATEGORY_ICONS = {
   All: 'ri-apps-2-line',
   Web: 'ri-layout-4-line',
+  Menus: 'ri-menu-line',
   Interactive: 'ri-cursor-line',
   Footer: 'ri-layout-bottom-line',
   Text: 'ri-font-size-2',

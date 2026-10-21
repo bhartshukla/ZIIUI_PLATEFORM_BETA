@@ -1,0 +1,331 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  background-color: #E5E3DC;
+  color: #0a0a0a;
+}
+
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #E5E3DC;
+  background-image: radial-gradient(circle at 50% 40%, rgba(0, 0, 0, 0.04) 0%, transparent 70%);
+}
+
+nav {
+  width: 95%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  position: relative;
+  z-index: 50;
+}
+
+nav .logo {
+  height: clamp(50px, 6vw, 80px);
+  width: clamp(50px, 6vw, 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+nav .logo svg {
+  width: 100%;
+  height: 100%;
+}
+
+h1 {
+  font-size: clamp(48px, 11vw, 180px);
+  font-family: "Custom Font", "Bebas Neue", "Outfit", -apple-system, sans-serif;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 500;
+  margin-block: auto;
+  line-height: 0.9;
+  letter-spacing: 2px;
+  user-select: none;
+}
+
+span {
+  font-family: "Custom Font 2", "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 100;
+  font-size: clamp(32px, 7vw, 100px);
+}
+
+.top {
+  margin-right: clamp(10%, 25vw, 30%);
+}
+
+.bottom {
+  margin-left: clamp(5%, 10vw, 10%);
+}
+
+.top span {
+  margin-right: clamp(20px, 5vw, 80px);
+}
+
+.bottom span {
+  margin-right: clamp(40px, 12vw, 200px);
+  font-size: clamp(48px, 13vw, 200px);
+}
+
+.sub-heading {
+  margin-right: auto;
+  font-style: normal;
+  font-size: clamp(16px, 2.2vw, 30px);
+  margin-left: clamp(20px, 6vw, 100px);
+  margin-bottom: clamp(30px, 7vw, 100px);
+  color: #555555;
+  font-family: "Custom Font 2", "Instrument Serif", Georgia, serif;
+}
+
+/* Hamburger */
+.hamburger {
+  height: clamp(60px, 7vw, 100px);
+  width: clamp(60px, 7vw, 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.2s ease;
+}
+
+.hamburger:hover {
+  transform: scale(1.05);
+}
+
+.hamburger::before {
+  height: 100%;
+  width: 100%;
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid #000;
+  border-radius: 46% 54% 49% 51% / 44% 48% 52% 56%;
+  animation: morph1 3s linear infinite;
+  transition: 0.3s ease;
+}
+
+.hamburger::after {
+  height: 100%;
+  width: 100%;
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid #000;
+  border-radius: 63% 37% 53% 47% / 63% 59% 41% 37%;
+  animation: morph2 3s linear infinite;
+  animation-delay: 1s;
+  transition: 0.3s ease;
+}
+
+@keyframes morph1 {
+  0% {
+    border-radius: 46% 54% 49% 51% / 44% 48% 52% 56%;
+  }
+  50% {
+    border-radius: 35% 65% 65% 35% / 50% 59% 41% 50%;
+  }
+  100% {
+    border-radius: 46% 54% 49% 51% / 44% 48% 52% 56%;
+  }
+}
+
+@keyframes morph2 {
+  0% {
+    border-radius: 63% 37% 53% 47% / 63% 59% 41% 37%;
+  }
+  50% {
+    border-radius: 64% 36% 51% 49% / 40% 75% 25% 60%;
+  }
+  100% {
+    border-radius: 63% 37% 53% 47% / 63% 59% 41% 37%;
+  }
+}
+
+.hamburger:hover::after {
+  animation: none;
+  border: none;
+}
+
+.hamburger:hover::before {
+  animation: none;
+  border-radius: 50%;
+}
+
+.hamburger.menu-on {
+  transition: 0.3s ease;
+}
+
+.hamburger.menu-on::after,
+.hamburger.menu-on::before {
+  border-color: #fff;
+}
+
+.hamburger.menu-on svg path {
+  stroke: #fff;
+  transition: 0.3s ease;
+}
+
+/* Menu BG */
+.menu {
+  position: fixed;
+  inset: 0;
+  transform: translateY(-200%);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.menu.is-active {
+  pointer-events: auto;
+}
+
+.menu-bg {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.menu svg {
+  width: 100vw;
+  height: 180vh;
+  display: block;
+  transform: translateY(-100%);
+}
+
+/* Menu Items */
+a {
+  text-decoration: none;
+  color: #E5E3DC;
+}
+
+.menu-items {
+  position: absolute;
+  z-index: 100;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(10%, 20vw, 30%);
+  font-family: "Custom Font", "Bebas Neue", "Outfit", sans-serif;
+  font-weight: 100;
+}
+
+.menu-items .left,
+.menu-items .right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 80%;
+}
+
+.left {
+  gap: clamp(16px, 2vw, 30px);
+}
+
+.left a {
+  display: flex;
+  align-items: flex-end;
+  height: clamp(60px, 11vw, 180px);
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.left a:hover {
+  color: #ffffff;
+}
+
+.left a h2 {
+  font-size: clamp(48px, 9vw, 150px);
+  letter-spacing: clamp(2px, 0.4vw, 5px);
+  transform: translateY(100%);
+  font-weight: 400;
+}
+
+.left a span {
+  transform: translateY(200%);
+}
+
+.menu-items .left a:nth-child(1) {
+  margin-left: clamp(20px, 3.5vw, 50px);
+}
+
+.menu-items .left a:nth-child(2) {
+  margin-left: clamp(-50px, -3.5vw, -20px);
+}
+
+.menu-items .left a:nth-child(3) {
+  margin-left: clamp(15px, 2.5vw, 30px);
+}
+
+.menu-items span {
+  font-style: normal;
+  font-size: clamp(18px, 2vw, 30px);
+  margin-bottom: clamp(10px, 1.5vw, 20px);
+  margin-right: clamp(20px, 6vw, 100px);
+  color: #888888;
+}
+
+.right {
+  gap: 10px;
+}
+
+.right a {
+  font-size: clamp(20px, 2.5vw, 35px);
+  font-family: "Custom Font 2", "Instrument Serif", Georgia, serif;
+  height: clamp(28px, 3vw, 40px);
+  overflow: hidden;
+  display: flex;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.right a:hover {
+  color: #ffffff;
+  transform: translateX(6px);
+}
+
+.right a:first-child {
+  margin-top: 50px;
+}
+
+.right a:last-child {
+  margin-top: auto;
+  margin-bottom: clamp(60px, 12vw, 200px);
+}
+
+.right a span {
+  transform: translateY(200%);
+}
+
+@media (max-width: 768px) {
+  .menu-items {
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 40px;
+  }
+  .menu-items .left a:nth-child(1),
+  .menu-items .left a:nth-child(2),
+  .menu-items .left a:nth-child(3) {
+    margin-left: 0;
+  }
+  .right a:last-child {
+    margin-bottom: 40px;
+  }
+}

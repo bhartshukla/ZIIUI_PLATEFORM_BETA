@@ -31,6 +31,27 @@ export const EFFECTS = [
     ])
   },
 
+  /* ----- Menus ----- */
+  {
+    id: 'blockreveal', name: 'Block Reveal Animation', cat: 'Menus', field: 'none', previewSize: 'large',
+    note: 'Grid blocks ripple to reveal navigation', text: '',
+    code: full('blockreveal', [
+      ...fontPreconnect(),
+      css('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap'),
+      css('https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css'),
+      js(GSAP)
+    ])
+  },
+  {
+    id: 'revealmenu', name: 'Reveal Menu', cat: 'Menus', field: 'none', previewSize: 'large',
+    note: 'Morphing curved SVG reveal fullscreen menu', text: '',
+    code: full('revealmenu', [
+      ...fontPreconnect(),
+      css('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap'),
+      js(GSAP)
+    ])
+  },
+
   /* ----- Interactive ----- */
   {
     id: 'maskdrag', name: 'Draggable Mask', cat: 'Interactive', field: 'none', previewSize: 'large',
@@ -207,7 +228,7 @@ export const EFFECTS = [
 ];
 
 /** Sidebar group order. */
-export const CATEGORIES = ['Web', 'Interactive', 'Scroll', 'Shader', 'Footer', 'Text', 'Cursor'];
+export const CATEGORIES = ['Web', 'Menus', 'Interactive', 'Scroll', 'Shader', 'Footer', 'Text', 'Cursor'];
 
 /** Custom label for the editable text field of specific effects. */
 export const FIELD_LABELS = { cursor1: 'Cursor label', cursor2: 'Cursor tag', cursor3: 'Caption text' };

@@ -1,0 +1,200 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.heroSection {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  z-index: -2;
+  pointer-events: none;
+}
+
+h1 {
+  font-family: "RMNeue", "Syne", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(48px, 10.5vw, 160px);
+  font-weight: 700;
+  line-height: 80%;
+  text-align: center;
+  margin-top: 4.5vw;
+  letter-spacing: -0.025vw;
+  text-transform: uppercase;
+  color: #111111;
+  pointer-events: none;
+}
+
+span {
+  font-family: "Gridular", "Space Mono", monospace;
+}
+
+#menuBtn {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.7vw;
+  padding: clamp(6px, 0.7vw, 12px) clamp(16px, 1.5vw, 28px);
+  background-color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 0 50px -10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  z-index: 10000;
+  color: #111111;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+#menuBtn:hover {
+  transform: translateX(-50%) scale(1.05);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+#menuBtn i {
+  font-size: clamp(16px, 1.5vw, 24px);
+  display: block;
+}
+
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-family: "RMNeue-Regular", "Space Mono", monospace;
+  color: #ffffff;
+  mix-blend-mode: difference;
+  z-index: 1000;
+  margin-top: 0.9vw;
+  pointer-events: none;
+}
+
+nav div {
+  display: flex;
+}
+
+nav div p {
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(11px, 1vw, 16px);
+  padding: 0.8vw 2.8vw;
+  font-family: "RMMono", "Space Mono", monospace;
+}
+
+#squareContainer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  background-color: #fd5530;
+  pointer-events: none;
+}
+
+.menuContent {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  padding: 0 4vw;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #242424;
+  color: #ffffff;
+  z-index: -1;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.menuContent .content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(40px, 14vw, 18vw);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.menuContent h1 {
+  color: #fd5530;
+  font-size: clamp(32px, 5vw, 80px);
+  text-align: left;
+  line-height: 1.1;
+  margin: 0;
+  pointer-events: auto;
+}
+
+.menuContent .right-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.2vw, 24px);
+}
+
+.menuContent .right-col .nav-links {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 1.8vw, 28px);
+}
+
+.menuContent .nav-links a {
+  display: flex;
+  font-family: "RMMono", "Space Mono", monospace;
+  color: #ffffff;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: clamp(20px, 2.2vw, 42px);
+  letter-spacing: 0.05em;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.menuContent .nav-links a:hover {
+  color: #fd5530;
+  transform: translateX(8px);
+}
+
+.menuContent .nav-links span {
+  position: relative;
+  font-family: "RMMono", "Space Mono", monospace;
+  font-size: clamp(13px, 1.2vw, 20px);
+  color: rgba(255, 255, 255, 0.4);
+  top: 0;
+}
+
+@media (max-width: 768px) {
+  .menuContent .content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+  }
+}
