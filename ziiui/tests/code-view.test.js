@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { splitComponentCode } from '../src/pages/library/viewer.js';
 import { BY_ID } from '../src/effects/registry.js';
 
-import { hasTemplate } from '../src/effects/templates.js';
+import { hasTemplate, tpl } from '../src/effects/templates.js';
 
 describe('component code tabs', () => {
   it('separates markup, stylesheets, and scripts from a standalone component', () => {
@@ -22,7 +22,13 @@ describe('component code tabs', () => {
   });
 
   it('correctly splits Block Reveal Animation and Reveal Menu code', () => {
-    console.log('BLOCKREVEAL CODE:\n', BY_ID.blockreveal.code());
+    console.log('has blockreveal.css:', hasTemplate('blockreveal.css'));
+    console.log('tpl blockreveal.css length:', tpl('blockreveal.css').length);
+    console.log('tpl revealmenu.css length:', tpl('revealmenu.css').length);
+    console.log('tpl revealmenu.css content:', JSON.stringify(tpl('revealmenu.css').slice(0, 100)));
+    console.log('has blockreveal.html:', hasTemplate('blockreveal.html'));
+    console.log('has blockreveal.js:', hasTemplate('blockreveal.js'));
+    console.log('has revealmenu.css:', hasTemplate('revealmenu.css'));
     const blockSections = splitComponentCode(BY_ID.blockreveal.code());
     expect(blockSections.html).toContain('id="squareContainer"');
     expect(blockSections.html).toContain('class="menuContent"');
