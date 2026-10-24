@@ -21,7 +21,7 @@ beforeEach(async () => {
   document.body.innerHTML = `
     <button id="menuToggle"></button>
     <div id="sideOverlay"></div>
-    <aside id="sidePanel"><button id="sideClose"></button><input id="searchInput"></aside>
+    <aside id="sidePanel"><button id="sideClose"></button><div class="search" id="componentSearch"><input id="searchInput"><button id="searchClearBtn" hidden></button></div></aside>
     <span id="catalogTotal"></span>
     <span id="catalogCount"></span>
     <span id="allComponentsCount"></span>
@@ -31,7 +31,7 @@ beforeEach(async () => {
     <div id="componentGrid"></div>
     <button id="seeMore" hidden></button>
     <p id="catalogEmpty" hidden></p>
-    <p id="galleryEmpty" hidden></p>
+    <p id="galleryEmpty" hidden><span id="galleryEmptyText"></span></p>
   `;
   selectedEffect = null;
   buildNav((effect) => {
@@ -202,5 +202,86 @@ describe('component library navigation', () => {
     const sidebarGroup = document.querySelector('.component-group[data-category="Menus"]');
     expect(sidebarGroup).not.toBeNull();
     expect(sidebarGroup.querySelectorAll('.component-link')).toHaveLength(2);
+  });
+
+  it('supports multi-token searches across category and component name', () => {
+    const search = document.querySelector('#searchInput');
+    search.value = 'interactive mask';
+    applySearch({ currentTarget: search });
+
+    const visibleCards = document.querySelectorAll('.component-card');
+    expect(visibleCards).toHaveLength(1);
+    expect(visibleCards[0].dataset.id).toBe('maskdrag');
+
+    search.value = 'interactive trail';
+    applySearch({ currentTarget: search });
+    const trailCards = [...document.querySelectorAll('.component-card')].map((c) => c.dataset.id);
+    expect(trailCards).toEqual(['snakehover', 'imagetrail']);
+  });
+
+  it('synchronizes category filter counts with active search results', () => {
+    const search = document.querySelector('#searchInput');
+    search.value = 'wave';
+    applySearch({ currentTarget: search });
+
+    const textFilter = document.querySelector('#categoryFilters [data-category="Text"]');
+    const textCount = textFilter.querySelector('.category-count');
+    expect(textCount.textContent).toBe('2');
+
+    const menusFilter = document.querySelector('#categoryFilters [data-category="Menus"]');
+    const menusCount = menusFilter.querySelector('.category-count');
+    expect(menusCount.textContent).toBe('0');
+  });
+
+  it('toggles clear button visibility and updates search input state', () => {
+    const search = document.querySelector('#searchInput');
+    const clearBtn = document.querySelector('#searchClearBtn');
+    const searchBox = document.querySelector('#componentSearch');
+
+    search.value = 'split';
+    applySearch({ currentTarget: search });
+    expect(clearBtn.hidden).toBe(false);
+    expect(searchBox.classList.contains('has-query')).toBe(true);
+
+    search.value = '';
+    applySearch({ currentTarget: search });
+    expect(clearBtn.hidden).toBe(true);
+    expect(searchBox.classList.contains('has-query')).toBe(false);
+  });
+
+  it('supports arrow key navigation across gallery component cards', () => {
+    const grid = document.querySelector('#componentGrid');
+    const cards = [...grid.querySelectorAll('.component-card')];
+    expect(cards.length).toBeGreaterThan(1);
+
+    cards[0].focus();
+    expect(document.activeElement).toBe(cards[0]);
+
+    grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(document.activeElement).toBe(cards[1]);
+
+    grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    expect(document.activeElement).toBe(cards[0]);
+
+    grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    expect(document.activeElement).toBe(cards[cards.length - 1]);
+
+    grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    expect(document.activeElement).toBe(cards[0]);
+  });
+
+  it('supports arrow key navigation across category filter chips', () => {
+    const filters = document.querySelector('#categoryFilters');
+    const chips = [...filters.querySelectorAll('.category-filter')];
+    expect(chips.length).toBeGreaterThan(1);
+
+    chips[0].focus();
+    expect(document.activeElement).toBe(chips[0]);
+
+    filters.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(document.activeElement).toBe(chips[1]);
+
+    filters.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    expect(document.activeElement).toBe(chips[0]);
   });
 });

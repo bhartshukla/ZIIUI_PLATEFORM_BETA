@@ -40,8 +40,30 @@ function setActiveCategory(category) {
 }
 
 function matchesSearch(effect, query) {
-  return !query || [effect.name, effect.note, ...(effect.categories || [effect.cat])]
-    .some((value) => String(value || '').toLowerCase().includes(query));
+  if (!query) return true;
+  const terms = query.split(/\s+/).filter(Boolean);
+  const searchable = [
+    effect.name,
+    effect.note,
+    effect.cat,
+    ...(effect.categories || [])
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  return terms.every((term) => searchable.includes(term));
+}
+
+function updateCategoryFilterCounts(searched) {
+  const filters = $('categoryFilters');
+  if (!filters) return;
+  filters.querySelectorAll('.category-filter').forEach((button) => {
+    const category = button.dataset.category;
+    const total = button.querySelector('.category-count');
+    if (!total) return;
+    const count = category === 'All'
+      ? searched.length
+      : searched.filter((effect) => belongsToCategory(effect, category)).length;
+    total.textContent = String(count);
+  });
 }
 
 function belongsToCategory(effect, category) {
@@ -169,7 +191,15 @@ function renderList() {
 
   if (empty) empty.hidden = visible.length !== 0;
   const galleryEmpty = $('galleryEmpty');
-  if (galleryEmpty) galleryEmpty.hidden = visible.length !== 0;
+  if (galleryEmpty) {
+    galleryEmpty.hidden = visible.length !== 0;
+    const emptyText = $('galleryEmptyText');
+    if (emptyText) {
+      emptyText.textContent = query
+        ? `No components found matching "${query}".`
+        : 'No components found.';
+    }
+  }
   if (count) {
     count.textContent = `${visible.length} ${visible.length === 1 ? 'component' : 'components'}`;
   }
@@ -180,6 +210,8 @@ function renderList() {
     allFilter.setAttribute('aria-pressed', String(activeCategory === 'All' && !activeEffectId));
     allFilter.disabled = navigationLocked;
   }
+  updateCategoryFilterCounts(searched);
+  syncSearchClearButton();
   renderCards(visible);
 }
 
@@ -418,9 +450,62 @@ export function buildNav(onSelect, showCategory) {
       buttons[next].focus();
     });
   }
+
+  const grid = $('componentGrid');
+  if (grid && !grid.__wiredGridKeys) {
+    grid.__wiredGridKeys = true;
+    grid.addEventListener('keydown', (event) => {
+      const keys = ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape'];
+      if (!keys.includes(event.key)) return;
+      const cards = [...grid.querySelectorAll('.component-card:not(:disabled)')];
+      const current = cards.indexOf(document.activeElement);
+      if (current < 0 || !cards.length) return;
+
+      if (event.key === 'Escape') {
+        const search = $('searchInput');
+        if (search) search.focus();
+        return;
+      }
+
+      event.preventDefault();
+      let next = current;
+      const columns = typeof window !== 'undefined' && window.innerWidth > 768 ? 2 : 1;
+
+      if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = cards.length - 1;
+      else if (event.key === 'ArrowRight') next = Math.min(cards.length - 1, current + 1);
+      else if (event.key === 'ArrowLeft') next = Math.max(0, current - 1);
+      else if (event.key === 'ArrowDown') next = Math.min(cards.length - 1, current + columns);
+      else if (event.key === 'ArrowUp') next = Math.max(0, current - columns);
+
+      if (cards[next]) cards[next].focus();
+    });
+  }
+
+  const filterChips = $('categoryFilters');
+  if (filterChips && !filterChips.__wiredFilterKeys) {
+    filterChips.__wiredFilterKeys = true;
+    filterChips.addEventListener('keydown', (event) => {
+      const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+      if (!keys.includes(event.key)) return;
+      const buttons = [...filterChips.querySelectorAll('.category-filter:not(:disabled)')];
+      const current = buttons.indexOf(document.activeElement);
+      if (current < 0 || !buttons.length) return;
+      event.preventDefault();
+      let next = current;
+      if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = buttons.length - 1;
+      else if (event.key === 'ArrowRight') next = (current + 1) % buttons.length;
+      else if (event.key === 'ArrowLeft') next = (current - 1 + buttons.length) % buttons.length;
+      if (buttons[next]) {
+        buttons[next].focus();
+        buttons[next].click();
+      }
+    });
+  }
+
   const more = $('seeMore');
   if (more) more.addEventListener('click', showMoreComponents);
-
 }
 
 export function markCurrent(effect, scrollIntoView) {
@@ -442,11 +527,21 @@ export function markCurrent(effect, scrollIntoView) {
   if (allFilter) allFilter.setAttribute('aria-pressed', String(!effect && activeCategory === 'All'));
 }
 
+export function syncSearchClearButton() {
+  const input = $('searchInput');
+  const clearBtn = $('searchClearBtn');
+  const searchBox = $('componentSearch');
+  const hasText = !!(input && input.value.trim().length > 0);
+  if (clearBtn) clearBtn.hidden = !hasText;
+  if (searchBox) searchBox.classList.toggle('has-query', hasText);
+}
+
 export function applySearch(event) {
   const source = event && event.currentTarget;
   const query = source ? source.value.trim().toLowerCase() : searchQuery();
   visibleCardCount = CARD_INCREMENT;
   if (source && source.value.trim().toLowerCase() !== query) source.value = query;
+  syncSearchClearButton();
   renderList();
 }
 
@@ -546,6 +641,8 @@ export function setNavigationLocked(locked) {
   if (filters) filters.querySelectorAll('button').forEach((button) => { button.disabled = navigationLocked; });
   const search = $('searchInput');
   if (search) search.disabled = navigationLocked;
+  const clearBtn = $('searchClearBtn');
+  if (clearBtn) clearBtn.disabled = navigationLocked;
   const more = $('seeMore');
   if (more) more.disabled = navigationLocked;
   const shuffle = $('shuffleComponents');

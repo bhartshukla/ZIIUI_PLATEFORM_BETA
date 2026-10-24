@@ -57,7 +57,10 @@
         <i class="ri-search-line" aria-hidden="true"></i>
         <input type="search" id="searchInput" placeholder="Search components…" aria-label="Search components"
           autocomplete="off" spellcheck="false">
-        <kbd>Ctrl K</kbd>
+        <button class="search-clear-btn" id="searchClearBtn" type="button" aria-label="Clear search" hidden>
+          <i class="ri-close-line" aria-hidden="true"></i>
+        </button>
+        <kbd id="searchKbd">Ctrl K</kbd>
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle color theme"
@@ -116,7 +119,7 @@
         <nav class="category-filters" id="categoryFilters" aria-label="Filter components by category"></nav>
         <div class="component-grid" id="componentGrid" aria-label="Component gallery"></div>
         <p class="catalog-empty gallery-empty" id="galleryEmpty" hidden>
-          No components found. Try another search.
+          <span id="galleryEmptyText">No components found. Try another search.</span>
           <button class="clear-search" id="clearSearch" type="button"><i class="ri-close-circle-line"
               aria-hidden="true"></i> Clear search</button>
         </p>

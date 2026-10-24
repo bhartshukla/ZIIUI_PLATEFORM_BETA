@@ -351,10 +351,46 @@ body {
   border: 1px solid var(--line2);
   border-radius: 5px;
   padding: .1rem .35rem;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   background: var(--panel);
-  line-height: 1.4
+  line-height: 1.4;
+  transition: border-color .15s ease, color .15s ease;
 }
+
+.search kbd:hover {
+  color: var(--fg);
+  border-color: var(--line);
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--mute);
+  cursor: pointer;
+  padding: .2rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color .15s ease;
+  z-index: 2;
+}
+
+.search-clear-btn:hover {
+  color: var(--fg);
+}
+
+.search.has-query kbd {
+  display: none;
+}
+
 
 .topbar-actions {
   display: flex;
