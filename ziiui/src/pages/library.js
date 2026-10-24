@@ -6,8 +6,12 @@ import { EFFECTS, BY_ID } from '../effects/registry.js';
 import { loadAIState, loadAISettings } from '../ai/state.js';
 import { consumePendingMarker } from '../ai/request.js';
 import { buildNav, applySearch, openSidebar, closeSidebar, shuffleComponents } from './library/nav.js';
-import { selectEffect, showDiscovery, showMissingComponent, rebuild, replay, onInput, onCopy, handleCodeTabEvent } from './library/viewer.js';
-import { initAIPanel, announceInterruptedRequest } from './library/ai-panel.js';
+import {
+  selectEffect, showDiscovery, showMissingComponent, rebuild, replay,
+  onInput, onCopy, handleCodeTabEvent, onCopyTab, toggleFullscreen,
+  isFullscreen, updateFullscreenUI
+} from './library/viewer.js';
+import { initAIPanel, announceInterruptedRequest, resetToOriginal, exportDraftFile } from './library/ai-panel.js';
 
 function wire() {
   const on = (id, evt, fn) => { const n = $(id); if (n) n.addEventListener(evt, fn); };
@@ -32,7 +36,13 @@ function wire() {
   on('preset', 'change', guard(rebuild, 'preset'));
   on('text', 'input', guard(onInput, 'input'));
   on('replay', 'click', guard(replay, 'replay'));
+  on('previewReset', 'click', guard(replay, 'previewReset'));
+  on('restoreOriginalBtn', 'click', guard(resetToOriginal, 'restoreOriginal'));
+  on('previewFullscreen', 'click', guard(toggleFullscreen, 'toggleFullscreen'));
+  on('stageExitFs', 'click', guard(toggleFullscreen, 'stageExitFs'));
+  on('exportComponent', 'click', guard(exportDraftFile, 'exportComponent'));
   on('copy', 'click', guard(onCopy, 'copy'));
+  on('copyTab', 'click', guard(onCopyTab, 'copyTab'));
   const codeTabs = $('codeTabs');
   if (codeTabs) {
     codeTabs.addEventListener('click', handleCodeTabEvent);
@@ -106,6 +116,11 @@ function wire() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (isFullscreen()) {
+        e.preventDefault();
+        toggleFullscreen();
+        return;
+      }
       const side = $('sidePanel');
       if (side && side.classList.contains('open')) closeSidebar();
     }
@@ -125,6 +140,11 @@ function wire() {
   window.addEventListener('resize', () => {
     placeSearch();
     if (window.innerWidth > 900) closeSidebar();
+  });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && isFullscreen()) {
+      updateFullscreenUI(false);
+    }
   });
   window.addEventListener('popstate', () => openCurrentRoute());
   closeSidebar();

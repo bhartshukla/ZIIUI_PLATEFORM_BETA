@@ -49,3 +49,78 @@ describe('component code tabs', () => {
   });
 });
 
+describe('component dependency analysis', () => {
+  it('detects GSAP, ScrollTrigger, Lenis, Google Fonts, and RemixIcon in splitsection', async () => {
+    const { getComponentDependencies } = await import('../src/pages/library/viewer.js');
+    const deps = getComponentDependencies(BY_ID.splitsection.code());
+    const ids = deps.map((d) => d.id);
+    expect(ids).toContain('gsap');
+    expect(ids).toContain('scrolltrigger');
+    expect(ids).toContain('lenis');
+    expect(ids).toContain('fonts');
+    expect(ids).toContain('remixicon');
+  });
+
+  it('detects Three.js (WebGL) in noisypixel and mirror', async () => {
+    const { getComponentDependencies } = await import('../src/pages/library/viewer.js');
+    const noisyDeps = getComponentDependencies(BY_ID.noisypixel.code());
+    expect(noisyDeps.some((d) => d.id === 'three')).toBe(true);
+
+    const mirrorDeps = getComponentDependencies(BY_ID.mirror.code());
+    expect(mirrorDeps.some((d) => d.id === 'three')).toBe(true);
+  });
+
+  it('returns empty dependencies list for vanilla components without external scripts or icon fonts', async () => {
+    const { getComponentDependencies } = await import('../src/pages/library/viewer.js');
+    const maskdragDeps = getComponentDependencies(BY_ID.maskdrag.code());
+    expect(maskdragDeps).toEqual([]);
+  });
+
+  it('renders dependency chips into previewDeps container and displays pure badge for zero-dependency components', async () => {
+    const { renderDependencies } = await import('../src/pages/library/viewer.js');
+    document.body.innerHTML = '<div id="previewDeps"></div>';
+
+    renderDependencies(BY_ID.splitsection.code());
+    const depsContainer = document.getElementById('previewDeps');
+    expect(depsContainer.innerHTML).toContain('dep-chip');
+    expect(depsContainer.textContent).toContain('GSAP');
+    expect(depsContainer.textContent).toContain('ScrollTrigger');
+
+    renderDependencies(BY_ID.maskdrag.code());
+    expect(depsContainer.innerHTML).toContain('dep-chip-pure');
+    expect(depsContainer.textContent).toContain('Vanilla (Zero dependencies)');
+  });
+
+  it('toggles fullscreen classes and button labels via updateFullscreenUI', async () => {
+    const { updateFullscreenUI, isFullscreen } = await import('../src/pages/library/viewer.js');
+    document.body.innerHTML = `
+      <div class="stage" id="previewStage">
+        <button id="stageExitFs" hidden></button>
+      </div>
+      <button id="previewFullscreen">
+        <i id="previewFsIcon"></i>
+        <span id="previewFsLabel">Fullscreen</span>
+      </button>
+    `;
+
+    const stage = document.getElementById('previewStage');
+    const exitBtn = document.getElementById('stageExitFs');
+    const fsLabel = document.getElementById('previewFsLabel');
+    const fsIcon = document.getElementById('previewFsIcon');
+
+    updateFullscreenUI(true);
+    expect(stage.classList.contains('is-fullscreen')).toBe(true);
+    expect(exitBtn.hidden).toBe(false);
+    expect(fsLabel.textContent).toBe('Exit');
+    expect(fsIcon.className).toBe('ri-fullscreen-exit-line');
+    expect(isFullscreen()).toBe(true);
+
+    updateFullscreenUI(false);
+    expect(stage.classList.contains('is-fullscreen')).toBe(false);
+    expect(exitBtn.hidden).toBe(true);
+    expect(fsLabel.textContent).toBe('Fullscreen');
+    expect(fsIcon.className).toBe('ri-fullscreen-line');
+    expect(isFullscreen()).toBe(false);
+  });
+});
+

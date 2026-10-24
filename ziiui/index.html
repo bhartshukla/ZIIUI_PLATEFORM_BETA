@@ -147,18 +147,42 @@
                 <span class="kick">Preview</span>
                 <h2 id="pname"></h2>
               </div>
-              <span class="chip" id="pcat"></span>
+              <div class="preview-actions">
+                <span class="chip" id="pcat"></span>
+                <span class="chip ai-draft-badge" id="aiDraftBadge" hidden>
+                  <i class="ri-sparkling-2-line" aria-hidden="true"></i> AI Draft
+                </span>
+                <button class="b sm preview-action-btn ai-restore-btn" id="restoreOriginalBtn" type="button" aria-label="Discard AI draft and restore original component" title="Restore original component" hidden>
+                  <i class="ri-arrow-go-back-line" aria-hidden="true"></i>
+                  <span>Restore Original</span>
+                </button>
+                <button class="b sm preview-action-btn" id="previewReset" type="button" aria-label="Reset and replay preview" title="Reset preview">
+                  <i class="ri-refresh-line" aria-hidden="true"></i>
+                  <span>Reset</span>
+                </button>
+                <button class="b sm preview-action-btn" id="previewFullscreen" type="button" aria-label="Toggle fullscreen preview" title="Fullscreen preview">
+                  <i class="ri-fullscreen-line" aria-hidden="true" id="previewFsIcon"></i>
+                  <span id="previewFsLabel">Fullscreen</span>
+                </button>
+              </div>
             </div>
             <div class="pbody">
-              <div class="stage">
+              <div class="stage" id="previewStage">
                 <div class="preview-loader" id="previewLoader" hidden aria-hidden="true">
                   <i class="ri-loader-4-line preview-spin"></i>
                   <span>Loading preview…</span>
                 </div>
                 <iframe id="frame" title="Effect preview" sandbox="allow-scripts"></iframe>
+                <button class="stage-exit-fs" id="stageExitFs" type="button" aria-label="Exit fullscreen" hidden>
+                  <i class="ri-fullscreen-exit-line" aria-hidden="true"></i>
+                  <span>Exit Fullscreen</span>
+                </button>
               </div>
             </div>
-            <div class="pfoot" id="pnote"></div>
+            <div class="preview-meta-bar">
+              <div class="pfoot" id="pnote"></div>
+              <div class="preview-deps" id="previewDeps" aria-label="Component dependencies"></div>
+            </div>
             <div class="cslot" id="cslot" hidden>
               <p class="cs-hint">
                 <i class="ri-arrow-up-line" aria-hidden="true"></i>
@@ -207,11 +231,20 @@
           <section class="card" id="docs" aria-labelledby="codetitle">
             <div class="card-head">
               <div class="ttl">
-                <h2 id="codetitle">Generated code</h2>
+                <div class="ttl-row">
+                  <h2 id="codetitle">Generated code</h2>
+                  <span class="chip sm ai-draft-tag" id="aiCodeDraftTag" hidden>AI Draft</span>
+                </div>
                 <span class="meta" id="label"></span>
               </div>
-              <button class="b" id="copy" type="button" aria-label="Copy full component"><i class="ri-file-copy-line"
-                  aria-hidden="true"></i> Copy full component</button>
+              <div class="code-actions">
+                <button class="b sm code-action-btn" id="exportComponent" type="button" aria-label="Export component HTML file" title="Export standalone HTML file">
+                  <i class="ri-download-2-line" aria-hidden="true"></i> Export HTML
+                </button>
+                <button class="b sm code-action-btn" id="copy" type="button" aria-label="Copy full component">
+                  <i class="ri-file-copy-line" aria-hidden="true"></i> Copy full component
+                </button>
+              </div>
             </div>
             <div class="code-toolbar">
               <div class="code-tabs" id="codeTabs" role="tablist" aria-label="Component code language">
@@ -222,6 +255,10 @@
                 <button class="code-tab" id="codeTabJs" type="button" role="tab" data-code-tab="js"
                   aria-selected="false" aria-controls="codePanel" tabindex="-1">JavaScript</button>
               </div>
+              <button class="b sm code-tab-copy" id="copyTab" type="button" aria-label="Copy HTML code">
+                <i class="ri-file-copy-line" aria-hidden="true" id="copyTabIcon"></i>
+                <span id="copyTabLabel">Copy HTML</span>
+              </button>
             </div>
             <pre id="codePanel" tabindex="0" role="tabpanel"
               aria-labelledby="codeTabHtml"><code id="code-out"></code></pre>
@@ -328,6 +365,8 @@
           Reset to Original</button>
         <button class="ai-btn" id="aiCopyBtn" type="button"><i class="ri-file-copy-line" aria-hidden="true"></i> Copy
           Code</button>
+        <button class="ai-btn" id="aiExportBtn" type="button"><i class="ri-download-2-line" aria-hidden="true"></i> Export
+          HTML</button>
         <button class="ai-btn ghost" id="aiModalClose2" type="button"><i class="ri-close-line" aria-hidden="true"></i>
           Close</button>
       </footer>

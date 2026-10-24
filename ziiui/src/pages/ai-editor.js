@@ -1,7 +1,7 @@
 /* Entry point for ai.html — full-page AI editor for one saved component. */
 import '../styles/style.css';
 import '../styles/ai-editor.css';
-import { $, say, report, guard, installGlobalErrorHandlers } from '../lib/dom.js';
+import { $, say, report, guard, installGlobalErrorHandlers, exportFile } from '../lib/dom.js';
 import { copyText } from '../lib/clipboard.js';
 import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../lib/preview.js';
 import {
@@ -173,6 +173,22 @@ async function copyCode() {
   chat.add('sys', ok ? 'Code copied to clipboard.' : 'Copy failed.');
 }
 
+function exportCode() {
+  const name = activeId || 'component';
+  const isDraft = !!(compState && compState.currentCode && compState.currentCode !== compState.originalCode);
+  const filename = `${name}${isDraft ? '-ai-draft' : ''}.html`;
+  const code = el.code ? el.code.value : '';
+  if (!code) {
+    say('No code to export.');
+    return;
+  }
+  const ok = exportFile(filename, code);
+  if (ok) {
+    say(`Exported ${filename}`);
+    chat.add('sys', `Exported ${filename}`);
+  }
+}
+
 /* ---------- boot ---------- */
 function boot() {
   installGlobalErrorHandlers();
@@ -218,6 +234,8 @@ function boot() {
   $('aiCancelRequest').addEventListener('click', cancelActiveRequest);
   $('aiResetBtn').addEventListener('click', guard(resetToOriginal, 'reset'));
   $('aiCopyBtn').addEventListener('click', guard(copyCode, 'copy'));
+  const exportBtn = $('aiExportBtn');
+  if (exportBtn) exportBtn.addEventListener('click', guard(exportCode, 'export'));
   el.select.addEventListener('change', () => setActive(el.select.value));
   el.prompt.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) generate(); }

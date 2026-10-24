@@ -131,4 +131,37 @@ describe('AI state', () => {
     expect(s.codeVersions).toEqual([]);
     expect(s.currentCode).toBe('');
   });
+
+  it('preserves the original canonical component code when AI drafts are created and modified', () => {
+    const s = getOrCreateComponentState('canonical-test', 'Canonical', 'Menus', '<nav>Original Canonical</nav>');
+    expect(s.originalCode).toBe('<nav>Original Canonical</nav>');
+
+    // AI creates a draft
+    addCodeVersion(s, '<nav>AI Modified Draft v1</nav>', 'make it glow');
+    expect(s.currentCode).toBe('<nav>AI Modified Draft v1</nav>');
+    // Original code is 100% untouched
+    expect(s.originalCode).toBe('<nav>Original Canonical</nav>');
+
+    // AI modifies draft again
+    addCodeVersion(s, '<nav>AI Modified Draft v2</nav>', 'change colors');
+    expect(s.currentCode).toBe('<nav>AI Modified Draft v2</nav>');
+    expect(s.originalCode).toBe('<nav>Original Canonical</nav>');
+  });
+
+  it('restores canonical component state when draft is reset', () => {
+    const s = getOrCreateComponentState('reset-test', 'Reset Comp', 'Web', '<div>Base HTML</div>');
+    addCodeVersion(s, '<div>Draft Version</div>', 'modify layout');
+    expect(s.currentCode).toBe('<div>Draft Version</div>');
+
+    // Resetting draft clears currentCode while preserving originalCode
+    setCurrentCode(s, '');
+    expect(s.currentCode).toBe('');
+    expect(s.originalCode).toBe('<div>Base HTML</div>');
+  });
+
+  it('triggers client-side file export without throwing', async () => {
+    const { exportFile } = await import('../src/lib/dom.js');
+    const ok = exportFile('test-export.html', '<div>Export Content</div>');
+    expect(ok).toBe(true);
+  });
 });

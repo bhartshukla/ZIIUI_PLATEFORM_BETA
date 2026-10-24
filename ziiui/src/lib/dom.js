@@ -55,3 +55,38 @@ export function installGlobalErrorHandlers() {
     }
   });
 }
+
+/** Trigger a client-side download of a text/html file. */
+export function exportFile(filename, content, type = 'text/html') {
+  if (typeof document === 'undefined') return false;
+  try {
+    const text = String(content || '');
+    let url;
+    if (typeof URL.createObjectURL === 'function' && typeof Blob !== 'undefined') {
+      const blob = new Blob([text], { type });
+      url = URL.createObjectURL(blob);
+    } else {
+      url = 'data:' + type + ';charset=utf-8,' + encodeURIComponent(text);
+    }
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || 'component.html';
+    a.addEventListener('click', (e) => {
+      if (typeof window !== 'undefined' && window.navigator && /jsdom/i.test(window.navigator.userAgent)) {
+        e.preventDefault();
+      }
+    });
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      if (typeof URL.revokeObjectURL === 'function' && url && !url.startsWith('data:')) {
+        URL.revokeObjectURL(url);
+      }
+    }, 150);
+    return true;
+  } catch (err) {
+    report(err, 'exportFile');
+    return false;
+  }
+}

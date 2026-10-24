@@ -1,5 +1,5 @@
 /* The floating AI panel + the code/preview modal on the library page. */
-import { $, esc, say, report, guard } from '../../lib/dom.js';
+import { $, esc, say, report, guard, exportFile } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
 import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js';
 import {
@@ -21,6 +21,16 @@ let autoTimer = null;
 let modalReturnFocus = null;
 let modalPreviousOverflow = '';
 
+export function updateDraftIndicators() {
+  const isDraft = !!(store.editActive && store.edited && store.edited !== store.html);
+  const badge = $('aiDraftBadge');
+  const restoreBtn = $('restoreOriginalBtn');
+  const codeTag = $('aiCodeDraftTag');
+  if (badge) badge.hidden = !isDraft;
+  if (restoreBtn) restoreBtn.hidden = !isDraft;
+  if (codeTag) codeTag.hidden = !isDraft;
+}
+
 /* ---------- state sync with the viewer ---------- */
 function syncAfterBuild(html) {
   const cur = store.cur;
@@ -39,6 +49,7 @@ function syncAfterBuild(html) {
   store.compState = compState;
   persistAIState();
   if (el.code) el.code.value = store.edited;
+  updateDraftIndicators();
 }
 
 function onComponentChange() {
@@ -56,6 +67,7 @@ function onComponentChange() {
   updateContextIndicator();
   if (el.code) el.code.value = store.editActive ? store.edited : store.html;
   updateStatus();
+  updateDraftIndicators();
 }
 
 /* ---------- panel ---------- */
@@ -197,6 +209,7 @@ async function generate() {
     if (el.code) el.code.value = code;
     refreshCodeView();
     updateContextIndicator();
+    updateDraftIndicators();
     openModal();
     runPreview();
     updateStatus();
@@ -303,11 +316,12 @@ function applyEdited() {
   refreshCodeView();
   setFrameHTML($('frame'), injectDebug(val));
   updateStatus();
+  updateDraftIndicators();
   chat.add('sys', 'Applied AI version to the preview.');
   say('AI version applied to the preview.');
 }
 
-function resetToOriginal() {
+export function resetToOriginal() {
   store.edited = store.html;
   store.editActive = false;
   setCurrentCode(store.compState, '');
@@ -315,9 +329,28 @@ function resetToOriginal() {
   refreshCodeView();
   if (store.html) setFrameHTML($('frame'), injectDebug(store.html));
   updateStatus();
+  updateDraftIndicators();
   runPreview();
-  chat.add('sys', 'Reset to original component.');
-  say('Reset to original component.');
+  if (chat) chat.add('sys', 'Reset to original canonical component.');
+  say('Reset to original canonical component.');
+}
+
+export function exportDraftFile() {
+  const cur = store.cur;
+  const id = cur ? cur.id : 'component';
+  const isDraft = !!(store.editActive && store.edited && store.edited !== store.html);
+  const filename = `${id}${isDraft ? '-ai-draft' : ''}.html`;
+  const code = isDraft ? store.edited : (store.html || '');
+  if (!code) {
+    say('No component code to export.');
+    return false;
+  }
+  const ok = exportFile(filename, code);
+  if (ok) {
+    say(`Exported ${filename}`);
+    if (chat) chat.add('sys', `Exported ${filename}`);
+  }
+  return ok;
 }
 
 async function copyEdited() {
@@ -353,6 +386,7 @@ function clearThisComponent() {
   store.edited = store.html;
   store.editActive = false;
   refreshCodeView();
+  updateDraftIndicators();
   renderChat();
   updateContextIndicator();
   chat.add('sys', 'Component AI history cleared.');
@@ -374,6 +408,7 @@ function clearEverything() {
   store.edited = store.html;
   store.editActive = false;
   refreshCodeView();
+  updateDraftIndicators();
   store.compState = store.cur ? getOrCreateComponentState(store.cur.id, store.cur.name, store.cur.cat, store.html) : null;
   renderChat();
   updateContextIndicator();
@@ -411,6 +446,7 @@ export function initAIPanel() {
   on('aiApply', 'click', guard(applyEdited, 'aiApply'));
   on('aiResetBtn', 'click', guard(resetToOriginal, 'aiReset'));
   on('aiCopyBtn', 'click', guard(copyEdited, 'aiCopy'));
+  on('aiExportBtn', 'click', guard(exportDraftFile, 'aiExport'));
   document.querySelectorAll('.ai-tab').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
   if (el.modal) el.modal.addEventListener('click', (e) => { if (e.target === el.modal) closeModal(); });
 

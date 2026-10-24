@@ -86,6 +86,66 @@ export function splitComponentCode(source) {
   return result;
 }
 
+const TAB_NAMES = { html: 'HTML', css: 'CSS', js: 'JavaScript' };
+
+export function getComponentDependencies(source) {
+  const src = String(source || '');
+  if (!src) return [];
+
+  const deps = [];
+  const lower = src.toLowerCase();
+
+  // Three.js / WebGL
+  if (src.includes('three.js') || src.includes('three.min.js') || src.includes('THREE.') || lower.includes('/three/')) {
+    deps.push({ id: 'three', name: 'Three.js (WebGL)', icon: 'ri-shapes-line' });
+  }
+
+  // GSAP Core
+  if (src.includes('gsap.min.js') || src.includes('gsap.js') || /script.*gsap/i.test(src) || /\bgsap\./i.test(src)) {
+    deps.push({ id: 'gsap', name: 'GSAP', icon: 'ri-flashlight-line' });
+  }
+
+  // ScrollTrigger
+  if (src.includes('ScrollTrigger.min.js') || src.includes('ScrollTrigger.js') || /ScrollTrigger/i.test(src)) {
+    deps.push({ id: 'scrolltrigger', name: 'ScrollTrigger', icon: 'ri-scroll-to-bottom-line' });
+  }
+
+  // SplitText
+  if (src.includes('SplitText.min.js') || src.includes('SplitText.js')) {
+    deps.push({ id: 'splittext', name: 'SplitText', icon: 'ri-text' });
+  }
+
+  // Lenis
+  if (src.includes('lenis.min.js') || src.includes('lenis.js') || /new Lenis\b/i.test(src)) {
+    deps.push({ id: 'lenis', name: 'Lenis Smooth Scroll', icon: 'ri-compass-3-line' });
+  }
+
+  // Remix Icon
+  if (src.includes('remixicon') || src.includes('remixicon.css')) {
+    deps.push({ id: 'remixicon', name: 'Remix Icon', icon: 'ri-remixicon-line' });
+  }
+
+  // Google Fonts
+  if (src.includes('fonts.googleapis.com')) {
+    deps.push({ id: 'fonts', name: 'Google Fonts', icon: 'ri-font-size' });
+  }
+
+  return deps;
+}
+
+export function renderDependencies(source = activeCode()) {
+  const container = $('previewDeps');
+  if (!container) return;
+  const deps = getComponentDependencies(source);
+  if (!deps.length) {
+    container.innerHTML = '<span class="dep-chip dep-chip-pure" title="Self-contained vanilla HTML/CSS/JS with zero external dependencies"><i class="ri-check-line" aria-hidden="true"></i> Vanilla (Zero dependencies)</span>';
+    return;
+  }
+  container.innerHTML = deps.map((d) =>
+    `<span class="dep-chip" title="External dependency: ${esc(d.name)}"><i class="${esc(d.icon)}" aria-hidden="true"></i> ${esc(d.name)}</span>`
+  ).join('');
+}
+
 function renderCodeView(source = activeCode()) {
   const output = $('code-out');
   const panel = $('codePanel');
@@ -100,6 +160,18 @@ function renderCodeView(source = activeCode()) {
     tab.setAttribute('aria-selected', String(selected));
     tab.tabIndex = selected ? 0 : -1;
   });
+
+  const labelSpan = $('copyTabLabel');
+  const tabBtn = $('copyTab');
+  const currentName = TAB_NAMES[codeTab] || 'Tab';
+  if (labelSpan && !copyTabBusy) {
+    labelSpan.textContent = `Copy ${currentName}`;
+  }
+  if (tabBtn) {
+    tabBtn.setAttribute('aria-label', `Copy ${currentName} code`);
+  }
+
+  renderDependencies(source);
 }
 
 export function refreshCodeView() {
@@ -215,6 +287,11 @@ function scheduleBuild() {
 export function flushBuild() { if (buildTimer) rebuild(); }
 
 export function replay() {
+  const btn = $('previewReset');
+  if (btn) {
+    btn.classList.add('is-active');
+    setTimeout(() => btn.classList.remove('is-active'), 500);
+  }
   if (buildTimer) { rebuild(); return; }
   play(activeCode());
 }
@@ -324,6 +401,7 @@ export function showDiscovery(category = 'All', options = {}) {
   const panel = $('aiPanel');
   if (panel) panel.hidden = true;
   document.body.style.overflow = '';
+  updateFullscreenUI(false);
   hidePreviewLoading();
   clearFrameHTML($('frame'));
   store.cur = null;
@@ -352,6 +430,7 @@ export function showMissingComponent() {
   if (fab) fab.hidden = true;
   const panel = $('aiPanel');
   if (panel) panel.hidden = true;
+  updateFullscreenUI(false);
   hidePreviewLoading();
   clearFrameHTML($('frame'));
   store.cur = null;
@@ -386,4 +465,101 @@ export async function onCopy() {
     }
     copyBusy = false;
   }, 1800);
+}
+
+let copyTabBusy = false;
+let copyTabReset = null;
+
+export async function onCopyTab() {
+  if (copyTabBusy) return;
+  flushBuild();
+  const code = activeCode();
+  if (!code) return;
+  const sections = splitComponentCode(code);
+  const tabContent = sections[codeTab];
+  const currentName = TAB_NAMES[codeTab] || 'Tab';
+
+  if (!tabContent || !tabContent.trim()) {
+    say(`No ${currentName} code in this component.`);
+    return;
+  }
+
+  copyTabBusy = true;
+  const btn = $('copyTab');
+  const label = $('copyTabLabel');
+  const icon = $('copyTabIcon');
+  let ok = false;
+  try { ok = await copyText(tabContent); } catch (err) { report(err, 'copyTab'); }
+
+  if (label) label.textContent = ok ? `Copied ${currentName}!` : 'Copy failed';
+  if (icon) icon.className = ok ? 'ri-check-line' : 'ri-close-line';
+  if (btn) btn.dataset.state = ok ? 'ok' : 'fail';
+  say(ok ? `${currentName} copied to clipboard` : 'Copy failed.');
+
+  clearTimeout(copyTabReset);
+  copyTabReset = setTimeout(() => {
+    if (label) label.textContent = `Copy ${TAB_NAMES[codeTab] || 'Tab'}`;
+    if (icon) icon.className = 'ri-file-copy-line';
+    if (btn) delete btn.dataset.state;
+    copyTabBusy = false;
+  }, 1800);
+}
+
+export function isFullscreen() {
+  const stage = $('previewStage');
+  if (!stage) return false;
+  return (
+    (typeof document !== 'undefined' && document.fullscreenElement === stage) ||
+    stage.classList.contains('is-fullscreen')
+  );
+}
+
+export function updateFullscreenUI(active) {
+  const stage = $('previewStage');
+  const exitBtn = $('stageExitFs');
+  const fsIcon = $('previewFsIcon');
+  const fsLabel = $('previewFsLabel');
+  const fsBtn = $('previewFullscreen');
+
+  if (stage) stage.classList.toggle('is-fullscreen', active);
+  if (exitBtn) exitBtn.hidden = !active;
+  if (fsIcon) {
+    fsIcon.className = active ? 'ri-fullscreen-exit-line' : 'ri-fullscreen-line';
+  }
+  if (fsLabel) {
+    fsLabel.textContent = active ? 'Exit' : 'Fullscreen';
+  }
+  if (fsBtn) {
+    fsBtn.setAttribute('aria-label', active ? 'Exit fullscreen preview' : 'Toggle fullscreen preview');
+    fsBtn.setAttribute('aria-pressed', String(active));
+    fsBtn.classList.toggle('is-active', active);
+  }
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.classList.toggle('preview-fullscreen-active', active);
+  }
+}
+
+export async function toggleFullscreen() {
+  const stage = $('previewStage');
+  if (!stage) return;
+  const active = isFullscreen();
+  if (active) {
+    if (typeof document !== 'undefined' && document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch {
+        // Fallback
+      }
+    }
+    updateFullscreenUI(false);
+  } else {
+    updateFullscreenUI(true);
+    if (stage.requestFullscreen) {
+      try {
+        await stage.requestFullscreen();
+      } catch {
+        // Fallback to CSS fullscreen
+      }
+    }
+  }
 }
