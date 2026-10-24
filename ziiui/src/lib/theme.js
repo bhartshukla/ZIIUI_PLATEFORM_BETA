@@ -1,4 +1,4 @@
-import { $ } from './dom.js';
+import { $, say } from './dom.js';
 import { safeSet } from './storage.js';
 
 export const THEME_KEY = 'ziiui-theme';
@@ -22,4 +22,5 @@ export function toggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   safeSet(THEME_KEY, next);
   applyThemeIcon();
+  say(next === 'light' ? 'Switched to light theme' : 'Switched to dark theme');
 }

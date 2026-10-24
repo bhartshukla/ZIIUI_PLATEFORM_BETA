@@ -4097,16 +4097,60 @@ pre {
   }
 }
 
+@media (max-width: 540px) {
+  .preview-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: .35rem;
+  }
+
+  .code-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: .35rem;
+  }
+
+  .code-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .5rem;
+  }
+
+  .code-toolbar .code-tab-copy {
+    align-self: flex-start;
+  }
+}
+
+.preview-action-btn:focus-visible,
+.stage-exit-fs:focus-visible,
+.code-tab-copy:focus-visible,
+.code-action-btn:focus-visible,
+.ai-restore-btn:focus-visible {
+  outline: 2px solid var(--acc) !important;
+  outline-offset: 2px !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .preview-text.is-shimmer .preview-word {
-    animation: none;
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  .preview-text.is-shimmer .preview-word,
+  .preview-spin,
+  .ai-spin,
+  .ai-draft-badge,
+  .preview-action-btn.is-active i.ri-refresh-line {
+    animation: none !important;
     background-position: 50% 0;
   }
 
   .component-card,
   .component-card:hover,
   .component-card-visual,
-  .ai-fab::after {
+  .ai-fab,
+  .ai-fab::after,
+  .preview-action-btn,
+  .stage-exit-fs {
     transform: none !important;
     transition: none !important;
   }
