@@ -38,5 +38,14 @@ describe('component code tabs', () => {
     expect(revealSections.js).toContain('initRevealMenu');
     expect(revealSections.js).toContain('paths');
   });
+
+  it('correctly splits Image Trail code', () => {
+    const trailSections = splitComponentCode(BY_ID.imagetrail.code());
+    expect(trailSections.html).toContain('Image Trail');
+    expect(trailSections.html).toContain('Field Notes');
+    expect(trailSections.css).toContain('cursor: crosshair');
+    expect(trailSections.js).toContain('showImage');
+    expect(trailSections.js).toContain('gsap');
+  });
 });
 

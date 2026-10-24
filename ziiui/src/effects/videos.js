@@ -31,6 +31,8 @@ export const COMPONENT_VIDEOS = {
   'Micro Hover': 'Micro Hover.mp4',
   'Hover Section': 'Hover Section.mp4',
   'Snake Hover': 'Snake Hover.mp4',
+  'Image Trail': 'Image Trail.mp4',
+
 
   // Scroll
   'List Reveal': 'List Reveal.mp4',
@@ -70,6 +72,7 @@ const EFFECT_ID_TO_NAME = {
   microhover: 'Micro Hover',
   hoversection: 'Hover Section',
   snakehover: 'Snake Hover',
+  imagetrail: 'Image Trail',
   listreveal: 'List Reveal',
   scrolldown: 'Scroll Stand',
   scrollmask: 'Scrolling Mask',

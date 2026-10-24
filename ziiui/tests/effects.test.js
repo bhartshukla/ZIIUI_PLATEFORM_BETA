@@ -8,13 +8,15 @@ function inlineScripts(html) {
 }
 
 describe('effects registry', () => {
-  it('has 26 uniquely-identified effects', () => {
-    expect(EFFECTS).toHaveLength(26);
+  it('has 27 uniquely-identified effects', () => {
+    expect(EFFECTS).toHaveLength(27);
     expect(new Set(EFFECTS.map((e) => e.id)).size).toBe(EFFECTS.length);
     expect(CATEGORIES).not.toContain('Cursor');
     expect(BY_ID.pinrotate).toBeTruthy();
     expect(BY_ID.imageflow).toBeTruthy();
     expect(BY_ID.snakehover).toBeTruthy();
+    expect(BY_ID.imagetrail).toBeTruthy();
+    expect(BY_ID.imagetrail.cat).toBe('Interactive');
     expect(BY_ID.blockreveal).toBeTruthy();
     expect(BY_ID.blockreveal.cat).toBe('Menus');
     expect(BY_ID.revealmenu).toBeTruthy();

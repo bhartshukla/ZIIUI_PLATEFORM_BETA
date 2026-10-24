@@ -81,6 +81,12 @@ export const EFFECTS = [
       js(GSAP)
     ])
   },
+  {
+    id: 'imagetrail', name: 'Image Trail', cat: 'Interactive', field: 'none', previewSize: 'large',
+    note: 'Dynamic cursor image trail on pointer move', text: '',
+    code: full('imagetrail', [js(GSAP)])
+  },
+
 
   /* ----- Footer ----- */
   {

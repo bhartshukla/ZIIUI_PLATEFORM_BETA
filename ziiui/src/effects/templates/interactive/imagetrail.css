@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-size: 12px;
+}
+
+body {
+  background: #0f0b0b;
+  color: #e8ddd4;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.0125em;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+header {
+  position: fixed;
+  inset: 1.5rem 1.5rem auto;
+  display: flex;
+  justify-content: space-between;
+  z-index: 1000;
+  pointer-events: none;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 11rem;
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
