@@ -445,26 +445,31 @@ body {
   height: calc(100vh - var(--header-h));
   height: calc(100dvh - var(--header-h));
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   border-right: 1px solid var(--line);
   padding: 1rem .65rem 1.5rem;
   background: var(--panel);
   min-width: 0;
   scrollbar-width: thin;
-  scrollbar-color: var(--line2) transparent
+  scrollbar-color: var(--line2) transparent;
 }
 
 .side::-webkit-scrollbar {
-  width: 8px
+  width: 5px;
 }
 
 .side::-webkit-scrollbar-thumb {
   background: var(--line2);
-  border-radius: 8px
+  border-radius: 999px;
+}
+
+.side::-webkit-scrollbar-thumb:hover {
+  background: var(--mute);
 }
 
 .side::-webkit-scrollbar-track {
-  background: transparent
+  background: transparent;
 }
 
 .side-label {
@@ -2398,10 +2403,7 @@ pre {
   gap: 1rem;
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line2) transparent;
+  overflow-y: visible;
 }
 
 .component-group {
@@ -2443,10 +2445,10 @@ pre {
   gap: .6rem;
   width: 100%;
   min-width: 0;
-  min-height: 37px;
-  padding: .5rem .6rem .5rem .7rem;
+  min-height: 36px;
+  padding: .45rem .65rem;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: 8px;
   background: transparent;
   color: var(--fg);
   font: inherit;
@@ -2461,9 +2463,10 @@ pre {
 }
 
 .component-link[aria-current="true"] {
-  border-color: var(--acc-line);
-  background: var(--acc-soft);
-  color: var(--acc);
+  border-color: var(--line2);
+  background: var(--raise);
+  color: var(--fg);
+  font-weight: 600;
 }
 
 .component-link:focus-visible {
@@ -2570,6 +2573,34 @@ pre {
 @media (max-width: 700px) {
   .topbar-inner {
     padding-left: 60px;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 900px) {
+  .topbar-inner {
+    padding-left: 58px;
+    gap: .5rem;
+  }
+
+  .topbar-inner .topnav {
+    gap: .15rem;
+    margin-left: auto;
+  }
+
+  .topbar-inner .topnav a {
+    padding: .35rem .5rem;
+    font-size: .8rem;
+  }
+
+  .topbar-inner .search {
+    flex: 0 1 210px;
+    max-width: 210px;
+  }
+
+  .topbar-inner .search input {
+    padding: .45rem 2.8rem .45rem 1.9rem;
+    font-size: .8rem;
+    min-height: 36px;
   }
 }
 
@@ -2751,17 +2782,18 @@ pre {
   justify-content: center;
   gap: .45rem;
   flex: none;
-  min-height: 40px;
-  padding: .55rem .8rem;
+  min-height: 38px;
+  height: 38px;
+  padding: .45rem .85rem;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--panel);
   color: var(--mute);
   font: inherit;
   font-size: .76rem;
-  font-weight: 620;
+  font-weight: 600;
   cursor: pointer;
-  transition: none;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
 }
 
 .category-filter>i {
@@ -2771,25 +2803,24 @@ pre {
 
 .category-filter:hover,
 .app .category-filter:hover {
-  color: var(--mute) !important;
-  border-color: var(--line) !important;
-  background: var(--panel) !important;
-  transform: none !important;
-  box-shadow: none !important;
+  color: var(--fg);
+  border-color: var(--line2);
+  background: var(--raise);
+  transform: none;
 }
 
 .category-filter[aria-pressed="true"],
 .category-filter[aria-pressed="true"]:hover,
 .app .category-filter[aria-pressed="true"],
 .app .category-filter[aria-pressed="true"]:hover {
-  border-color: var(--acc-line) !important;
-  background: var(--acc-soft) !important;
-  color: var(--acc) !important;
+  border-color: var(--acc) !important;
+  background: var(--acc) !important;
+  color: var(--acc-ink) !important;
   transform: none !important;
 }
 
 .category-filter:disabled {
-  opacity: .55;
+  opacity: .5;
   cursor: not-allowed;
 }
 
@@ -2798,7 +2829,7 @@ pre {
   min-width: 1.25rem;
   height: 1.25rem;
   place-items: center;
-  padding-inline: .25rem;
+  padding-inline: .3rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--raise) 78%, transparent);
   color: var(--mute);
@@ -2808,7 +2839,7 @@ pre {
 
 .category-filter[aria-pressed="true"] .category-count {
   color: var(--acc);
-  background: color-mix(in srgb, var(--acc) 14%, transparent);
+  background: var(--acc-ink);
 }
 
 .catalog-meta {
@@ -2828,9 +2859,17 @@ pre {
 .component-grid,
 .app .component-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 450px), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1rem, 2vw, 1.5rem);
   min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .component-grid,
+  .app .component-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
 }
 
 .component-card {
@@ -2838,8 +2877,7 @@ pre {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: 220px;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--line);
   background: var(--bg-card);
@@ -2848,13 +2886,15 @@ pre {
   margin: 0;
   text-align: left;
   outline: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
-  transition: transform .2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
   will-change: transform;
 }
 
 .component-card:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  border-color: var(--line2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
 }
 
 .component-card:focus-visible {
@@ -2865,7 +2905,7 @@ pre {
 
 .component-card[aria-current="true"] {
   border-color: var(--acc);
-  box-shadow: 0 0 0 1px var(--acc);
+  box-shadow: 0 0 0 1px var(--acc), 0 8px 24px rgba(0, 0, 0, .4);
 }
 
 .component-card-art {
@@ -3225,9 +3265,9 @@ pre {
 }
 
 .app .category-filter[aria-pressed="true"] {
-  border-color: transparent;
+  border-color: var(--acc);
   background: var(--acc);
-  color: #fff;
+  color: var(--acc-ink);
 }
 
 .app .component-grid {

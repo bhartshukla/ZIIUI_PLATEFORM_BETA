@@ -284,4 +284,35 @@ describe('component library navigation', () => {
     filters.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
     expect(document.activeElement).toBe(chips[0]);
   });
+
+  it('marks active state on selected component across both sidebar and gallery', () => {
+    const card = document.querySelector('.component-card[data-id="splitsection"]');
+    expect(card).not.toBeNull();
+    card.click();
+
+    expect(card.getAttribute('aria-current')).toBe('true');
+    const link = document.querySelector('.component-link[data-id="splitsection"]');
+    if (link) {
+      expect(link.getAttribute('aria-current')).toBe('true');
+    }
+
+    markCurrent(null, false);
+    expect(card.getAttribute('aria-current')).toBe('false');
+  });
+
+  it('updates category button aria-pressed states consistently', () => {
+    const interactiveChip = document.querySelector('#categoryFilters [data-category="Interactive"]');
+    interactiveChip.click();
+    expect(interactiveChip.getAttribute('aria-pressed')).toBe('true');
+
+    const textChip = document.querySelector('#categoryFilters [data-category="Text"]');
+    expect(textChip.getAttribute('aria-pressed')).toBe('false');
+
+    const allFilter = document.querySelector('#allComponentsFilter');
+    expect(allFilter.getAttribute('aria-pressed')).toBe('false');
+
+    allFilter.click();
+    expect(allFilter.getAttribute('aria-pressed')).toBe('true');
+    expect(interactiveChip.getAttribute('aria-pressed')).toBe('false');
+  });
 });
