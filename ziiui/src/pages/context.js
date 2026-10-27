@@ -1,4 +1,4 @@
-/* Entry point for context.html — view and resume saved AI conversations. */
+/* Entry point for context.html — view, search, and manage saved AI conversations in the Command Center. */
 import '../styles/context.css';
 import { AI_STATE_KEY, AI_ACTIVE_KEY } from '../ai/config.js';
 import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
@@ -8,6 +8,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
   let state = { components: {} };
   let activeId = null;
+  let searchQuery = '';
 
   function toast(msg) {
     const t = $('toast');
@@ -72,7 +73,15 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         return false;
       }
       state = { components: p.components };
-      activeId = safeGet(AI_ACTIVE_KEY) || null;
+
+      // Check query parameter first, fallback to active key or first component
+      const urlParam = new URLSearchParams(window.location.search).get('component');
+      if (urlParam && state.components[urlParam]) {
+        activeId = urlParam;
+        safeSet(AI_ACTIVE_KEY, activeId);
+      } else {
+        activeId = safeGet(AI_ACTIVE_KEY) || null;
+      }
       return true;
     } catch (_) {
       state = { components: {} };
@@ -87,6 +96,51 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       .sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
   }
 
+  function getFilteredList() {
+    const all = getComponentList();
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return all;
+
+    return all.filter((c) => {
+      const name = (c.componentName || '').toLowerCase();
+      const id = (c.componentId || '').toLowerCase();
+      const cat = (c.category || '').toLowerCase();
+      if (name.includes(q) || id.includes(q) || cat.includes(q)) return true;
+
+      // Match conversation message text
+      if (Array.isArray(c.chatHistory)) {
+        const matchesMsg = c.chatHistory.some((m) => {
+          return m && typeof m.text === 'string' && m.text.toLowerCase().includes(q);
+        });
+        if (matchesMsg) return true;
+      }
+
+      // Match summary
+      if (typeof c.summary === 'string' && c.summary.toLowerCase().includes(q)) {
+        return true;
+      }
+
+      return false;
+    });
+  }
+
+  function updateSummaryCards() {
+    const all = getComponentList();
+    const compCount = all.length;
+    const convCount = all.filter((c) => Array.isArray(c.chatHistory) && c.chatHistory.length > 0).length;
+    const versionCount = all.reduce((sum, c) => sum + (Array.isArray(c.codeVersions) ? c.codeVersions.length : 0), 0);
+    const totalMsgs = all.reduce((sum, c) => sum + (Array.isArray(c.chatHistory) ? c.chatHistory.length : 0), 0);
+
+    if ($('statComponents')) $('statComponents').textContent = compCount.toLocaleString();
+    if ($('statComponentsSub')) $('statComponentsSub').textContent = compCount === 1 ? '1 tracked component' : `${compCount} in memory`;
+
+    if ($('statConversations')) $('statConversations').textContent = convCount.toLocaleString();
+    if ($('statConversationsSub')) $('statConversationsSub').textContent = totalMsgs ? `${totalMsgs.toLocaleString()} messages` : '0 messages';
+
+    if ($('statVersions')) $('statVersions').textContent = versionCount.toLocaleString();
+    if ($('statVersionsSub')) $('statVersionsSub').textContent = versionCount === 1 ? '1 code snapshot' : `${versionCount} code snapshots`;
+  }
+
   function openInEditor(componentId) {
     if (!componentId) return;
     safeSet(AI_ACTIVE_KEY, componentId);
@@ -94,42 +148,95 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   }
 
   function renderList() {
-    const list = getComponentList();
+    const all = getComponentList();
+    const filtered = getFilteredList();
     const ul = $('compList');
+    if (!ul) return;
     ul.innerHTML = '';
 
-    $('emptyNotice').hidden = list.length > 0;
-    $('layout').hidden = list.length === 0;
+    const hasAnyComps = all.length > 0;
+    const emptyNotice = $('emptyNotice');
+    const layout = $('layout');
+    const searchNoResults = $('searchNoResults');
+    const detailCard = $('detailCard');
 
-    if (!list.length) {
-      $('detailCard').hidden = true;
+    if (emptyNotice) emptyNotice.hidden = hasAnyComps;
+    if (layout) layout.hidden = !hasAnyComps;
+
+    updateSummaryCards();
+
+    if (!hasAnyComps) {
+      if (detailCard) detailCard.hidden = true;
       return;
     }
 
-    if (!activeId || !state.components[activeId]) {
-      activeId = list[0].componentId;
+    const countBadge = $('compListCount');
+    if (countBadge) countBadge.textContent = String(filtered.length);
+
+    const q = (searchQuery || '').trim();
+    if (filtered.length === 0) {
+      if (searchNoResults) {
+        searchNoResults.hidden = false;
+        const qText = $('searchQueryText');
+        if (qText) qText.textContent = q;
+      }
+      if (detailCard) detailCard.hidden = true;
+      return;
+    }
+
+    if (searchNoResults) searchNoResults.hidden = true;
+
+    // Ensure activeId is pointing to one of the filtered items
+    if (!activeId || !filtered.some((c) => c.componentId === activeId)) {
+      activeId = filtered[0].componentId;
       safeSet(AI_ACTIVE_KEY, activeId);
     }
 
-    list.forEach((c) => {
+    filtered.forEach((c) => {
       const id = c.componentId;
+      const isActive = id === activeId;
       const li = document.createElement('li');
-      if (id === activeId) li.classList.add('active');
+      li.className = 'comp-item' + (isActive ? ' active' : '');
 
       const button = document.createElement('button');
       button.type = 'button';
-      button.setAttribute('aria-current', String(id === activeId));
+      button.className = 'comp-btn';
+      button.setAttribute('aria-current', String(isActive));
+      button.setAttribute('role', 'option');
+      button.setAttribute('aria-selected', String(isActive));
 
       const timeText = fmtAgo(c.lastUpdated) || fmtDateTime(c.lastUpdated);
-      const msgCount = (c.chatHistory || []).length;
+      const msgCount = Array.isArray(c.chatHistory) ? c.chatHistory.length : 0;
+      const verCount = Array.isArray(c.codeVersions) ? c.codeVersions.length : 0;
+
+      // Check if item matched via message text
+      let matchSnippet = '';
+      if (q && Array.isArray(c.chatHistory)) {
+        const found = c.chatHistory.find((m) => m && typeof m.text === 'string' && m.text.toLowerCase().includes(q.toLowerCase()));
+        if (found && !(c.componentName || '').toLowerCase().includes(q.toLowerCase())) {
+          const rawText = found.text.replace(/\s+/g, ' ').trim();
+          const idx = rawText.toLowerCase().indexOf(q.toLowerCase());
+          const start = Math.max(0, idx - 18);
+          const excerpt = (start > 0 ? '…' : '') + rawText.slice(start, start + 54) + (start + 54 < rawText.length ? '…' : '');
+          matchSnippet = `<div class="comp-match-snippet"><i class="ri-search-line"></i> ${esc(excerpt)}</div>`;
+        }
+      }
 
       button.innerHTML = `
-        <div class="comp-info">
-          <span class="comp-title">${esc(c.componentName || id)}</span>
-          <span class="comp-time"><i class="ri-time-line" aria-hidden="true"></i> ${esc(timeText)}</span>
+        <div class="comp-item-header">
+          <div class="comp-item-title-wrap">
+            <span class="comp-title">${esc(c.componentName || id)}</span>
+            ${c.category ? `<span class="comp-cat-tag">${esc(c.category)}</span>` : ''}
+          </div>
+          <i class="ri-arrow-right-s-line comp-chevron" aria-hidden="true"></i>
         </div>
-        <div class="comp-action-hint" title="Resume in AI Editor">
-          <i class="ri-arrow-right-line" aria-hidden="true"></i>
+        ${matchSnippet}
+        <div class="comp-item-meta">
+          <span class="comp-time"><i class="ri-time-line" aria-hidden="true"></i> ${esc(timeText)}</span>
+          <div class="comp-badges">
+            <span class="comp-badge"><i class="ri-chat-3-line" aria-hidden="true"></i> ${msgCount}</span>
+            ${verCount ? `<span class="comp-badge"><i class="ri-history-line" aria-hidden="true"></i> ${verCount}</span>` : ''}
+          </div>
         </div>
       `;
 
@@ -138,6 +245,10 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         safeSet(AI_ACTIVE_KEY, id);
         renderList();
         renderDetail();
+        if (window.innerWidth <= 820) {
+          const detail = $('detailCard');
+          if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
 
       li.append(button);
@@ -147,6 +258,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
   function renderDetail() {
     const card = $('detailCard');
+    if (!card) return;
     const c = activeId ? state.components[activeId] : null;
 
     if (!c) {
@@ -155,7 +267,29 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     }
 
     card.hidden = false;
-    $('detailCompName').textContent = c.componentName || activeId;
+    const nameEl = $('detailCompName');
+    if (nameEl) nameEl.textContent = c.componentName || activeId;
+
+    const catEl = $('detailCategory');
+    if (catEl) {
+      if (c.category) {
+        catEl.textContent = c.category;
+        catEl.hidden = false;
+      } else {
+        catEl.hidden = true;
+      }
+    }
+
+    const timeEl = $('detailTime');
+    if (timeEl) timeEl.textContent = fmtDateTime(c.lastUpdated);
+
+    const msgCount = Array.isArray(c.chatHistory) ? c.chatHistory.length : 0;
+    const msgEl = $('detailMsgCount');
+    const dotEl = $('detailDot');
+    if (msgEl) {
+      msgEl.textContent = msgCount === 1 ? '1 message' : `${msgCount} messages`;
+    }
+    if (dotEl) dotEl.hidden = false;
 
     const editorBtn = $('openInEditorBtn');
     if (editorBtn) {
@@ -167,33 +301,45 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     }
 
     const wrap = $('chatMsgs');
+    if (!wrap) return;
     wrap.innerHTML = '';
     const msgs = Array.isArray(c.chatHistory) ? c.chatHistory : [];
 
+    const chatEmpty = $('chatEmpty');
     if (!msgs.length) {
-      $('chatEmpty').hidden = false;
+      if (chatEmpty) chatEmpty.hidden = false;
       return;
     }
 
-    $('chatEmpty').hidden = true;
+    if (chatEmpty) chatEmpty.hidden = true;
 
     msgs.forEach((m) => {
       const isUser = m.role === 'user';
       const div = document.createElement('div');
       div.className = `msg ${isUser ? 'user' : 'assistant'}`;
       div.title = 'Click to continue this conversation in the AI Editor';
+      div.tabIndex = 0;
+      div.setAttribute('role', 'button');
+      div.setAttribute('aria-label', `Resume conversation at message from ${isUser ? 'You' : 'AI Assistant'}`);
 
       div.innerHTML = `
         <div class="msg-header">
-          <span class="msg-author">${isUser ? 'You' : 'AI Assistant'}</span>
+          <span class="msg-author">
+            <i class="${isUser ? 'ri-user-line' : 'ri-sparkling-2-line'}" aria-hidden="true"></i>
+            ${isUser ? 'You' : 'AI Assistant'}
+          </span>
           <span class="msg-time">${esc(fmtDateTime(m.timestamp))}</span>
         </div>
         <div class="msg-body">${esc(m.text)}</div>
+        <div class="msg-resume-hint"><i class="ri-edit-line" aria-hidden="true"></i> Continue in AI Editor</div>
       `;
 
-      // Clicking any chat opens that exact conversation in the AI editor
-      div.addEventListener('click', () => {
-        openInEditor(c.componentId);
+      div.addEventListener('click', () => openInEditor(c.componentId));
+      div.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openInEditor(c.componentId);
+        }
       });
 
       wrap.appendChild(div);
@@ -214,8 +360,11 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     safeRemove(AI_STATE_KEY);
     safeRemove(AI_ACTIVE_KEY);
     activeId = null;
+    searchQuery = '';
+    const searchInput = $('contextSearch');
+    if (searchInput) searchInput.value = '';
     renderList();
-    $('detailCard').hidden = true;
+    if ($('detailCard')) $('detailCard').hidden = true;
     toast('All conversations cleared.');
   }
 
@@ -244,15 +393,92 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     updateThemeControl();
   }
 
-  $('refreshBtn').addEventListener('click', () => {
-    load();
-    renderList();
-    renderDetail();
-    toast('Refreshed.');
-  });
+  function setupSearch() {
+    const input = $('contextSearch');
+    const clearBtn = $('searchClearBtn');
+    const resetBtn = $('resetSearchBtn');
+    const kbd = $('searchKbd');
 
-  $('themeBtn').addEventListener('click', toggleTheme);
-  $('clearAllBtn').addEventListener('click', clearAll);
+    // Adapt keyboard shortcut badge for Mac
+    const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+    if (kbd) {
+      kbd.innerHTML = isMac ? '<span class="kbd-mod">⌘</span>K' : '<span class="kbd-mod">Ctrl</span>+K';
+    }
+
+    if (input) {
+      input.addEventListener('input', () => {
+        searchQuery = input.value;
+        if (clearBtn) clearBtn.hidden = !searchQuery;
+        renderList();
+        renderDetail();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          input.value = '';
+          searchQuery = '';
+          if (clearBtn) clearBtn.hidden = true;
+          renderList();
+          renderDetail();
+          input.blur();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const firstBtn = document.querySelector('.comp-list .comp-btn');
+          if (firstBtn) firstBtn.focus();
+        }
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+        searchQuery = '';
+        clearBtn.hidden = true;
+        renderList();
+        renderDetail();
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+        searchQuery = '';
+        if (clearBtn) clearBtn.hidden = true;
+        renderList();
+        renderDetail();
+      });
+    }
+
+    // Global shortcut Ctrl+K / Cmd+K
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+    });
+  }
+
+  // Bind toolbar actions
+  if ($('refreshBtn')) {
+    $('refreshBtn').addEventListener('click', () => {
+      load();
+      renderList();
+      renderDetail();
+      toast('Refreshed.');
+    });
+  }
+
+  if ($('themeBtn')) $('themeBtn').addEventListener('click', toggleTheme);
+  if ($('clearAllBtn')) $('clearAllBtn').addEventListener('click', clearAll);
 
   window.addEventListener('storage', (e) => {
     if (e.key === AI_STATE_KEY) {
@@ -264,6 +490,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   });
 
   initTheme();
+  setupSearch();
   load();
   renderList();
   if (activeId && state.components[activeId]) renderDetail();

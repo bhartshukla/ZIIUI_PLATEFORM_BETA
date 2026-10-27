@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ziiui — AI Context</title>
+  <title>ziiui — AI Context Command Center</title>
+  <meta name="description" content="Search, inspect, and manage component memory in the ZiiUI AI Context Command Center.">
   <meta name="theme-color" content="#000000">
   <link rel="icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,43 +26,152 @@
 </head>
 <body>
 
-<header>
-  <h1><i class="ri-chat-history-line" aria-hidden="true"></i> ziiui — AI Context</h1>
-  <div class="toolbar">
-    <a class="btn" href="index.html"><i class="ri-arrow-left-line" aria-hidden="true"></i> Library</a>
-    <a class="btn" href="ai.html"><i class="ri-sparkling-2-line" aria-hidden="true"></i> AI Editor</a>
-    <button class="btn" id="refreshBtn" type="button"><i class="ri-refresh-line" aria-hidden="true"></i> Refresh</button>
-    <button class="btn" id="themeBtn" type="button"><i class="ri-moon-line" aria-hidden="true"></i> Theme</button>
-    <button class="btn danger" id="clearAllBtn" type="button"><i class="ri-delete-bin-6-line" aria-hidden="true"></i> Clear History</button>
+<header class="cmd-header">
+  <div class="brand-group">
+    <a class="brand" href="index.html" title="Back to Component Library">
+      <i class="ri-sparkling-2-line brand-icon" aria-hidden="true"></i>
+      <span class="brand-name">ziiui</span>
+    </a>
+    <span class="brand-divider" aria-hidden="true">/</span>
+    <span class="brand-badge"><i class="ri-database-2-line" aria-hidden="true"></i> AI Context</span>
   </div>
+  <nav class="toolbar" aria-label="Command Center Navigation">
+    <a class="btn" href="index.html" title="Go to Component Library"><i class="ri-arrow-left-line" aria-hidden="true"></i><span>Library</span></a>
+    <a class="btn" href="ai.html" title="Open AI Component Editor"><i class="ri-sparkling-2-line" aria-hidden="true"></i><span>AI Editor</span></a>
+    <button class="btn" id="refreshBtn" type="button" title="Reload saved state"><i class="ri-refresh-line" aria-hidden="true"></i><span>Refresh</span></button>
+    <button class="btn" id="themeBtn" type="button" aria-label="Toggle theme" title="Toggle theme"><i class="ri-moon-line" aria-hidden="true"></i><span>Theme</span></button>
+    <button class="btn danger" id="clearAllBtn" type="button" title="Clear all AI conversation history"><i class="ri-delete-bin-6-line" aria-hidden="true"></i><span>Clear History</span></button>
+  </nav>
 </header>
 
-<main>
-  <div class="notice" id="emptyNotice" hidden>
-    <i class="ri-information-line" aria-hidden="true"></i>
-    No saved AI conversations yet. Open a component in the library or the AI Editor to start chatting.
+<main class="cmd-main">
+  <!-- Command Center Hero Section -->
+  <section class="cmd-hero" aria-labelledby="cmdHeroTitle">
+    <div class="cmd-hero-badge"><i class="ri-terminal-box-line" aria-hidden="true"></i> Command Center</div>
+    <h1 id="cmdHeroTitle" class="cmd-title">AI Context Center</h1>
+    <p class="cmd-subtitle">Search, inspect and manage component memory.</p>
+  </section>
+
+  <!-- Prominent Search Bar -->
+  <section class="search-section" aria-label="Search Components and Conversations">
+    <div class="search-bar-wrap">
+      <i class="ri-search-line search-icon" aria-hidden="true"></i>
+      <input
+        type="search"
+        id="contextSearch"
+        class="search-input"
+        placeholder="Find a component or conversation…"
+        aria-label="Find a component or conversation"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <div class="search-trailing">
+        <button id="searchClearBtn" class="search-clear-btn" type="button" aria-label="Clear search input" hidden>
+          <i class="ri-close-line" aria-hidden="true"></i>
+        </button>
+        <kbd class="search-kbd" id="searchKbd" aria-hidden="true" title="Keyboard shortcut: Ctrl+K"><span class="kbd-mod">Ctrl</span>+K</kbd>
+      </div>
+    </div>
+  </section>
+
+  <!-- Summary Cards Row -->
+  <section class="summary-section" aria-label="AI Context Summary">
+    <div class="summary-grid">
+      <div class="summary-card" id="cardComponents">
+        <div class="summary-icon"><i class="ri-shapes-line" aria-hidden="true"></i></div>
+        <div class="summary-body">
+          <div class="summary-value" id="statComponents">0</div>
+          <div class="summary-label">Components</div>
+          <div class="summary-sub" id="statComponentsSub">In memory</div>
+        </div>
+      </div>
+      <div class="summary-card" id="cardConversations">
+        <div class="summary-icon"><i class="ri-chat-3-line" aria-hidden="true"></i></div>
+        <div class="summary-body">
+          <div class="summary-value" id="statConversations">0</div>
+          <div class="summary-label">Conversations</div>
+          <div class="summary-sub" id="statConversationsSub">Active threads</div>
+        </div>
+      </div>
+      <div class="summary-card" id="cardVersions">
+        <div class="summary-icon"><i class="ri-history-line" aria-hidden="true"></i></div>
+        <div class="summary-body">
+          <div class="summary-value" id="statVersions">0</div>
+          <div class="summary-label">Saved Versions</div>
+          <div class="summary-sub" id="statVersionsSub">Code snapshots</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Empty State Notice (When no components are in memory) -->
+  <div class="empty-state-notice" id="emptyNotice" hidden>
+    <div class="empty-icon-wrap"><i class="ri-inbox-archive-line" aria-hidden="true"></i></div>
+    <h2>No saved AI conversations yet</h2>
+    <p>Open a component in the library or the AI Editor to start chatting and generating variations.</p>
+    <div class="empty-actions">
+      <a class="btn primary" href="index.html"><i class="ri-compass-3-line" aria-hidden="true"></i> Browse Components</a>
+      <a class="btn" href="ai.html"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Open AI Editor</a>
+    </div>
   </div>
 
-  <div class="layout" id="layout" hidden>
-    <section class="card">
-      <div class="card-head"><i class="ri-chat-3-line" aria-hidden="true"></i> Conversations</div>
-      <ul class="comp-list" id="compList"></ul>
+  <!-- Two-Column Work Area: Recent Components & Detail Inspector -->
+  <div class="cmd-layout" id="layout" hidden>
+    <!-- Left Column: Recent Components List -->
+    <section class="card comp-panel" aria-labelledby="compPanelTitle">
+      <header class="card-head">
+        <div class="card-head-title">
+          <i class="ri-time-line" aria-hidden="true"></i>
+          <span id="compPanelTitle">Recent Components</span>
+        </div>
+        <span class="badge-count" id="compListCount" aria-label="Component count">0</span>
+      </header>
+
+      <ul class="comp-list" id="compList" role="listbox" aria-label="Recent components list"></ul>
+
+      <div class="search-no-results" id="searchNoResults" hidden>
+        <i class="ri-search-2-line" aria-hidden="true"></i>
+        <p>No components match "<strong id="searchQueryText"></strong>"</p>
+        <button type="button" class="btn btn-sm" id="resetSearchBtn"><i class="ri-refresh-line" aria-hidden="true"></i> Clear filter</button>
+      </div>
+
+      <footer class="card-footer">
+        <a href="index.html" class="browse-all-link" title="Explore complete catalog in Library">
+          <i class="ri-compass-3-line" aria-hidden="true"></i>
+          <span>Browse all library components</span>
+        </a>
+      </footer>
     </section>
 
-    <section class="card" id="detailCard" hidden>
-      <div class="card-head detail-head">
-        <div class="detail-title">
-          <i class="ri-sparkling-2-line" aria-hidden="true"></i>
-          <span id="detailCompName">Component</span>
+    <!-- Right Column: Conversation Inspector / Detail -->
+    <section class="card detail-panel" id="detailCard" hidden aria-labelledby="detailCompName">
+      <header class="card-head detail-head">
+        <div class="detail-title-group">
+          <div class="detail-icon" aria-hidden="true"><i class="ri-sparkling-2-line"></i></div>
+          <div class="detail-title-meta">
+            <h2 id="detailCompName" class="detail-name">Component</h2>
+            <div class="detail-meta-row">
+              <span class="badge" id="detailCategory" hidden>Web</span>
+              <span class="detail-meta-text" id="detailTime"></span>
+              <span class="detail-meta-dot" id="detailDot" hidden>·</span>
+              <span class="detail-meta-text" id="detailMsgCount"></span>
+            </div>
+          </div>
         </div>
-        <a class="btn primary" id="openInEditorBtn" href="#">
-          <i class="ri-edit-line" aria-hidden="true"></i> Continue in AI Editor
-        </a>
-      </div>
+        <div class="detail-actions">
+          <a class="btn primary" id="openInEditorBtn" href="#" title="Continue editing this component in the AI Editor">
+            <i class="ri-edit-line" aria-hidden="true"></i>
+            <span>Continue in AI Editor</span>
+          </a>
+        </div>
+      </header>
 
       <div class="chat-container">
         <div class="chat-stream" id="chatMsgs" role="log" aria-label="Conversation history"></div>
-        <div class="empty" id="chatEmpty" hidden>No conversation messages yet for this component.</div>
+        <div class="empty" id="chatEmpty" hidden>
+          <i class="ri-chat-voice-line empty-chat-icon" aria-hidden="true"></i>
+          <p>No conversation messages yet for this component.</p>
+        </div>
       </div>
     </section>
   </div>
