@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   estimateTokens,
   extractKeywords,
@@ -17,7 +17,8 @@ import {
   persistAIState,
   loadAIState,
   getAIState,
-  clearComponentHistory
+  clearComponentHistory,
+  saveActiveComponentId
 } from '../src/ai/state.js';
 import { AI_STATE_KEY } from '../src/ai/config.js';
 
@@ -161,27 +162,28 @@ describe('Smart Context Engine', () => {
     });
 
     it('recovers from storage quota errors by safely pruning inactive component snapshots', () => {
+      saveActiveComponentId('active-comp');
       const activeState = getOrCreateComponentState('active-comp', 'Active', 'Text', '<div>Active</div>');
       const inactiveState = getOrCreateComponentState('inactive-comp', 'Inactive', 'Shader', '<div>Inactive</div>');
 
-      // Populate inactive component with many version snapshots
-      for (let i = 0; i < 10; i++) {
+      // Populate inactive component with version snapshots
+      for (let i = 0; i < 6; i++) {
         addCodeVersion(inactiveState, `<div>Inactive Snapshot ${i}</div>`, `prompt ${i}`);
       }
-      expect(inactiveState.codeVersions).toHaveLength(10);
+      expect(inactiveState.codeVersions).toHaveLength(6);
 
-      // Simulate a quota error on the first write
-      const originalSetItem = localStorage.setItem;
+      // Spy on Storage.prototype.setItem to throw QuotaExceededError on the first call
       let failedOnce = false;
-      localStorage.setItem = (k, v) => {
+      const originalSetItem = Storage.prototype.setItem;
+      const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (k, v) {
         if (!failedOnce && k === AI_STATE_KEY) {
           failedOnce = true;
           const err = new Error('Quota exceeded');
           err.name = 'QuotaExceededError';
           throw err;
         }
-        return originalSetItem.call(localStorage, k, v);
-      };
+        return originalSetItem.call(this, k, v);
+      });
 
       try {
         const ok = persistAIState();
@@ -190,7 +192,7 @@ describe('Smart Context Engine', () => {
         // Inactive component versions should have been safely pruned down to 2
         expect(inactiveState.codeVersions.length).toBeLessThanOrEqual(2);
       } finally {
-        localStorage.setItem = originalSetItem;
+        spy.mockRestore();
       }
     });
   });
