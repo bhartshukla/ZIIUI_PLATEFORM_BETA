@@ -1255,70 +1255,139 @@ pre::-webkit-scrollbar-track {
   white-space: nowrap
 }
 
+/* ---------- Premium "Edit with AI" Floating Action Pill ---------- */
 .ai-fab {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  right: clamp(1rem, 2vw, 1.75rem);
+  bottom: clamp(1rem, 2vw, 1.75rem);
   z-index: 400;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 999px;
+  justify-content: flex-start;
+  width: 46px;
+  height: 46px;
+  padding: 0 13px;
+  border-radius: 9999px;
   background: var(--panel);
   color: var(--fg);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08);
   font: inherit;
-  font-size: .82rem;
-  font-weight: 700;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
   line-height: 1;
-  transition: width .2s ease, gap .2s ease, transform .2s ease, border-color .2s ease, background-color .2s ease;
-}
-
-.ai-fab-label {
-  max-width: 0;
-  opacity: 0;
   overflow: hidden;
+  box-sizing: border-box;
   white-space: nowrap;
-  transition: max-width .2s ease, opacity .2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  transform: translateY(0);
+  transition:
+    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ai-fab i {
-  font-size: 1.05rem;
-  color: var(--acc);
-  line-height: 1
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 1.1rem;
+  color: var(--fg);
+  line-height: 1;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s ease,
+    color 0.2s ease;
+}
+
+.ai-fab-label {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--fg);
+  pointer-events: none;
+  transition:
+    max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.22s ease 0.04s,
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) 0.04s;
 }
 
 .ai-fab:hover,
 .ai-fab:focus-visible {
-  width: auto;
-  gap: .45rem;
-  padding: .7rem 1rem;
+  width: 140px;
+  padding: 0 16px 0 13px;
+  gap: 8px;
   background: var(--raise);
-  border-color: var(--acc-line);
-  transform: translateY(-2px)
+  border-color: color-mix(in srgb, var(--fg) 28%, var(--line));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.ai-fab:hover i,
+.ai-fab:focus-visible i {
+  transform: scale(1.1) rotate(10deg);
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
 }
 
 .ai-fab:hover .ai-fab-label,
 .ai-fab:focus-visible .ai-fab-label {
-  max-width: 12rem;
+  max-width: 95px;
   opacity: 1;
+  transform: translateX(0);
+}
+
+.ai-fab:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.ai-fab:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
 }
 
 .ai-fab.is-open {
-  background: var(--acc);
-  border-color: var(--acc);
-  color: var(--acc-ink)
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--bg);
 }
 
 .ai-fab.is-open i {
-  color: var(--acc-ink)
+  color: var(--bg);
+  transform: rotate(45deg);
+  background: transparent;
 }
+
+.ai-fab.is-open .ai-fab-label {
+  color: var(--bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-fab,
+  .ai-fab i,
+  .ai-fab-label {
+    transition: none !important;
+    transform: none !important;
+  }
+  .ai-fab:hover i,
+  .ai-fab:focus-visible i {
+    transform: none !important;
+  }
+}
+
 
 .ai-panel {
   position: fixed;
@@ -2336,36 +2405,6 @@ pre {
   padding: clamp(1rem, 2vw, 1.4rem);
 }
 
-.ai-fab {
-  right: clamp(1rem, 2vw, 1.75rem);
-  bottom: clamp(1rem, 2vw, 1.75rem);
-  min-height: 48px;
-  padding-inline: 1.1rem;
-  border-radius: 14px;
-  background: var(--acc);
-  border-color: var(--acc);
-  color: var(--acc-ink);
-  box-shadow: 0 12px 30px color-mix(in srgb, var(--acc) 26%, transparent);
-}
-
-.ai-fab i {
-  color: var(--acc-ink);
-}
-
-.ai-fab:hover {
-  background: var(--acc2);
-  border-color: var(--acc2);
-}
-
-.ai-fab.is-open {
-  background: var(--panel);
-  border-color: var(--line);
-  color: var(--fg);
-}
-
-.ai-fab.is-open i {
-  color: var(--acc);
-}
 
 .ai-msg.user,
 .ai-btn.primary {
@@ -3748,11 +3787,18 @@ pre {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-content: start;
-  gap: 1rem;
+  gap: 1.25rem;
   min-width: 0;
 }
 
-#componentDetailContent,
+#componentDetailContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .component-detail .card,
 .component-detail .stage {
   min-width: 0;
@@ -3986,42 +4032,6 @@ pre {
   grid-column: 1 / -1;
 }
 
-.ai-fab {
-  width: 48px;
-  height: 48px;
-  justify-content: center;
-  padding: 0;
-  border-radius: 50%;
-  box-shadow: 0 5px 16px color-mix(in srgb, var(--bg) 42%, transparent);
-}
-
-.ai-fab span {
-  display: none;
-}
-
-.ai-fab::after {
-  position: absolute;
-  right: calc(100% + 10px);
-  padding: .45rem .65rem;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: var(--panel);
-  color: var(--fg);
-  content: attr(data-tooltip);
-  font-size: .75rem;
-  font-weight: 600;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(4px);
-  transition: opacity .15s ease, transform .15s ease;
-  white-space: nowrap;
-}
-
-.ai-fab:hover::after,
-.ai-fab:focus-visible::after {
-  opacity: 1;
-  transform: translateX(0);
-}
 
 .ai-fab:focus-visible,
 .back-to-components:focus-visible,
