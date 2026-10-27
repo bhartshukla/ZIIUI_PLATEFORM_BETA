@@ -71,10 +71,38 @@ export function loadAIState() {
   return aiState;
 }
 
+import { generateStructuredSummary, extractComponentConstraints, retrieveRelevantMessages } from './context-engine.js';
+
+export { generateStructuredSummary, extractComponentConstraints, retrieveRelevantMessages };
+
 export function persistAIState() {
   try {
     aiState.schemaVersion = AI_SCHEMA_VERSION;
-    return safeSet(AI_STATE_KEY, JSON.stringify(aiState));
+    let ok = safeSet(AI_STATE_KEY, JSON.stringify(aiState));
+    if (ok) return true;
+
+    // Quota recovery: safely prune oldest versions of inactive components
+    const activeId = getActiveComponentId();
+    let prunedAny = false;
+    if (aiState.components) {
+      Object.keys(aiState.components).forEach((id) => {
+        if (id !== activeId && aiState.components[id]) {
+          const c = aiState.components[id];
+          if (Array.isArray(c.codeVersions) && c.codeVersions.length > 2) {
+            c.codeVersions = c.codeVersions.slice(-2);
+            prunedAny = true;
+          }
+        }
+      });
+    }
+    if (prunedAny) {
+      ok = safeSet(AI_STATE_KEY, JSON.stringify(aiState));
+      if (ok) {
+        console.warn('[ziiui] storage quota recovered by safely pruning inactive component snapshots');
+        return true;
+      }
+    }
+    return false;
   } catch (err) {
     console.warn('[ziiui] could not serialise AI state', err);
     return false;
@@ -179,21 +207,34 @@ export function pushChatMessage(compState, role, text) {
   if (compState.chatHistory.length > AI_MAX_MESSAGES) {
     compState.chatHistory = compState.chatHistory.slice(-AI_MAX_MESSAGES);
   }
-  compState.summary = summarizeHistory(compState.chatHistory);
+  compState.summary = generateStructuredSummary(compState.chatHistory) || summarizeHistory(compState.chatHistory);
   compState.lastUpdated = Date.now();
   persistAIState();
   return msg;
 }
 
 export function addCodeVersion(compState, code, prompt) {
-  const version = { id: uid(), code, prompt, timestamp: Date.now() };
-  compState.currentCode = code;
+  if (!compState) return null;
+  const cleanCode = typeof code === 'string' ? code : '';
+  // Content deduplication: avoid pushing identical code snapshot if it matches current latest version
+  if (compState.codeVersions.length > 0) {
+    const latest = compState.codeVersions[compState.codeVersions.length - 1];
+    if (latest && latest.code === cleanCode && latest.prompt === prompt) {
+      compState.currentCode = cleanCode;
+      compState.activeVersionId = latest.id;
+      persistAIState();
+      return latest;
+    }
+  }
+
+  const version = { id: uid(), code: cleanCode, prompt: String(prompt || ''), timestamp: Date.now() };
+  compState.currentCode = cleanCode;
   compState.codeVersions.push(version);
   if (compState.codeVersions.length > AI_MAX_VERSIONS) {
     compState.codeVersions = compState.codeVersions.slice(-AI_MAX_VERSIONS);
   }
   compState.activeVersionId = version.id;
-  compState.summary = summarizeHistory(compState.chatHistory);
+  compState.summary = generateStructuredSummary(compState.chatHistory) || summarizeHistory(compState.chatHistory);
   compState.revision = (Number(compState.revision) || 0) + 1;
   compState.lastUpdated = Date.now();
   persistAIState();

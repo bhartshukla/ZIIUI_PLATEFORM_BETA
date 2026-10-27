@@ -9,6 +9,13 @@ import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured } fro
 import { buildContextMessages } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
+import {
+  classifyTaskIntent,
+  extractComponentConstraints,
+  validateGeneratedCode,
+  logContextMetrics
+} from './context-engine.js';
+
 const abortError = () => new DOMException('Aborted', 'AbortError');
 const MAX_CODE_CHARS = 200000;
 
@@ -46,10 +53,33 @@ export async function generateCode({ component, compState, request, signal }) {
   if (!prompt) throw new Error('INVALID');
   if (prompt.length > 4000) throw new Error('INVALID');
 
-  const messages = [{ role: 'system', content: buildSystemPrompt(component) }];
+  // Enrich component with Layer B memory and Layer C task intent
+  const taskIntent = classifyTaskIntent(prompt);
+  const constraints = extractComponentConstraints(compState?.chatHistory);
+  const enrichedComponent = {
+    ...component,
+    summary: compState?.summary || '',
+    constraints,
+    taskIntent
+  };
+
+  const systemPrompt = buildSystemPrompt(enrichedComponent);
+  const messages = [{ role: 'system', content: systemPrompt }];
   const context = buildContextMessages(compState, prompt);
   context.forEach((m) => messages.push(m));
   messages.push({ role: 'user', content: prompt });
+
+  // Dev-mode context metrics logging (zero secrets)
+  logContextMetrics({
+    componentId: compState?.componentId || component?.name,
+    intents: taskIntent,
+    rulesText: systemPrompt,
+    memoryText: compState?.summary || '',
+    codeText: component?.current || component?.original || '',
+    chatText: context.map((m) => m.content).join('\n'),
+    totalText: messages.map((m) => m.content).join('\n'),
+    messageCount: context.length
+  });
 
   const headers = { 'Content-Type': 'application/json' };
   if (!AI_USES_PROXY) {
@@ -87,6 +117,10 @@ export async function generateCode({ component, compState, request, signal }) {
       const code = normalizeCode(output);
       if (!code) { lastError = new Error('EMPTY'); continue; }
       if (!looksLikeCode(code)) { lastError = new Error('INVALID'); continue; }
+
+      const validation = validateGeneratedCode(code);
+      if (!validation.ok) { lastError = new Error('INVALID'); continue; }
+
       return code;
     } catch (err) {
       if (err && err.name === 'AbortError') throw err;
