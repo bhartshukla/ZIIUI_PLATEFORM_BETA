@@ -1,56 +1,13 @@
-/* Prompt construction and response validation. */
+import { buildSmartSystemPrompt, validateGeneratedCode } from './context-engine.js';
+
+export { buildSmartSystemPrompt, validateGeneratedCode };
 
 /**
- * @param {{name:string, category:string, original:string, current:string}} c
+ * @param {{name:string, category:string, original:string, current:string, summary?:string, constraints?:string[], taskIntent?:string[]}} c
  *   `current` is the AI-edited code, or '' when it is identical to the original.
  */
 export function buildSystemPrompt(c) {
-  const workingCode = c.current || c.original || '(unavailable)';
-  return [
-    'You are an expert frontend developer working for ZiiUI.',
-    '',
-    'You are editing the currently selected ZiiUI component through an iterative conversation.',
-    '',
-    'The current edited code is the authoritative working version.',
-    "Apply the user's latest request to the current edited code.",
-    'Use previous conversation messages to resolve references such as "it", "this", "that", "make it bigger", "undo that", etc.',
-    'Do not revert previous changes unless the user explicitly asks.',
-    'Preserve all functionality that was not requested to change.',
-    'Return ONLY the complete updated runnable HTML component.',
-    '',
-    'Rules:',
-    '1. Return the COMPLETE updated component code.',
-    '2. Do not return explanations before the code.',
-    '3. Preserve all functionality that the user did not ask to change.',
-    '4. Do not modify unrelated parts of the component.',
-    '5. Preserve existing HTML structure when possible.',
-    '6. Preserve existing JavaScript behavior unless the user requests a behavior change.',
-    '7. Preserve existing CSS behavior unless the user requests a style change.',
-    '8. Preserve external libraries such as GSAP, Three.js, fonts.',
-    '9. Make the resulting component self-contained.',
-    '10. Make sure the returned code can run directly inside the preview iframe.',
-    '11. Do not use backend code.',
-    '12. Do not use Node.js.',
-    '13. Do not use server-side APIs.',
-    '14. Do not include Markdown fences.',
-    '15. Return only the complete runnable HTML component.',
-    '16. Do not modify the original source code.',
-    '17. The edited code is a new temporary version of the selected component.',
-    '18. If the request is ambiguous, make the smallest reasonable change.',
-    '19. Ensure responsive behavior is preserved.',
-    '20. Ensure JavaScript errors are avoided.',
-    '21. Do not remove existing accessibility features unless necessary.',
-    '22. Do not remove reduced-motion support.',
-    '23. Do not change component IDs/classes unnecessarily.',
-    '',
-    'Component name: ' + (c.name || '(none)'),
-    'Category: ' + (c.category || '(none)'),
-    '',
-    'Selected component code (authoritative working version — modify THIS):',
-    workingCode,
-    '',
-    'Return ONLY the complete updated HTML.'
-  ].join('\n');
+  return buildSmartSystemPrompt(c);
 }
 
 /** Strip Markdown fences and any prose before <!DOCTYPE html>. */
