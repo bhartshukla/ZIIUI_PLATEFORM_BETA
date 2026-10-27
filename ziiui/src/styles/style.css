@@ -1314,16 +1314,78 @@ pre::-webkit-scrollbar-track {
 
 .ai-spark {
   transform-origin: 8.5px 8.5px;
+  transform-box: view-box;
+  animation: ai-spark-idle 4s ease-in-out infinite;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
 }
 
 .ai-spark-small {
   transform-origin: 14.5px 4.5px;
+  transform-box: view-box;
+  animation: ai-spark-small-idle 4s ease-in-out -0.5s infinite;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.04s, opacity 0.25s ease;
+  will-change: transform, opacity;
 }
 
 .ai-cursor {
+  animation: ai-cursor-idle 4s ease-in-out -0.2s infinite;
   transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Coordinated Celestial Constellation Idle Animation:
+   - 4-point sparkle floats in a gentle rounded circular orbit with organic rotation & scale morphing
+   - Secondary sparkle moves in a miniature celestial orbit around the main sparkle
+   - Cursor pointer glides smoothly toward the sparkle in natural interaction
+   - 4s continuous cycle with organic phase offsets */
+@keyframes ai-spark-idle {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(0.4px, -0.5px) rotate(3deg) scale(1.03);
+  }
+  50% {
+    transform: translate(0px, -0.9px) rotate(6.5deg) scale(1.055);
+  }
+  75% {
+    transform: translate(-0.4px, -0.4px) rotate(3deg) scale(1.025);
+  }
+}
+
+@keyframes ai-spark-small-idle {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translate(-0.7px, 0.5px) rotate(-6deg) scale(1.05);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate(-0.3px, 1.1px) rotate(-12deg) scale(1.08);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(0.5px, 0.6px) rotate(-6deg) scale(1.02);
+    opacity: 0.85;
+  }
+}
+
+@keyframes ai-cursor-idle {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  30% {
+    transform: translate(-0.4px, -0.35px);
+  }
+  55% {
+    transform: translate(-0.85px, -0.8px);
+  }
+  80% {
+    transform: translate(-0.45px, -0.4px);
+  }
 }
 
 .ai-fab-label {
@@ -1354,17 +1416,20 @@ pre::-webkit-scrollbar-track {
 
 .ai-fab:hover .ai-spark,
 .ai-fab:focus-visible .ai-spark {
+  animation: none;
   transform: rotate(18deg) scale(1.1);
 }
 
 .ai-fab:hover .ai-spark-small,
 .ai-fab:focus-visible .ai-spark-small {
+  animation: none;
   transform: rotate(-22deg) scale(1.2);
   opacity: 1;
 }
 
 .ai-fab:hover .ai-cursor,
 .ai-fab:focus-visible .ai-cursor {
+  animation: none;
   transform: translate(-1.5px, -1.5px);
 }
 
@@ -1379,7 +1444,13 @@ pre::-webkit-scrollbar-track {
   transform: translateY(0) scale(0.98);
 }
 
+.ai-fab:active .ai-spark,
+.ai-fab:active .ai-spark-small {
+  animation: none;
+}
+
 .ai-fab:active .ai-cursor {
+  animation: none;
   transform: translate(-2px, -2px) scale(0.95);
 }
 
@@ -1399,7 +1470,13 @@ pre::-webkit-scrollbar-track {
 }
 
 .ai-fab.is-open .ai-spark {
+  animation: none;
   transform: rotate(45deg);
+}
+
+.ai-fab.is-open .ai-spark-small,
+.ai-fab.is-open .ai-cursor {
+  animation: none;
 }
 
 .ai-fab.is-open .ai-fab-label {
@@ -1413,6 +1490,7 @@ pre::-webkit-scrollbar-track {
   .ai-spark-small,
   .ai-cursor,
   .ai-fab-label {
+    animation: none !important;
     transition: none !important;
     transform: none !important;
   }
@@ -1422,6 +1500,7 @@ pre::-webkit-scrollbar-track {
   .ai-fab:focus-visible .ai-spark-small,
   .ai-fab:hover .ai-cursor,
   .ai-fab:focus-visible .ai-cursor {
+    animation: none !important;
     transform: none !important;
   }
 }
@@ -4188,6 +4267,9 @@ pre {
   .preview-spin,
   .ai-spin,
   .ai-draft-badge,
+  .ai-spark,
+  .ai-spark-small,
+  .ai-cursor,
   .preview-action-btn.is-active i.ri-refresh-line {
     animation: none !important;
     background-position: 50% 0;
@@ -4198,6 +4280,9 @@ pre {
   .component-card-visual,
   .ai-fab,
   .ai-fab::after,
+  .ai-spark,
+  .ai-spark-small,
+  .ai-cursor,
   .preview-action-btn,
   .stage-exit-fs {
     transform: none !important;
