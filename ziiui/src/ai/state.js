@@ -35,6 +35,9 @@ function normalizeComponentState(componentId, entry = {}) {
 let aiState = freshState();
 let aiSettings = { autoPreview: false };
 let storageWarned = false;
+let persistTimer = null;
+const PERSIST_DEBOUNCE_MS = 300;
+export const AI_STATE_QUOTA_WARN_BYTES = 4 * 1024 * 1024;
 
 onStorageError((err) => {
   if (storageWarned) return;
@@ -53,7 +56,17 @@ export function loadAIState() {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') throw new Error('bad shape');
     if (parsed.schemaVersion !== AI_SCHEMA_VERSION) {
-      aiState = freshState();
+      // Salvage valid components instead of wiping all state on a schema bump.
+      const salvaged = {};
+      if (parsed.components && typeof parsed.components === 'object') {
+        Object.keys(parsed.components).forEach((k) => {
+          const c = parsed.components[k];
+          if (c && typeof c === 'object') {
+            salvaged[k] = normalizeComponentState(k, c);
+          }
+        });
+      }
+      aiState = { schemaVersion: AI_SCHEMA_VERSION, components: salvaged };
       return aiState;
     }
     if (!parsed.components || typeof parsed.components !== 'object') parsed.components = {};
@@ -75,10 +88,14 @@ import { generateStructuredSummary, extractComponentConstraints, retrieveRelevan
 
 export { generateStructuredSummary, extractComponentConstraints, retrieveRelevantMessages };
 
-export function persistAIState() {
+function _doPersist() {
   try {
     aiState.schemaVersion = AI_SCHEMA_VERSION;
-    let ok = safeSet(AI_STATE_KEY, JSON.stringify(aiState));
+    const payload = JSON.stringify(aiState);
+    if (payload.length > AI_STATE_QUOTA_WARN_BYTES) {
+      console.warn('[ziiui] AI state approaching localStorage quota', { bytes: payload.length });
+    }
+    let ok = safeSet(AI_STATE_KEY, payload);
     if (ok) return true;
 
     // Quota recovery: safely prune oldest versions of inactive components
@@ -107,6 +124,26 @@ export function persistAIState() {
     console.warn('[ziiui] could not serialise AI state', err);
     return false;
   }
+}
+
+export function persistAIState() {
+  return _doPersist();
+}
+
+export function schedulePersist() {
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    _doPersist();
+  }, PERSIST_DEBOUNCE_MS);
+}
+
+export function flushPersist() {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+  return _doPersist();
 }
 
 /* ---------- settings ---------- */
@@ -185,7 +222,7 @@ export function setCurrentCode(compState, code) {
   compState.currentCode = next && next !== compState.originalCode ? next : '';
   if (previous !== compState.currentCode) compState.revision = (Number(compState.revision) || 0) + 1;
   compState.lastUpdated = Date.now();
-  persistAIState();
+  schedulePersist();
 }
 
 /* ---------- chat + versions ---------- */

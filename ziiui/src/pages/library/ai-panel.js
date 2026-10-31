@@ -3,7 +3,7 @@ import { $, esc, say, report, guard, exportFile } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
 import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js';
 import {
-  getOrCreateComponentState, getComponentState, saveActiveComponentId, persistAIState,
+  getOrCreateComponentState, getComponentState, saveActiveComponentId, persistAIState, flushPersist,
   clearComponentHistory, clearAllAIHistory, pushChatMessage, addCodeVersion, setCurrentCode,
   describeContext, getAISettings, getAIState, setAutoPreview
 } from '../../ai/state.js';
@@ -68,6 +68,7 @@ function onComponentChange() {
   if (el.code) el.code.value = store.editActive ? store.edited : store.html;
   updateStatus();
   updateDraftIndicators();
+  flushPersist();
 }
 
 /* ---------- panel ---------- */
@@ -483,7 +484,7 @@ export function initAIPanel() {
     if (el.modal && !el.modal.hidden) { e.preventDefault(); closeModal(); return; }
     if (el.panel && !el.panel.hidden) { e.preventDefault(); togglePanel(false); }
   });
-  window.addEventListener('beforeunload', persistAIState);
+  window.addEventListener('beforeunload', flushPersist);
 }
 
 /** After boot: tell the user if a previous request was interrupted. */

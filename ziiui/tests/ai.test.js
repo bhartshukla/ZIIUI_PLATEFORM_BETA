@@ -2,9 +2,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { normalizeCode, looksLikeCode, buildSystemPrompt, describeAIError } from '../src/ai/prompt.js';
 import {
   loadAIState, getAIState, getOrCreateComponentState, pushChatMessage, addCodeVersion,
-  setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState
+  setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
+  flushPersist, PERSIST_DEBOUNCE_MS
 } from '../src/ai/state.js';
-import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, aiIsConfigured } from '../src/ai/config.js';
+import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured } from '../src/ai/config.js';
 import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent } from '../src/ai/request.js';
 
 describe('normalizeCode', () => {
@@ -163,5 +164,64 @@ describe('AI state', () => {
     const { exportFile } = await import('../src/lib/dom.js');
     const ok = exportFile('test-export.html', '<div>Export Content</div>');
     expect(ok).toBe(true);
+  });
+});
+
+describe('localStorage reliability', () => {
+  beforeEach(() => { localStorage.clear(); loadAIState(); });
+
+  it('salvages valid components on schema version mismatch instead of wiping all state', () => {
+    localStorage.setItem(AI_STATE_KEY, JSON.stringify({
+      schemaVersion: 1,
+      components: {
+        comp1: {
+          componentId: 'comp1',
+          componentName: 'Saved Component',
+          category: 'Text',
+          originalCode: '<p>x</p>',
+          currentCode: '',
+          chatHistory: [],
+          codeVersions: [],
+          activeVersionId: null,
+          summary: '',
+          revision: 0,
+          lastUpdated: 1
+        }
+      }
+    }));
+    loadAIState();
+    expect(getAIState().schemaVersion).toBe(AI_SCHEMA_VERSION);
+    expect(getAIState().components.comp1.componentName).toBe('Saved Component');
+    expect(getAIState().components.comp1.originalCode).toBe('<p>x</p>');
+  });
+
+  it('resets on unparseable JSON (single corrupted blob cannot be salvaged)', () => {
+    localStorage.setItem(AI_STATE_KEY, '{not json');
+    loadAIState();
+    expect(getAIState().components).toEqual({});
+  });
+
+  it('defers setCurrentCode persistence until flushPersist is called', () => {
+    const s = getOrCreateComponentState('defer', 'Defer', 'Text', 'orig');
+    setCurrentCode(s, 'deferred-change');
+    // Deferred: not yet written to localStorage
+    const rawBefore = localStorage.getItem(AI_STATE_KEY);
+    const parsedBefore = rawBefore ? JSON.parse(rawBefore) : { components: {} };
+    const deferBefore = parsedBefore.components ? parsedBefore.components.defer : undefined;
+    expect(deferBefore).toBeUndefined();
+    // Explicit flush point writes immediately
+    flushPersist();
+    expect(JSON.parse(localStorage.getItem(AI_STATE_KEY)).components.defer.currentCode).toBe('deferred-change');
+  });
+
+  it('flushPersist forces an immediate write', () => {
+    const s = getOrCreateComponentState('flush', 'Flush', 'Text', 'orig');
+    setCurrentCode(s, 'flush-me');
+    const rawBefore = localStorage.getItem(AI_STATE_KEY);
+    const parsedBefore = rawBefore ? JSON.parse(rawBefore) : { components: {} };
+    const flushBefore = parsedBefore.components ? parsedBefore.components.flush : undefined;
+    expect(flushBefore).toBeUndefined();
+    flushPersist();
+    expect(JSON.parse(localStorage.getItem(AI_STATE_KEY)).components.flush.currentCode).toBe('flush-me');
   });
 });
