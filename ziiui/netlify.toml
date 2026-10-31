@@ -1,0 +1,21 @@
+# Netlify configuration for ZiiUI.
+#
+# AI requests are proxied from the frontend to the server-side function
+# /.netlify/functions/ai, which authenticates with OpenRouter using the
+# OPENROUTER_API_KEY environment variable. The frontend never sees the key.
+
+[[redirects]]
+  from = "/api/ai"
+  to = "/.netlify/functions/ai"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
+[build]
+  command = "npm run build"
+  publish = "dist"

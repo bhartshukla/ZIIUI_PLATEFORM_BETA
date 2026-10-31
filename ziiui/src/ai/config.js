@@ -15,7 +15,11 @@ export const AI_REQUEST_TIMEOUT_MS = 90000;
 export const AI_MAX_VERSIONS = 30;
 export const AI_MAX_MESSAGES = 60;
 
-const DEFAULT_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+// Netlify Function that forwards to OpenRouter using a server-side key.
+const PROXY_URL = '/api/ai';
+
+const DEFAULT_ENDPOINT = import.meta.env.DEV ? OPENROUTER_URL : PROXY_URL;
 const DEFAULT_MODELS = [
   'qwen/qwen3-coder:free',
   'poolside/laguna-s-2.1:free',
@@ -25,7 +29,7 @@ const DEFAULT_MODELS = [
 ];
 
 export const AI_ENDPOINT = (import.meta.env.VITE_AI_ENDPOINT || '').trim() || DEFAULT_ENDPOINT;
-export const AI_USES_PROXY = AI_ENDPOINT !== DEFAULT_ENDPOINT;
+export const AI_USES_PROXY = AI_ENDPOINT !== OPENROUTER_URL;
 
 /** Comma-separated override, e.g. VITE_AI_MODELS=openai/gpt-4o-mini,qwen/qwen3-coder:free */
 const modelOverride = (import.meta.env.VITE_AI_MODELS || '').split(',').map((s) => s.trim()).filter(Boolean);

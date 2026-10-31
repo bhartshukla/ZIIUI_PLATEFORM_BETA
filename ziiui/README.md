@@ -168,6 +168,26 @@ Run:
 npm test
 ```
 
+## Deploying to Netlify
+
+ZiiUI is configured for Netlify deployment. The AI editor is routed through a
+server-side Netlify Function (`netlify/functions/ai.mjs`) that authenticates
+with OpenRouter using the `OPENROUTER_API_KEY` environment variable, so the
+frontend never sees or transmits the key.
+
+1. Build the site: `npm run build`
+2. Deploy the `dist/` folder (or push to a Netlify Git provider).
+3. Set the Netlify environment variable `OPENROUTER_API_KEY` to your OpenRouter
+   key. Never commit this value to the repository.
+4. `netlify.toml` maps `/api/ai` to `/.netlify/functions/ai`.
+
+**Required Netlify environment variable:**
+
+- `OPENROUTER_API_KEY` — your OpenRouter API key (server-side only).
+
+AI state is still stored locally in `localStorage` on each user's browser. No
+backend or database is used for AI context storage.
+
 ## Notes for production use
 
 - AI state is stored in `localStorage` and is intended for browser-local UX continuity
