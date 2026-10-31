@@ -32,6 +32,79 @@ function normalizeComponentState(componentId, entry = {}) {
   };
 }
 
+/* ---------- schema migration ---------- */
+
+function migrateV1toV2(state) {
+  // v1 components lacked a canonical summary field. Ensure one exists.
+  if (!state.components) return state;
+  Object.keys(state.components).forEach((k) => {
+    const c = state.components[k];
+    if (c && typeof c.summary !== 'string') c.summary = '';
+  });
+  return state;
+}
+
+function migrateV2toV3(state) {
+  // v3 adds a lastUpdated timestamp to each code version snapshot
+  // (defaults to the version's existing timestamp when missing).
+  if (!state.components) return state;
+  Object.keys(state.components).forEach((k) => {
+    const c = state.components[k];
+    if (!c || !Array.isArray(c.codeVersions)) return;
+    c.codeVersions = c.codeVersions.map((v) => {
+      if (!v || typeof v !== 'object') return null;
+      const next = { ...v };
+      if (typeof next.lastUpdated !== 'number' || !Number.isFinite(next.lastUpdated)) {
+        next.lastUpdated = typeof next.timestamp === 'number' ? next.timestamp : Date.now();
+      }
+      return next;
+    }).filter(Boolean);
+  });
+  return state;
+}
+
+const MIGRATIONS = {
+  1: migrateV1toV2,
+  2: migrateV2toV3
+};
+
+export function migrateState(parsed) {
+  if (!parsed || typeof parsed !== 'object') return freshState();
+  // Normalize each component defensively; drop malformed entries.
+  const components = {};
+  if (parsed.components && typeof parsed.components === 'object') {
+    Object.keys(parsed.components).forEach((k) => {
+      const c = parsed.components[k];
+      if (c && typeof c === 'object') {
+        components[k] = normalizeComponentState(k, c);
+      }
+    });
+  }
+  let state = { schemaVersion: parsed.schemaVersion, components };
+  let from = Number(state.schemaVersion);
+  if (!Number.isFinite(from) || from < 1) from = 1;
+  if (from > AI_SCHEMA_VERSION) {
+    // Unknown future version: preserve data, don't wipe. Bump to current.
+    state.schemaVersion = AI_SCHEMA_VERSION;
+    return state;
+  }
+  for (let v = from; v < AI_SCHEMA_VERSION; v++) {
+    const migrate = MIGRATIONS[v];
+    if (typeof migrate === 'function') {
+      try {
+        state = migrate(state);
+        if (!state || typeof state !== 'object') return freshState();
+      } catch (err) {
+        console.warn('[ziiui] migration v' + v + ' failed, preserving data', err);
+        state.schemaVersion = AI_SCHEMA_VERSION;
+        return state;
+      }
+    }
+  }
+  state.schemaVersion = AI_SCHEMA_VERSION;
+  return state;
+}
+
 let aiState = freshState();
 let aiSettings = { autoPreview: false };
 let storageWarned = false;
@@ -55,27 +128,7 @@ export function loadAIState() {
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') throw new Error('bad shape');
-    if (parsed.schemaVersion !== AI_SCHEMA_VERSION) {
-      // Salvage valid components instead of wiping all state on a schema bump.
-      const salvaged = {};
-      if (parsed.components && typeof parsed.components === 'object') {
-        Object.keys(parsed.components).forEach((k) => {
-          const c = parsed.components[k];
-          if (c && typeof c === 'object') {
-            salvaged[k] = normalizeComponentState(k, c);
-          }
-        });
-      }
-      aiState = { schemaVersion: AI_SCHEMA_VERSION, components: salvaged };
-      return aiState;
-    }
-    if (!parsed.components || typeof parsed.components !== 'object') parsed.components = {};
-    Object.keys(parsed.components).forEach((k) => {
-      const c = parsed.components[k];
-      if (!c || typeof c !== 'object') { delete parsed.components[k]; return; }
-      parsed.components[k] = normalizeComponentState(k, c);
-    });
-    aiState = parsed;
+    aiState = migrateState(parsed);
   } catch (err) {
     console.warn('[ziiui] corrupted AI state, resetting', err);
     aiState = freshState();

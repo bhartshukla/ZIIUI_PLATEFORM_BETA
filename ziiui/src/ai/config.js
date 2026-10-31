@@ -8,7 +8,7 @@ export const AI_STATE_KEY = 'ziiui-ai-state-v2';
 export const AI_ACTIVE_KEY = 'ziiui-ai-active-component';
 export const AI_SETTINGS_KEY = 'ziiui-ai-settings';
 export const AI_PENDING_KEY = 'ziiui-ai-pending-request';
-export const AI_SCHEMA_VERSION = 2;
+export const AI_SCHEMA_VERSION = 3;
 
 export const AI_MAX_CONTEXT_CHARS = 8000;
 export const AI_REQUEST_TIMEOUT_MS = 90000;

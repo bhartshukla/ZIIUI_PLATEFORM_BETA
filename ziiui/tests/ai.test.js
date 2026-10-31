@@ -3,7 +3,7 @@ import { normalizeCode, looksLikeCode, buildSystemPrompt, describeAIError } from
 import {
   loadAIState, getAIState, getOrCreateComponentState, pushChatMessage, addCodeVersion,
   setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
-  flushPersist, PERSIST_DEBOUNCE_MS
+  flushPersist, PERSIST_DEBOUNCE_MS, migrateState
 } from '../src/ai/state.js';
 import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured } from '../src/ai/config.js';
 import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent } from '../src/ai/request.js';
@@ -223,5 +223,120 @@ describe('localStorage reliability', () => {
     expect(flushBefore).toBeUndefined();
     flushPersist();
     expect(JSON.parse(localStorage.getItem(AI_STATE_KEY)).components.flush.currentCode).toBe('flush-me');
+  });
+});
+
+describe('schema migration', () => {
+  it('migrates v2 → v3 by adding lastUpdated to each code version snapshot', () => {
+    const migrated = migrateState({
+      schemaVersion: 2,
+      components: {
+        comp: {
+          componentId: 'comp', componentName: 'Comp', category: 'Text',
+          originalCode: 'o', currentCode: 'c',
+          chatHistory: [{ role: 'user', text: 'hi', timestamp: 1 }],
+          codeVersions: [{ id: 'v1', code: 'c', prompt: 'p', timestamp: 100 }],
+          activeVersionId: 'v1', summary: '', revision: 1, lastUpdated: 5
+        }
+      }
+    });
+    expect(migrated.schemaVersion).toBe(AI_SCHEMA_VERSION);
+    expect(migrated.components.comp.codeVersions[0].lastUpdated).toBe(100);
+  });
+
+  it('migrates v1 → v3 through intermediate versions preserving conversations and versions', () => {
+    const migrated = migrateState({
+      schemaVersion: 1,
+      components: {
+        comp: {
+          componentId: 'comp', componentName: 'Comp', category: 'Text',
+          originalCode: 'o', currentCode: 'c',
+          chatHistory: [{ role: 'user', text: 'hi', timestamp: 1 }],
+          codeVersions: [{ id: 'v1', code: 'c', prompt: 'p', timestamp: 100 }],
+          activeVersionId: 'v1', summary: '', revision: 1, lastUpdated: 5
+        }
+      }
+    });
+    expect(migrated.schemaVersion).toBe(AI_SCHEMA_VERSION);
+    expect(migrated.components.comp.chatHistory[0].text).toBe('hi');
+    expect(migrated.components.comp.codeVersions[0].lastUpdated).toBe(100);
+  });
+
+  it('preserves valid components and drops malformed entries', () => {
+    const migrated = migrateState({
+      schemaVersion: 2,
+      components: {
+        good: {
+          componentId: 'good', componentName: 'Good', category: 'Text',
+          originalCode: 'o', currentCode: '',
+          chatHistory: [], codeVersions: [], activeVersionId: null, summary: '', revision: 0, lastUpdated: 1
+        },
+        bad: null,
+        garbage: 'not an object',
+        worse: { componentName: 'NoId' }
+      }
+    });
+    expect(Object.keys(migrated.components).sort()).toEqual(['good', 'worse']);
+    expect(migrated.components.good.componentName).toBe('Good');
+    expect(migrated.components.worse.componentName).toBe('NoId');
+  });
+
+  it('defaults missing fields instead of losing data', () => {
+    const migrated = migrateState({
+      schemaVersion: 2,
+      components: {
+        sparse: { componentId: 'sparse', originalCode: '<p>x</p>' }
+      }
+    });
+    expect(migrated.components.sparse.originalCode).toBe('<p>x</p>');
+    expect(migrated.components.sparse.currentCode).toBe('');
+    expect(migrated.components.sparse.chatHistory).toEqual([]);
+    expect(migrated.components.sparse.revision).toBe(0);
+  });
+
+  it('handles unknown future schema versions without destructive reset', () => {
+    const migrated = migrateState({
+      schemaVersion: 99,
+      components: {
+        comp: {
+          componentId: 'comp', componentName: 'Future', category: 'Text',
+          originalCode: 'o', currentCode: 'c',
+          chatHistory: [{ role: 'user', text: 'keep me', timestamp: 1 }],
+          codeVersions: [], activeVersionId: null, summary: '', revision: 0, lastUpdated: 1
+        }
+      }
+    });
+    expect(migrated.schemaVersion).toBe(AI_SCHEMA_VERSION);
+    expect(migrated.components.comp.chatHistory[0].text).toBe('keep me');
+  });
+
+  it('returns fresh state for non-object input', () => {
+    const migrated = migrateState(null);
+    expect(migrated.components).toEqual({});
+    expect(migrated.schemaVersion).toBe(AI_SCHEMA_VERSION);
+  });
+
+  it('loads and persists migrated state so a reload preserves the upgrade', () => {
+    localStorage.clear();
+    loadAIState();
+    localStorage.setItem(AI_STATE_KEY, JSON.stringify({
+      schemaVersion: 2,
+      components: {
+        comp: {
+          componentId: 'comp', componentName: 'Comp', category: 'Text',
+          originalCode: 'o', currentCode: 'c',
+          chatHistory: [{ role: 'user', text: 'hi', timestamp: 1 }],
+          codeVersions: [{ id: 'v1', code: 'c', prompt: 'p', timestamp: 100 }],
+          activeVersionId: 'v1', summary: '', revision: 1, lastUpdated: 5
+        }
+      }
+    }));
+    loadAIState();
+    expect(getAIState().schemaVersion).toBe(AI_SCHEMA_VERSION);
+    expect(getAIState().components.comp.codeVersions[0].lastUpdated).toBe(100);
+    flushPersist();
+    const reloaded = JSON.parse(localStorage.getItem(AI_STATE_KEY));
+    expect(reloaded.schemaVersion).toBe(AI_SCHEMA_VERSION);
+    expect(reloaded.components.comp.codeVersions[0].lastUpdated).toBe(100);
   });
 });
