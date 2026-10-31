@@ -423,6 +423,50 @@ function renderCards(effects) {
   }
 }
 
+export function showSidebarSkeleton() {
+  const side = $('sidePanel');
+  if (side) side.classList.add('is-skeleton-loading');
+  const skeleton = $('sidebarSkeleton');
+  if (skeleton) {
+    skeleton.hidden = false;
+    skeleton.setAttribute('aria-hidden', 'false');
+    skeleton.setAttribute('aria-busy', 'true');
+  }
+}
+
+export function hideSidebarSkeleton() {
+  const side = $('sidePanel');
+  if (side) side.classList.remove('is-skeleton-loading');
+  const skeleton = $('sidebarSkeleton');
+  if (skeleton) {
+    skeleton.hidden = true;
+    skeleton.setAttribute('aria-hidden', 'true');
+    skeleton.setAttribute('aria-busy', 'false');
+  }
+}
+
+export function showMainSkeleton() {
+  const catalog = $('catalogSection');
+  if (catalog) catalog.classList.add('is-skeleton-loading');
+  const skeleton = $('catalogSkeleton');
+  if (skeleton) {
+    skeleton.hidden = false;
+    skeleton.setAttribute('aria-hidden', 'false');
+    skeleton.setAttribute('aria-busy', 'true');
+  }
+}
+
+export function hideMainSkeleton() {
+  const catalog = $('catalogSection');
+  if (catalog) catalog.classList.remove('is-skeleton-loading');
+  const skeleton = $('catalogSkeleton');
+  if (skeleton) {
+    skeleton.hidden = true;
+    skeleton.setAttribute('aria-hidden', 'true');
+    skeleton.setAttribute('aria-busy', 'false');
+  }
+}
+
 export function buildNav(onSelect, showCategory) {
   onSelectEffect = onSelect;
   onShowCategory = typeof showCategory === 'function' ? showCategory : setActiveCategory;
@@ -432,6 +476,8 @@ export function buildNav(onSelect, showCategory) {
   if (allFilter) allFilter.addEventListener('click', () => onShowCategory('All'));
   renderCategories();
   renderList();
+  hideSidebarSkeleton();
+  hideMainSkeleton();
 
   const nav = $('nav');
   if (nav) {

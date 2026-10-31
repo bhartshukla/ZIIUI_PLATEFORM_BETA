@@ -30,6 +30,148 @@
       } catch (_) { }
     })();
   </script>
+
+  <!-- Critical skeleton and shell CSS before first paint -->
+  <style id="critical-skeleton-css">
+    :root, [data-theme="dark"] {
+      --bg: #000000;
+      --panel: #0d0d0d;
+      --raise: #171717;
+      --fg: #ffffff;
+      --mute: #8a8a8a;
+      --line: #222222;
+      --line2: #333333;
+      --acc: #ffffff;
+      --acc-soft: rgba(255, 255, 255, .08);
+      --acc-line: rgba(255, 255, 255, .2);
+      --header-h: 60px;
+      --maxw: 1440px;
+      --skeleton-base: #141414;
+      --skeleton-shine: #222222;
+      --skeleton-active: rgba(255, 255, 255, .08);
+      --skeleton-active-border: rgba(255, 255, 255, .18);
+      --skeleton-muted: #1c1c1c;
+    }
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --panel: #f5f5f5;
+      --raise: #ebebeb;
+      --fg: #000000;
+      --mute: #737373;
+      --line: #e0e0e0;
+      --line2: #cccccc;
+      --acc: #000000;
+      --acc-soft: rgba(0, 0, 0, .06);
+      --acc-line: rgba(0, 0, 0, .18);
+      --header-h: 60px;
+      --skeleton-base: #ebebeb;
+      --skeleton-shine: #f5f5f5;
+      --skeleton-active: rgba(0, 0, 0, .06);
+      --skeleton-active-border: rgba(0, 0, 0, .15);
+      --skeleton-muted: #e0e0e0;
+    }
+    .app {
+      width: min(100%, var(--maxw));
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: clamp(230px, 23vw, 290px) minmax(0, 1fr);
+      flex: 1;
+      min-height: calc(100vh - var(--header-h));
+      min-height: calc(100dvh - var(--header-h));
+      border-inline: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .side {
+      position: sticky;
+      top: var(--header-h);
+      align-self: start;
+      height: calc(100vh - var(--header-h));
+      height: calc(100dvh - var(--header-h));
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      border-right: 1px solid var(--line);
+      padding: 1rem .65rem 1.5rem;
+      background: var(--panel);
+      min-width: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line2) transparent;
+    }
+    @media (max-width: 900px) {
+      :root { --header-h: 56px; }
+      .app {
+        grid-template-columns: minmax(0, 1fr);
+        border-inline: 0;
+      }
+      .side {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(88vw, 340px);
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        z-index: 150;
+        transform: translateX(-105%);
+        transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+        border-right: 1px solid var(--line);
+        padding: 3.75rem 1rem 2rem;
+        box-shadow: 0 0 60px rgba(0, 0, 0, .4);
+      }
+      .side.open {
+        transform: translateX(0);
+      }
+    }
+    @keyframes ziiui-skeleton-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .sidebar-skeleton .skeleton-box,
+    .sidebar-skeleton .skeleton-text,
+    .sidebar-skeleton .skeleton-pill,
+    .catalog-skeleton .skeleton-box,
+    .catalog-skeleton .skeleton-text,
+    .catalog-skeleton .skeleton-pill,
+    .catalog-skeleton .skeleton-card-art {
+      background: linear-gradient(90deg, var(--skeleton-base) 0%, var(--skeleton-shine) 50%, var(--skeleton-base) 100%);
+      background-size: 200% 100%;
+      animation: ziiui-skeleton-shimmer 1.8s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar-skeleton .skeleton-box,
+      .sidebar-skeleton .skeleton-text,
+      .sidebar-skeleton .skeleton-pill,
+      .catalog-skeleton .skeleton-box,
+      .catalog-skeleton .skeleton-text,
+      .catalog-skeleton .skeleton-pill,
+      .catalog-skeleton .skeleton-card-art {
+        animation: none !important;
+        background: var(--skeleton-base) !important;
+      }
+    }
+    /* Skeleton visibility toggles */
+    .side.is-skeleton-loading > :not(.sidebar-skeleton):not(.side-close) {
+      display: none !important;
+    }
+    .side.is-skeleton-loading > .sidebar-skeleton {
+      display: flex !important;
+    }
+    .side:not(.is-skeleton-loading) > .sidebar-skeleton {
+      display: none !important;
+    }
+    .catalog-section.is-skeleton-loading > #categoryFilters,
+    .catalog-section.is-skeleton-loading > #componentGrid,
+    .catalog-section.is-skeleton-loading > #seeMore {
+      display: none !important;
+    }
+    .catalog-section.is-skeleton-loading > .catalog-skeleton {
+      display: block !important;
+    }
+    .catalog-section:not(.is-skeleton-loading) > .catalog-skeleton {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -76,10 +218,133 @@
   </header>
 
   <div class="app">
-    <aside class="side" id="sidePanel" aria-label="Component library">
+    <aside class="side is-skeleton-loading" id="sidePanel" aria-label="Component library">
       <button class="side-close" id="sideClose" type="button" aria-label="Close component list">
         <i class="ri-close-line" aria-hidden="true"></i>
       </button>
+
+      <!-- Sidebar Skeleton Loading Placeholder -->
+      <div class="sidebar-skeleton" id="sidebarSkeleton" aria-label="Loading component navigation" aria-busy="true">
+        <!-- Brand Placeholder: Logo, Brand Text, Beta Badge (visible in mobile/tablet drawer and on first paint) -->
+        <div class="sidebar-skeleton-brand" aria-hidden="true">
+          <div class="skeleton-box skeleton-logo-box"></div>
+          <div class="skeleton-text skeleton-brand-title"></div>
+          <div class="skeleton-pill skeleton-badge"></div>
+        </div>
+
+        <!-- Sidebar Header Placeholder: Components Label, Total Count, Shuffle Button -->
+        <div class="sidebar-skeleton-head" aria-hidden="true">
+          <div class="sidebar-skeleton-head-meta">
+            <div class="skeleton-text skeleton-side-label"></div>
+            <div class="skeleton-text skeleton-side-total"></div>
+          </div>
+          <div class="skeleton-box skeleton-shuffle-box"></div>
+        </div>
+
+        <!-- Search input placeholder for mobile / drawer view -->
+        <div class="sidebar-skeleton-search" aria-hidden="true">
+          <div class="skeleton-box skeleton-search-icon"></div>
+          <div class="skeleton-text skeleton-search-text"></div>
+        </div>
+
+        <!-- Active Navigation Item Placeholder (All Components) reproducing neutral-gray styling -->
+        <div class="sidebar-skeleton-active-link" aria-hidden="true">
+          <div class="skeleton-box skeleton-nav-icon"></div>
+          <div class="skeleton-text skeleton-nav-label"></div>
+          <div class="skeleton-pill skeleton-nav-count"></div>
+        </div>
+
+        <!-- Category Groups Skeleton with Headings, Counts, Chevrons, and List Items -->
+        <div class="sidebar-skeleton-nav" aria-hidden="true">
+          <!-- Category 1: Web -->
+          <div class="sidebar-skeleton-group">
+            <div class="sidebar-skeleton-group-head">
+              <div class="skeleton-box skeleton-group-icon"></div>
+              <div class="skeleton-text skeleton-group-label" style="width: 48px;"></div>
+              <div class="skeleton-pill skeleton-group-count"></div>
+              <div class="skeleton-box skeleton-chevron"></div>
+            </div>
+            <div class="sidebar-skeleton-items">
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 76px;"></div></div>
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 90px;"></div></div>
+            </div>
+          </div>
+
+          <!-- Category 2: Menus -->
+          <div class="sidebar-skeleton-group">
+            <div class="sidebar-skeleton-group-head">
+              <div class="skeleton-box skeleton-group-icon"></div>
+              <div class="skeleton-text skeleton-group-label" style="width: 58px;"></div>
+              <div class="skeleton-pill skeleton-group-count"></div>
+              <div class="skeleton-box skeleton-chevron"></div>
+            </div>
+            <div class="sidebar-skeleton-items">
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 84px;"></div></div>
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 80px;"></div></div>
+            </div>
+          </div>
+
+          <!-- Category 3: Interactive -->
+          <div class="sidebar-skeleton-group">
+            <div class="sidebar-skeleton-group-head">
+              <div class="skeleton-box skeleton-group-icon"></div>
+              <div class="skeleton-text skeleton-group-label" style="width: 74px;"></div>
+              <div class="skeleton-pill skeleton-group-count"></div>
+              <div class="skeleton-box skeleton-chevron"></div>
+            </div>
+            <div class="sidebar-skeleton-items">
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 96px;"></div></div>
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 72px;"></div></div>
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 88px;"></div></div>
+            </div>
+          </div>
+
+          <!-- Category 4: Footer -->
+          <div class="sidebar-skeleton-group">
+            <div class="sidebar-skeleton-group-head">
+              <div class="skeleton-box skeleton-group-icon"></div>
+              <div class="skeleton-text skeleton-group-label" style="width: 50px;"></div>
+              <div class="skeleton-pill skeleton-group-count"></div>
+              <div class="skeleton-box skeleton-chevron"></div>
+            </div>
+            <div class="sidebar-skeleton-items">
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 86px;"></div></div>
+            </div>
+          </div>
+
+          <!-- Category 5: Text -->
+          <div class="sidebar-skeleton-group">
+            <div class="sidebar-skeleton-group-head">
+              <div class="skeleton-box skeleton-group-icon"></div>
+              <div class="skeleton-text skeleton-group-label" style="width: 44px;"></div>
+              <div class="skeleton-pill skeleton-group-count"></div>
+              <div class="skeleton-box skeleton-chevron"></div>
+            </div>
+            <div class="sidebar-skeleton-items">
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 104px;"></div></div>
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 78px;"></div></div>
+              <div class="sidebar-skeleton-item"><div class="skeleton-text" style="width: 92px;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Bottom Links Placeholder (AI Editor, Context, Docs) -->
+        <div class="sidebar-skeleton-links" aria-hidden="true">
+          <div class="sidebar-skeleton-link-item">
+            <div class="skeleton-box skeleton-link-icon"></div>
+            <div class="skeleton-text" style="width: 74px;"></div>
+          </div>
+          <div class="sidebar-skeleton-link-item">
+            <div class="skeleton-box skeleton-link-icon"></div>
+            <div class="skeleton-text" style="width: 60px;"></div>
+          </div>
+          <div class="sidebar-skeleton-link-item">
+            <div class="skeleton-box skeleton-link-icon"></div>
+            <div class="skeleton-text" style="width: 48px;"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="sidebar-head">
         <div>
           <p class="side-label">Components</p>
@@ -107,7 +372,70 @@
     </aside>
 
     <main>
-      <section class="catalog-section" id="catalogSection" aria-labelledby="catalogTitle">
+      <section class="catalog-section is-skeleton-loading" id="catalogSection" aria-labelledby="catalogTitle">
+        <!-- Main Content Skeleton (Category Filter Chips + Component Cards Grid) -->
+        <div class="catalog-skeleton" id="catalogSkeleton" aria-label="Loading components" aria-busy="true">
+          <!-- Skeleton Category Filters -->
+          <div class="skeleton-category-filters" aria-hidden="true">
+            <div class="skeleton-filter-chip is-active">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 32px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 42px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 48px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 68px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 44px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 38px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 46px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+            <div class="skeleton-filter-chip">
+              <div class="skeleton-box skeleton-filter-icon"></div>
+              <div class="skeleton-text" style="width: 52px;"></div>
+              <div class="skeleton-pill skeleton-filter-count"></div>
+            </div>
+          </div>
+
+          <!-- Skeleton Component Grid (12 preview cards) -->
+          <div class="skeleton-component-grid" aria-hidden="true">
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-art"></div></div>
+          </div>
+        </div>
+
         <header class="catalog-heading">
           <div>
             <p class="catalog-kicker">The motion library</p>
