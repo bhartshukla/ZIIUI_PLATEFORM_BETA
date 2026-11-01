@@ -1,6 +1,4 @@
 /* Entry point for ai.html — full-page AI editor for one saved component. */
-import '../styles/style.css';
-import '../styles/ai-editor.css';
 import { $, say, report, guard, installGlobalErrorHandlers, exportFile } from '../lib/dom.js';
 import { copyText } from '../lib/clipboard.js';
 import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../lib/preview.js';

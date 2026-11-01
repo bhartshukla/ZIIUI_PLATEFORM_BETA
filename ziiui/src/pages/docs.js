@@ -1,5 +1,4 @@
 /* Entry point for docs.html — collapsible sidebar and scroll-spy. */
-import '../styles/docs.css';
 import { copyText } from '../lib/clipboard.js';
 
 

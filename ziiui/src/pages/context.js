@@ -1,5 +1,4 @@
 /* Entry point for context.html — view, search, and manage saved AI conversations in the Command Center. */
-import '../styles/context.css';
 import { AI_STATE_KEY, AI_ACTIVE_KEY } from '../ai/config.js';
 import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
