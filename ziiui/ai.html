@@ -9,7 +9,8 @@
   <link rel="icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.woff2?t=1769486070745" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
@@ -42,11 +43,13 @@
     [class^="ri-"], [class*=" ri-"] {
       font-family: 'remixicon' !important;
       font-style: normal;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
     .ai-page {
       display: flex;
       flex-direction: column;
-      min-height: 100dvh;
+      height: 100dvh;
     }
     .ai-page-head {
       display: flex;
@@ -89,15 +92,42 @@
     }
     .ai-page-body {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
-      padding: 1.1rem;
-      min-width: 0;
+      grid-template-columns: minmax(280px, 23vw) minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: hidden;
     }
     .ai-page-col {
       display: flex;
       flex-direction: column;
+      min-height: 0;
       min-width: 0;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+    }
+    .ai-page-col:last-child {
+      border-right: 0;
+    }
+    @media (max-width: 1100px) {
+      .ai-page-body {
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+        grid-template-rows: minmax(420px, 58dvh) minmax(460px, 66dvh);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+      .ai-page-col {
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .ai-page-col:nth-child(3) {
+        grid-column: 1 / -1;
+        border-right: 0;
+      }
+      .ai-page {
+        min-height: 100dvh;
+        height: auto;
+      }
     }
     .ai-col-head {
       display: flex;

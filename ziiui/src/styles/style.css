@@ -246,6 +246,7 @@ body {
   height: 30px;
   width: auto;
   max-width: 150px;
+  aspect-ratio: 895 / 348;
   object-fit: contain;
   border-radius: 6px;
   transition: none;

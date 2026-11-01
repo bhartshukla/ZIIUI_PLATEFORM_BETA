@@ -10,7 +10,8 @@
     <link rel="icon" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.woff2?t=1769486070745" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
 
@@ -42,6 +43,8 @@
       [class^="ri-"], [class*=" ri-"] {
         font-family: 'remixicon' !important;
         font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       .topbar {
         position: sticky;
@@ -100,7 +103,22 @@
         text-decoration: none;
       }
       .topbar__cta i { font-size: 1rem; line-height: 1 }
-      .shell { display: flex; flex-direction: column; min-height: 100dvh; }
+      .shell {
+        display: grid;
+        grid-template-columns: var(--sidebar-w, 260px) minmax(0, 1fr);
+        max-width: var(--maxw, 1200px);
+        margin: 0 auto;
+        padding-top: var(--header-h, 56px);
+        min-height: 100vh;
+      }
+      @media (max-width: 900px) {
+        :root { --sidebar-w: 210px; }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+      }
       .sidebar {
         position: sticky;
         top: var(--header-h, 60px);
