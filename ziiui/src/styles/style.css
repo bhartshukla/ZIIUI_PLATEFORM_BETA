@@ -1303,10 +1303,10 @@ pre::-webkit-scrollbar-track {
   height: 46px;
   padding: 0 13px;
   border-radius: 9999px;
-  background: var(--panel);
-  color: var(--fg);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: #0D1B35;
+  color: #F5F7FA;
+  border: 1px solid #1B5D96;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(33, 150, 255, 0.35);
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -1337,6 +1337,24 @@ pre::-webkit-scrollbar-track {
   height: 20px;
   flex-shrink: 0;
   position: relative;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-fab-icon-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(49, 184, 255, 0.7);
+  opacity: 0.85;
+  animation: ai-orbit-spin 6s linear infinite;
+  pointer-events: none;
+  transition: opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes ai-orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .ai-fab-icon {
@@ -1443,10 +1461,22 @@ pre::-webkit-scrollbar-track {
   width: 144px;
   padding: 0 16px 0 13px;
   gap: 8px;
-  background: var(--raise);
-  border-color: color-mix(in srgb, var(--fg) 28%, var(--line));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.26), 0 2px 6px rgba(0, 0, 0, 0.12);
+  background: #112347;
+  border-color: #31B8FF;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 18px rgba(33, 150, 255, 0.5);
   transform: translateY(-2px);
+}
+
+.ai-fab:hover .ai-fab-icon-wrap,
+.ai-fab:focus-visible .ai-fab-icon-wrap {
+  transform: scale(1.08);
+}
+
+.ai-fab:hover .ai-fab-icon-wrap::before,
+.ai-fab:focus-visible .ai-fab-icon-wrap::before {
+  opacity: 1;
+  border-color: #31B8FF;
+  box-shadow: 0 0 8px rgba(49, 184, 255, 0.6);
 }
 
 .ai-fab:hover .ai-spark,
@@ -1524,7 +1554,10 @@ pre::-webkit-scrollbar-track {
   .ai-spark,
   .ai-spark-small,
   .ai-cursor,
-  .ai-fab-label {
+  .ai-fab-label,
+  .ai-fab-icon-wrap::before,
+  .ai-fab.is-processing .ai-fab-icon-wrap::before,
+  .ai-fab.is-processing .ai-spark {
     animation: none !important;
     transition: none !important;
     transform: none !important;
@@ -1541,6 +1574,35 @@ pre::-webkit-scrollbar-track {
 }
 
 
+
+.ai-fab.is-processing {
+  border-color: #31B8FF;
+  box-shadow: 0 0 20px rgba(33, 150, 255, 0.6), inset 0 0 8px rgba(33, 150, 255, 0.25);
+}
+
+.ai-fab.is-processing .ai-fab-icon-wrap::before {
+  animation: ai-orbit-spin 1.2s linear infinite;
+  border-color: #31B8FF;
+  border-style: solid;
+  border-top-color: #ffffff;
+  opacity: 1;
+  box-shadow: 0 0 10px rgba(49, 184, 255, 0.8);
+}
+
+.ai-fab.is-processing .ai-spark {
+  animation: ai-processing-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ai-processing-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.12);
+    filter: brightness(1.35) drop-shadow(0 0 6px rgba(49, 184, 255, 0.9));
+  }
+}
 
 .ai-panel {
   position: fixed;

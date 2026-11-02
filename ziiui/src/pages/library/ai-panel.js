@@ -176,6 +176,7 @@ async function generate() {
 
   el.prompt.value = '';
   if (el.send) el.send.disabled = true;
+  if (el.fab) el.fab.classList.add('is-processing');
   syncAIInputState();
   setNavigationLocked(true);
   pushChatMessage(compState, 'user', request);
@@ -225,6 +226,7 @@ async function generate() {
       : describeAIError(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
+    if (el.fab) el.fab.classList.remove('is-processing');
     const wasActive = isActiveRequest(req);
     endRequest(req);
     if (wasActive) {

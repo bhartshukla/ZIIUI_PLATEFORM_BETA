@@ -112,7 +112,8 @@ function makeEffectButton(effect) {
   name.textContent = effect.name;
   button.title = effect.name + ' — ' + effect.note;
   button.append(name);
-  button.addEventListener('click', () => {
+  button.addEventListener('click', (e) => {
+    e.stopPropagation();
     if (onSelectEffect) onSelectEffect(effect, true);
   });
   return button;
@@ -160,7 +161,6 @@ function renderList() {
       total.textContent = String(effects.length);
       total.setAttribute('aria-hidden', 'true');
       heading.append(icon, label, total);
-      heading.addEventListener('click', () => onShowCategory(category));
       toggle.type = 'button';
       toggle.className = 'component-group-toggle';
       toggle.setAttribute('aria-label', `${collapsedCategories.has(category) ? 'Expand' : 'Collapse'} ${category} components`);
@@ -170,14 +170,31 @@ function renderList() {
       toggleIcon.className = 'ri-arrow-down-s-line';
       toggleIcon.setAttribute('aria-hidden', 'true');
       toggle.append(toggleIcon);
-      toggle.addEventListener('click', () => {
-        const collapsed = !list.hidden;
-        list.hidden = collapsed;
-        toggle.setAttribute('aria-expanded', String(!collapsed));
-        toggle.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${category} components`);
-        if (collapsed) collapsedCategories.add(category);
-        else collapsedCategories.delete(category);
-      });
+
+      const toggleThisCategory = (e, { isHeadingClick = false } = {}) => {
+        if (e) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        const willCollapse = !list.hidden;
+        list.hidden = willCollapse;
+        toggle.setAttribute('aria-expanded', String(!willCollapse));
+        toggle.setAttribute('aria-label', `${willCollapse ? 'Expand' : 'Collapse'} ${category} components`);
+        if (willCollapse) {
+          collapsedCategories.add(category);
+        } else {
+          collapsedCategories.delete(category);
+        }
+
+        // If no component is currently active in detail view, clicking the category row
+        // sets that category as the active filter in discovery view
+        if (isHeadingClick && !activeEffectId) {
+          onShowCategory(category);
+        }
+      };
+
+      heading.addEventListener('click', (e) => toggleThisCategory(e, { isHeadingClick: true }));
+      toggle.addEventListener('click', (e) => toggleThisCategory(e, { isHeadingClick: false }));
       list.className = 'component-group-list';
       list.id = listId;
       list.hidden = collapsedCategories.has(category);
@@ -642,7 +659,37 @@ export function markCurrent(effect, scrollIntoView) {
   activeEffectId = effect ? effect.id : null;
   if (effect) {
     pauseAllCardVideos();
+    const parentCat = effect.cat || (effect.categories && effect.categories[0]);
+    if (parentCat) {
+      // Synchronize category highlight with selected component
+      activeCategory = parentCat;
+      document.querySelectorAll('.category-nav-filter, #categoryFilters .category-filter').forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.category === parentCat));
+      });
+      const allFilter = $('allComponentsFilter');
+      if (allFilter) allFilter.setAttribute('aria-pressed', 'false');
+
+      // Auto-expand parent category if collapsed
+      collapsedCategories.delete(parentCat);
+      const group = document.querySelector(`.component-group[data-category="${parentCat}"]`);
+      if (group) {
+        const list = group.querySelector('.component-group-list');
+        const toggle = group.querySelector('.component-group-toggle');
+        if (list) list.hidden = false;
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'true');
+          toggle.setAttribute('aria-label', `Collapse ${parentCat} components`);
+        }
+      }
+    }
+  } else {
+    const allFilter = $('allComponentsFilter');
+    if (allFilter) allFilter.setAttribute('aria-pressed', String(activeCategory === 'All'));
+    document.querySelectorAll('.category-nav-filter, #categoryFilters .category-filter').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.category === activeCategory));
+    });
   }
+
   const nav = $('nav');
   [nav, $('componentGrid')].filter(Boolean).forEach((container) => {
     container.querySelectorAll('[data-id]').forEach((button) => {
@@ -653,8 +700,6 @@ export function markCurrent(effect, scrollIntoView) {
       }
     });
   });
-  const allFilter = $('allComponentsFilter');
-  if (allFilter) allFilter.setAttribute('aria-pressed', String(!effect && activeCategory === 'All'));
 }
 
 export function syncSearchClearButton() {
