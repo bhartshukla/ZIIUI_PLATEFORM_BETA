@@ -170,6 +170,7 @@ function renderList() {
       toggleIcon.className = 'ri-arrow-down-s-line';
       toggleIcon.setAttribute('aria-hidden', 'true');
       toggle.append(toggleIcon);
+      heading.append(toggle);
 
       const toggleThisCategory = (e, { isHeadingClick = false } = {}) => {
         if (e) {
@@ -201,7 +202,7 @@ function renderList() {
       effects.forEach((effect) => {
         list.append(makeEffectButton(effect));
       });
-      group.append(heading, toggle, list);
+      group.append(heading, list);
       nav.append(group);
     });
   }
