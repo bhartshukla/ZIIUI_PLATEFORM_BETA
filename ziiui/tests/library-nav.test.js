@@ -315,4 +315,63 @@ describe('component library navigation', () => {
     expect(allFilter.getAttribute('aria-pressed')).toBe('true');
     expect(interactiveChip.getAttribute('aria-pressed')).toBe('false');
   });
+
+  it('toggles category accordion on heading or chevron click without double-toggling', () => {
+    const menusGroup = document.querySelector('.component-group[data-category="Menus"]');
+    expect(menusGroup).not.toBeNull();
+    const heading = menusGroup.querySelector('.component-group-heading');
+    const toggle = menusGroup.querySelector('.component-group-toggle');
+    const list = document.querySelector('#component-group-menus');
+
+    expect(list.hidden).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+
+    // Click heading -> collapses once
+    heading.click();
+    expect(list.hidden).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    // Click heading again -> expands once
+    heading.click();
+    expect(list.hidden).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+
+    // Click toggle chevron -> collapses once
+    toggle.click();
+    expect(list.hidden).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    // Click toggle chevron again -> expands once
+    toggle.click();
+    expect(list.hidden).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('automatically expands parent category and highlights category context when a component is selected', () => {
+    const scrollGroup = document.querySelector('.component-group[data-category="Web"]');
+    const scrollToggle = scrollGroup.querySelector('.component-group-toggle');
+    const scrollHeading = scrollGroup.querySelector('.component-group-heading');
+    const scrollList = document.querySelector('#component-group-web');
+
+    // Collapse Web category
+    scrollToggle.click();
+    expect(scrollList.hidden).toBe(true);
+    expect(scrollToggle.getAttribute('aria-expanded')).toBe('false');
+
+    // Select splitsection (a Web component)
+    const splitCard = document.querySelector('.component-card[data-id="splitsection"]');
+    expect(splitCard).not.toBeNull();
+    splitCard.click();
+
+    // Verify parent category is automatically expanded
+    expect(scrollList.hidden).toBe(false);
+    expect(scrollToggle.getAttribute('aria-expanded')).toBe('true');
+
+    // Verify category heading is highlighted
+    expect(scrollHeading.getAttribute('aria-pressed')).toBe('true');
+
+    // Verify component link is marked current
+    const splitLink = document.querySelector('.component-link[data-id="splitsection"]');
+    expect(splitLink.getAttribute('aria-current')).toBe('true');
+  });
 });
