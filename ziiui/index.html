@@ -251,24 +251,25 @@
     }
     .skeleton-card {
       position: relative;
-      display: block;
+      display: flex;
+      flex-direction: column;
       width: 100%;
-      aspect-ratio: 16 / 9;
-      min-height: 220px;
+      min-height: 250px;
       border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--bg-card);
+      border: 1px solid var(--border);
+      background: var(--card-bg);
       overflow: hidden;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
     }
     @media (max-width: 640px) {
       .skeleton-card {
-        min-height: 180px;
+        min-height: 220px;
       }
     }
     .skeleton-card-art {
       width: 100%;
-      height: 100%;
+      aspect-ratio: 16 / 9;
+      flex: 1 1 auto;
       display: block;
       background: var(--stage-bg);
     }

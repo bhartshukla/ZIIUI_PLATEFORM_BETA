@@ -359,15 +359,40 @@ function renderCards(effects) {
   cardObserver = observer;
 
   effects.slice(0, visibleCardCount).forEach((effect) => {
-    const card = document.createElement('button');
+    const card = document.createElement('div');
     const media = document.createElement('div');
+    const footer = document.createElement('div');
+    const actionGroup = document.createElement('div');
+    const previewBtn = document.createElement('button');
+    const codeBtn = document.createElement('button');
+    const freeBadge = document.createElement('span');
 
-    card.type = 'button';
     card.className = 'component-card';
     card.dataset.id = effect.id;
+    card.tabIndex = 0;
+    card.setAttribute('role', 'region');
+    card.setAttribute('aria-label', `${effect.name} component card`);
     card.setAttribute('aria-current', String(effect.id === activeEffectId));
-    card.setAttribute('aria-label', `Open ${effect.name} component`);
     card.title = effect.name;
+
+    let _cardDisabled = navigationLocked;
+    Object.defineProperty(card, 'disabled', {
+      get: () => _cardDisabled,
+      set: (val) => {
+        _cardDisabled = !!val;
+        if (_cardDisabled) {
+          card.setAttribute('aria-disabled', 'true');
+          card.removeAttribute('tabindex');
+        } else {
+          card.setAttribute('aria-disabled', 'false');
+          card.setAttribute('tabindex', '0');
+        }
+        previewBtn.disabled = _cardDisabled;
+        codeBtn.disabled = _cardDisabled;
+      },
+      configurable: true,
+      enumerable: true
+    });
     card.disabled = navigationLocked;
 
     media.className = 'component-card-art';
@@ -405,10 +430,69 @@ function renderCards(effects) {
       }
     }
 
-    card.append(media);
+    footer.className = 'component-card-footer';
+    actionGroup.className = 'card-action-group';
 
-    card.addEventListener('click', () => {
+    previewBtn.type = 'button';
+    previewBtn.className = 'card-action-btn preview-btn';
+    previewBtn.innerHTML = '<i class="ri-play-circle-line" aria-hidden="true"></i> Preview';
+    previewBtn.setAttribute('aria-label', `Preview ${effect.name}`);
+    previewBtn.disabled = navigationLocked;
+
+    codeBtn.type = 'button';
+    codeBtn.className = 'card-action-btn code-btn';
+    codeBtn.innerHTML = '<i class="ri-code-s-slash-line" aria-hidden="true"></i> View Code';
+    codeBtn.setAttribute('aria-label', `View code for ${effect.name}`);
+    codeBtn.disabled = navigationLocked;
+
+    freeBadge.className = 'card-free-badge';
+    freeBadge.textContent = 'FREE';
+
+    actionGroup.append(previewBtn, codeBtn);
+    footer.append(actionGroup, freeBadge);
+
+    card.append(media, footer);
+
+    const triggerPreview = () => {
+      if (card.disabled) return;
       if (onSelectEffect) onSelectEffect(effect, true);
+    };
+
+    const triggerViewCode = () => {
+      if (card.disabled) return;
+      if (onSelectEffect) {
+        onSelectEffect(effect, true);
+        setTimeout(() => {
+          const docs = $('docs');
+          if (docs) {
+            docs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const codePanel = $('codePanel');
+            if (codePanel) codePanel.focus({ preventScroll: true });
+          }
+        }, 60);
+      }
+    };
+
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('.card-action-btn')) return;
+      triggerPreview();
+    });
+
+    card.addEventListener('keydown', (event) => {
+      if (event.target === card && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        triggerPreview();
+      }
+    });
+
+    previewBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      triggerPreview();
+    });
+
+    codeBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      triggerViewCode();
     });
 
     grid.append(card);
@@ -503,8 +587,8 @@ export function buildNav(onSelect, showCategory) {
     grid.addEventListener('keydown', (event) => {
       const keys = ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape'];
       if (!keys.includes(event.key)) return;
-      const cards = [...grid.querySelectorAll('.component-card:not(:disabled)')];
-      const current = cards.indexOf(document.activeElement);
+      const cards = [...grid.querySelectorAll('.component-card')].filter((c) => !c.disabled && c.getAttribute('aria-disabled') !== 'true');
+      const current = cards.indexOf(document.activeElement.closest('.component-card') || document.activeElement);
       if (current < 0 || !cards.length) return;
 
       if (event.key === 'Escape') {
