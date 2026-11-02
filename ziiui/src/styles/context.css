@@ -20,6 +20,10 @@
   --acc-ink: #000000;
   --acc-soft: rgba(255, 255, 255, 0.08);
   --acc-line: rgba(255, 255, 255, 0.2);
+  --accent: #2196FF;
+  --accent-bright: #31B8FF;
+  --accent-bg: #0D1B35;
+  --accent-border: #1B5D96;
   --danger-fg: #cf6679;
   --danger-line: rgba(207, 102, 121, 0.35);
   --danger-bg: rgba(207, 102, 121, 0.08);
@@ -192,15 +196,14 @@ body {
 }
 
 .btn.primary {
-  background: var(--acc);
-  color: var(--acc-ink);
-  border-color: var(--acc);
-  font-weight: 600;
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
 }
 
 .btn.primary:hover {
-  background: color-mix(in srgb, var(--acc) 90%, var(--bg));
-  border-color: var(--acc);
+  background: color-mix(in srgb, var(--accent) 90%, var(--bg));
+  border-color: var(--accent);
 }
 
 .btn.danger {
@@ -805,12 +808,12 @@ body {
 }
 
 .msg:focus-visible {
-  box-shadow: 0 0 0 2px var(--fg);
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .msg.user {
   background: var(--raise);
-  border: 1px solid var(--acc-line);
+  border: 1px solid var(--accent-border);
   align-self: flex-end;
   max-width: 85%;
 }

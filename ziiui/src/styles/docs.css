@@ -10,9 +10,13 @@
             --fg: #ffffff;
             --fg-2: #a3a3a3;
             --fg-3: #737373;
-            --acc: #ffffff;
-            --acc-soft: rgba(255, 255, 255, 0.08);
-            --acc-dark: #e5e5e5;
+            --accent: #2196FF;
+            --accent-bright: #31B8FF;
+            --accent-bg: #0D1B35;
+            --accent-border: #1B5D96;
+            --badge-bg: #252C38;
+            --text-secondary: #A7B0BD;
+            --text-muted: #8793A3;
             --header-bg: rgba(0, 0, 0, 0.95);
             --code-bg: #0a0a0a;
             --code-fg: #e5e5e5;
