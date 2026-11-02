@@ -3528,6 +3528,22 @@ pre {
   .component-card-art {
     min-height: 160px;
   }
+
+  .component-card-footer {
+    padding: .45rem .6rem;
+    gap: .35rem;
+  }
+
+  .card-action-btn {
+    padding: .3rem .5rem;
+    font-size: .68rem;
+    gap: .25rem;
+  }
+
+  .card-free-badge {
+    padding: .15rem .35rem;
+    font-size: .56rem;
+  }
 }
 
 /* Final library shell overrides: keep the catalogue in its sidebar. */
