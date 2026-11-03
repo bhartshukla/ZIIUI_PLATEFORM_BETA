@@ -347,7 +347,7 @@ describe('component library navigation', () => {
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('automatically expands parent category and highlights category context when a component is selected', () => {
+  it('automatically expands parent category and highlights component only when a component is selected', () => {
     const scrollGroup = document.querySelector('.component-group[data-category="Web"]');
     const scrollToggle = scrollGroup.querySelector('.component-group-toggle');
     const scrollHeading = scrollGroup.querySelector('.component-group-heading');
@@ -367,8 +367,8 @@ describe('component library navigation', () => {
     expect(scrollList.hidden).toBe(false);
     expect(scrollToggle.getAttribute('aria-expanded')).toBe('true');
 
-    // Verify category heading is highlighted
-    expect(scrollHeading.getAttribute('aria-pressed')).toBe('true');
+    // Verify category heading is not highlighted (component only)
+    expect(scrollHeading.getAttribute('aria-pressed')).toBe('false');
 
     // Verify component link is marked current
     const splitLink = document.querySelector('.component-link[data-id="splitsection"]');

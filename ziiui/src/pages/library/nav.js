@@ -219,7 +219,7 @@ function renderList() {
     }
   }
   if (count) {
-    count.textContent = `${visible.length} ${visible.length === 1 ? 'component' : 'components'}`;
+    count.textContent = '';
   }
   const allCount = $('allComponentsCount');
   if (allCount) allCount.textContent = String(EFFECTS.length);
@@ -573,7 +573,7 @@ export function buildNav(onSelect, showCategory) {
   onSelectEffect = onSelect;
   onShowCategory = typeof showCategory === 'function' ? showCategory : setActiveCategory;
   const total = $('catalogTotal');
-  if (total) total.textContent = `${EFFECTS.length} components`;
+  if (total) total.textContent = '';
   const allFilter = $('allComponentsFilter');
   if (allFilter) allFilter.addEventListener('click', () => onShowCategory('All'));
   renderCategories();
@@ -662,9 +662,12 @@ export function markCurrent(effect, scrollIntoView) {
     pauseAllCardVideos();
     const parentCat = effect.cat || (effect.categories && effect.categories[0]);
     if (parentCat) {
-      // Synchronize category highlight with selected component
+      // Synchronize filter chips without highlighting sidebar category heading
       activeCategory = parentCat;
-      document.querySelectorAll('.category-nav-filter, #categoryFilters .category-filter').forEach((btn) => {
+      document.querySelectorAll('.category-nav-filter').forEach((btn) => {
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      document.querySelectorAll('#categoryFilters .category-filter').forEach((btn) => {
         btn.setAttribute('aria-pressed', String(btn.dataset.category === parentCat));
       });
       const allFilter = $('allComponentsFilter');
@@ -686,7 +689,10 @@ export function markCurrent(effect, scrollIntoView) {
   } else {
     const allFilter = $('allComponentsFilter');
     if (allFilter) allFilter.setAttribute('aria-pressed', String(activeCategory === 'All'));
-    document.querySelectorAll('.category-nav-filter, #categoryFilters .category-filter').forEach((btn) => {
+    document.querySelectorAll('.category-nav-filter').forEach((btn) => {
+      btn.setAttribute('aria-pressed', 'false');
+    });
+    document.querySelectorAll('#categoryFilters .category-filter').forEach((btn) => {
       btn.setAttribute('aria-pressed', String(btn.dataset.category === activeCategory));
     });
   }

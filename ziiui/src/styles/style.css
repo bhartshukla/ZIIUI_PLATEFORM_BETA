@@ -3410,11 +3410,6 @@ pre {
   overflow: hidden;
   display: block;
 }
-  flex: 1 1 auto;
-  background: var(--stage-bg);
-  overflow: hidden;
-  display: block;
-}
 
 .component-card-footer {
   display: flex;
@@ -3928,22 +3923,7 @@ pre {
   order: 3;
 }
 
-.topnav a.active {
-  position: relative;
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.topnav a.active::after {
-  position: absolute;
-  right: .7rem;
-  bottom: -.42rem;
-  left: .7rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent-border);
-  content: "";
-}
+/* Active nav box retained from base .topnav a.active; underline removed */
 
 .app>.side {
   background: var(--sidebar-bg);
@@ -4113,23 +4093,30 @@ pre {
 }
 
 .app .component-group-heading:hover {
-  background: var(--surface);
+  background: transparent;
+  border-color: transparent;
   color: var(--text-primary);
+  box-shadow: none;
 }
 
-.app .component-group-heading[aria-pressed="true"] {
-  background: var(--accent-bg);
-  color: var(--accent-bright);
-  border-color: var(--accent-border);
+.app .component-group-heading[aria-pressed="true"],
+.app .component-group-heading[aria-expanded="true"],
+.app .component-group-heading:active {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  box-shadow: none;
 }
 
-.app .component-group-heading[aria-pressed="true"]>i {
-  color: var(--accent-bright);
+.app .component-group-heading[aria-pressed="true"]>i,
+.app .component-group-heading[aria-expanded="true"]>i {
+  color: var(--text-muted);
 }
 
-.app .component-group-heading[aria-pressed="true"] .component-group-count {
-  background: var(--accent-border);
-  color: var(--text-primary);
+.app .component-group-heading[aria-pressed="true"] .component-group-count,
+.app .component-group-heading[aria-expanded="true"] .component-group-count {
+  background: var(--badge-bg);
+  color: var(--text-muted);
 }
 
 .app .component-group-heading:focus-visible,
@@ -4149,7 +4136,7 @@ pre {
   gap: 2px;
   margin-left: .5rem;
   padding-left: .65rem;
-  border-left: 1px solid var(--border);
+  border-left: none;
 }
 
 .component-group-list .component-link {
@@ -4403,7 +4390,7 @@ pre {
 }
 
 .component-group-toggle:hover {
-  background: var(--surface-hover);
+  background: transparent;
   color: var(--text-primary);
 }
 
@@ -5024,4 +5011,13 @@ pre {
     background-color: var(--skeleton-active) !important;
     border-color: var(--skeleton-active-border) !important;
   }
+}
+/* Hide global total component counts from main UI (heading & sidebar summary) */
+.catalog-total,
+#catalogCount,
+.sidebar-total,
+#catalogTotal,
+.all-components-count,
+#categoryFilters [data-category="All"] .category-count {
+  display: none !important;
 }
