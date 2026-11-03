@@ -3935,12 +3935,14 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 .15rem .15rem;
+  padding: 0 .15rem;
+  min-height: 32px;
   border: 0;
+  margin-bottom: .25rem;
 }
 
 .app .sidebar-head .side-label {
-  margin-bottom: .25rem;
+  margin: 0;
   font-size: .82rem;
   font-weight: 720;
   color: var(--text-primary);
@@ -5019,5 +5021,14 @@ pre {
 #catalogTotal,
 .all-components-count,
 #categoryFilters [data-category="All"] .category-count {
+  display: none !important;
+}
+
+.search-slot:empty {
+  display: none;
+}
+
+.all-components-link,
+.sidebar-skeleton-active-link {
   display: none !important;
 }
