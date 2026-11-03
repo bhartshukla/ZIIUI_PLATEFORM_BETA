@@ -134,8 +134,7 @@ body {
   top: 0;
   z-index: 100;
   background: var(--page-bg);
-  border-bottom: 1px solid var(--border);
-  transition: background-color .25s ease, border-color .25s ease
+  transition: background-color .25s ease
 }
 
 .topbar-inner {
@@ -1387,6 +1386,23 @@ pre::-webkit-scrollbar-track {
   animation: ai-cursor-idle 4s ease-in-out -0.2s infinite;
   transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
+}
+
+.ai-fab-icon {
+  animation: ai-fab-scale 3s ease-in-out infinite;
+}
+
+@keyframes ai-fab-scale {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.5); }
+  50% { transform: scale(0.5); }
+  75% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-fab-icon {
+    animation: none !important;
+  }
 }
 
 /* Coordinated Celestial Constellation Idle Animation:
@@ -3420,12 +3436,15 @@ pre {
   border-top: 1px solid var(--border);
   gap: .5rem;
   flex: 0 0 auto;
+  flex-wrap: nowrap;
 }
 
 .card-action-group {
   display: flex;
   align-items: center;
   gap: .45rem;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .card-action-btn {
@@ -3483,6 +3502,7 @@ pre {
 
 .card-free-badge {
   margin-left: auto;
+  flex-shrink: 0;
   padding: .2rem .5rem;
   background: var(--badge-bg);
   color: var(--text-muted);
@@ -3492,6 +3512,7 @@ pre {
   font-weight: 700;
   letter-spacing: .05em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .component-card-video {

@@ -305,14 +305,14 @@ body {
 
 .search-input {
   width: 100%;
-  height: 48px;
-  padding: 0 95px 0 46px;
+  height: 40px;
+  padding: 0 90px 0 44px;
   background: var(--panel);
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--fg-bright);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 0.85rem;
   letter-spacing: -0.01em;
   box-sizing: border-box;
   outline: none;
@@ -335,7 +335,7 @@ body {
 .search-input:focus {
   background: var(--panel);
   border-color: var(--fg);
-  box-shadow: 0 0 0 1px var(--fg);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 /* Clear & Shortcut Trailing Controls */
@@ -388,45 +388,44 @@ body {
    ========================================================================== */
 
 .summary-section {
-  margin-bottom: 26px;
+  margin-bottom: 16px;
 }
 
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
 .summary-card {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   transition:
     background-color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
+    border-color 0.15s ease;
 }
 
 .summary-card:hover {
   background: var(--panel-hover);
-  border-color: var(--line2);
+  border-color: var(--accent-border);
 }
 
 .summary-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-md);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
   background: var(--raise);
   border: 1px solid var(--line);
   color: var(--fg-bright);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 
@@ -435,22 +434,22 @@ body {
 }
 
 .summary-value {
-  font-size: 1.6rem;
-  font-weight: 750;
+  font-size: 1.25rem;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.1;
   color: var(--fg-bright);
 }
 
 .summary-label {
-  font-size: 0.8125rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--fg);
+  color: var(--mute);
   margin-top: 2px;
 }
 
 .summary-sub {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--mute);
   margin-top: 1px;
 }
@@ -555,9 +554,9 @@ body {
 }
 
 .comp-item.active .comp-btn {
-  background: var(--raise);
-  border-color: var(--fg);
-  box-shadow: inset 3px 0 0 var(--fg);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--fg-bright);
 }
 
 .comp-item-header {
@@ -707,7 +706,7 @@ body {
 }
 
 .detail-head {
-  padding: 12px 18px;
+  padding: 10px 16px;
   justify-content: space-between;
 }
 
@@ -719,8 +718,8 @@ body {
 }
 
 .detail-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
   background: var(--raise);
   border: 1px solid var(--line);
@@ -728,7 +727,7 @@ body {
   align-items: center;
   justify-content: center;
   color: var(--fg-bright);
-  font-size: 1.1rem;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 
@@ -738,8 +737,8 @@ body {
 
 .detail-name {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 750;
+  font-size: 0.95rem;
+  font-weight: 700;
   letter-spacing: -0.015em;
   color: var(--fg-bright);
   overflow: hidden;
@@ -750,8 +749,8 @@ body {
 .detail-meta-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
+  gap: 5px;
+  font-size: 0.7rem;
   color: var(--mute);
   margin-top: 2px;
 }
