@@ -24,8 +24,8 @@ describe('AI Context Command Center UI Redesign', () => {
     });
 
     it('renders Command Center introduction heading and supporting copy', () => {
-      expect(html).toContain('AI Context Center');
-      expect(html).toContain('Search, inspect and manage component memory.');
+      expect(html).toContain('AI Context');
+      expect(html).toContain('Manage saved component memory, conversations, and versions.');
       expect(html).toContain('class="cmd-hero"');
     });
 

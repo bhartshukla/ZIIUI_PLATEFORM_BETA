@@ -62,13 +62,73 @@
         font-weight: 700;
         font-size: 1rem;
       }
-      .topbar__mark { font-size: 1.25rem; line-height: 1 }
-      .topbar__beta {
-        font-size: .58rem; font-weight: 350; text-transform: uppercase;
-        letter-spacing: .1em; color: var(--mute);
-        background: var(--raise); border: 1px solid var(--line);
-        border-radius: 999px; padding: .12rem .5rem; line-height: 1;
-      }
+    .topbar__mark { font-size: 1.25rem; line-height: 1 }
+    .topbar__beta {
+      font-size: .58rem; font-weight: 350; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--mute);
+      background: var(--raise); border: 1px solid var(--line);
+      border-radius: 999px; padding: .12rem .5rem; line-height: 1;
+    }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      text-decoration: none;
+      color: var(--fg);
+      flex: none;
+      border-radius: 8px;
+      padding: .25rem .4rem;
+      height: 44px;
+      font-weight: 350;
+      letter-spacing: -.01em;
+    }
+    .logo-mark {
+      display: block;
+      flex: none;
+      height: 30px;
+      width: auto;
+      max-width: 150px;
+      aspect-ratio: 895 / 348;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .ziiui-logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      text-decoration: none;
+      color: var(--fg);
+      flex: none;
+      border-radius: 8px;
+      padding: .25rem .4rem;
+      height: 44px;
+    }
+    .ziiui-logo-img {
+      display: block;
+      flex: none;
+      height: 30px;
+      width: auto;
+      max-width: 150px;
+      aspect-ratio: 895 / 348;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .beta-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: .58rem;
+      font-weight: 350;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--mute);
+      background: var(--raise);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: .12rem .5rem;
+      line-height: 1;
+      margin-left: .1rem;
+      flex: none;
+    }
       .topbar__nav {
         display: flex;
         align-items: center;
@@ -288,10 +348,9 @@
          TOP BAR
          ============================================================ -->
     <header class="topbar">
-        <a class="topbar__brand" href="#top">
-            <span class="topbar__mark" aria-hidden="true">z</span>
-            <span>ziiui</span>
-            <span class="topbar__beta">beta</span>
+        <a class="logo ziiui-logo-wrap" href="#top" aria-label="ziiui home">
+            <img class="logo-mark ziiui-logo-img" src="/ziiui-logo.jpg" alt="ziiui" width="895" height="348" fetchpriority="high" decoding="async" onerror="this.style.display='none'">
+            <span class="beta-badge" title="This platform is in beta">beta</span>
         </a>
 
         <nav class="topbar__nav" aria-label="Primary">
@@ -411,20 +470,29 @@
                  ==================================================== -->
             <section id="overview">
                 <p class="eyebrow">Documentation</p>
-                <h1>Introduction to ziiui</h1>
+                <h1>ZiiUI — Motion, Made Interactive</h1>
 
                 <p class="lead" style="margin-top:1rem">
-                    ziiui is an open-source collection of production-ready text effects,
-                    cursor interactions, scroll-driven sections, and WebGL shaders.
-                    Every component is a standalone HTML file — copy it, paste it, ship it.
+                    Explore creative web effects, customize them in real time, and take
+                    the code directly into your project. ZiiUI brings animated
+                    components, interactive previews, and developer-friendly code
+                    together in one workspace.
                 </p>
 
-                <p style="margin-top:1rem">
-                    Get started by picking a component from the sidebar, tweaking it
-                    live in the Lab, and copying the generated code into your project.
-                    No build step. No package to install. The output runs anywhere a
-                    browser can open an HTML file.
-                </p>
+                <div class="steps" style="margin-top:1.5rem; gap:1rem">
+                    <a class="step" href="index.html">
+                        <span class="step__num">Explore</span>
+                        <h3 class="step__title">Component Library</h3>
+                        <p class="step__desc">Browse ready-to-use text effects, cursor
+                        interactions, scroll-driven sections, and WebGL shaders.</p>
+                    </a>
+                    <a class="step" href="ai.html">
+                        <span class="step__num">Lab</span>
+                        <h3 class="step__title">Open the Lab</h3>
+                        <p class="step__desc">Customize any component live, generate code
+                        with AI, and preview the result instantly.</p>
+                    </a>
+                </div>
 
                 <div class="callout" style="margin-top:1.5rem">
                     <i class="ri-information-line" aria-hidden="true"></i>
@@ -438,46 +506,76 @@
 
                 <div class="steps" style="margin-top:1rem">
                     <div class="step">
-                        <span class="step__num">Step 01</span>
-                        <h3 class="step__title">Pick a component</h3>
+                        <span class="step__num">1</span>
+                        <h3 class="step__title">Browse the library</h3>
                         <p class="step__desc">
-                            Browse the sidebar. Components are grouped by category —
-                            Text, Cursor, Interactive, Scroll, and Shader.
+                            Pick a component from the sidebar. Components are grouped by
+                            category — Text, Cursor, Interactive, Scroll, and Shader.
                         </p>
                     </div>
                     <div class="step">
-                        <span class="step__num">Step 02</span>
-                        <h3 class="step__title">Tweak it live</h3>
+                        <span class="step__num">2</span>
+                        <h3 class="step__title">Select a component</h3>
                         <p class="step__desc">
-                            Use the Controls panel to change text, split mode, or preset.
-                            The preview updates instantly.
+                            Click any component to open its detail view with a live
+                            preview and controls panel.
                         </p>
                     </div>
                     <div class="step">
-                        <span class="step__num">Step 03</span>
-                        <h3 class="step__title">Copy the output</h3>
+                        <span class="step__num">3</span>
+                        <h3 class="step__title">Open in the Lab</h3>
                         <p class="step__desc">
-                            The Generated code panel always shows the exact HTML that
-                            produced the preview. Copy it and paste it into your project.
+                            Click "Open the Lab" to customize the component live with
+                            AI assistance and code controls.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">4</span>
+                        <h3 class="step__title">Copy the code</h3>
+                        <p class="step__desc">
+                            Copy the generated standalone HTML file and paste it into
+                            your project. No build step required.
                         </p>
                     </div>
                 </div>
 
-                <h2 id="how-it-works" style="margin-top:2.5rem">How it works</h2>
+                <h2 id="how-it-works" style="margin-top:2.5rem">How ZiiUI Works</h2>
 
-                <p style="margin-top:1rem">
-                    Each component is defined as a pair of inert templates — CSS and
-                    JavaScript. Placeholders like <code>__TEXT__</code> are replaced
-                    with your input at build time. That's the entire pipeline.
-                </p>
-
-                <p style="margin-top:1rem">
-                    The output is a complete, standalone HTML document. Open it in a
-                    browser, host it on any static server, or paste it into a CodePen.
-                    The only external dependency is the library the effect actually
-                    needs — for example, GSAP for scroll effects, or Three.js for
-                    shaders — and that is loaded from a CDN at the top of the file.
-                </p>
+                <div class="steps" style="margin-top:1rem">
+                    <div class="step">
+                        <span class="step__num">01</span>
+                        <h3 class="step__title">Explore</h3>
+                        <p class="step__desc">
+                            Browse the component library and choose an effect that fits
+                            your project.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">02</span>
+                        <h3 class="step__title">Preview</h3>
+                        <p class="step__desc">
+                            Open the selected component in the Lab and inspect its live
+                            behavior.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">03</span>
+                        <h3 class="step__title">Customize</h3>
+                        <p class="step__desc">
+                            Use the available controls to adjust the component's
+                            appearance, timing, and behavior.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <span class="step__num">04</span>
+                        <h3 class="step__title">Copy &amp; Build</h3>
+                        <p class="step__desc">
+                            Copy the generated code and integrate it into your project.
+                            Each component is a standalone HTML file — no build step
+                            required.
+                        </p>
+                    </div>
+                </div>
 
                 <div class="code" style="margin-top:1.5rem">
                     <div class="code__head">
@@ -514,8 +612,8 @@
 
                 <h2 id="components">Components</h2>
 
-                <p style="margin-top:1rem">
-                    ziiui ships with 18 components across five categories. Each one
+<p style="margin-top:1rem">
+                    ziiui ships with 27 components across seven categories. Each one
                     is self-contained and copy-paste ready.
                 </p>
 
@@ -554,7 +652,7 @@
                             Draggable canvas masks over video, and hover surfaces that
                             burst with scattered media.
                         </span>
-                        <span class="comp__tag">02 components</span>
+                        <span class="comp__tag">04 components</span>
                     </a>
 
                     <a class="comp" href="#cat-scroll">
@@ -566,7 +664,7 @@
                             Pinned, scroll-driven pages — list reveals, 3D card stacks,
                             and full-screen video masks.
                         </span>
-                        <span class="comp__tag">03 components</span>
+                        <span class="comp__tag">06 components</span>
                     </a>
 
                     <a class="comp" href="#cat-shader">
@@ -579,6 +677,30 @@
                             Sobel-edge transitions.
                         </span>
                         <span class="comp__tag">02 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-menus">
+                        <span class="comp__name">
+                            <i class="ri-menu-line" aria-hidden="true"></i>
+                            Menus
+                        </span>
+                        <span class="comp__note">
+                            Grid squares that ripple to reveal navigation, and morphing
+                            curved SVG fullscreen menus.
+                        </span>
+                        <span class="comp__tag">02 components</span>
+                    </a>
+
+                    <a class="comp" href="#cat-footer">
+                        <span class="comp__name">
+                            <i class="ri-layout-footer-line" aria-hidden="true"></i>
+                            Footer
+                        </span>
+                        <span class="comp__note">
+                            Sticky footers with Lenis smooth scroll, animated footer
+                            links, and photo bursts.
+                        </span>
+                        <span class="comp__tag">03 components</span>
                     </a>
 
                     <a class="comp" href="#output">

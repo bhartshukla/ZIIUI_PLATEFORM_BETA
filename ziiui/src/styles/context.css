@@ -197,21 +197,27 @@ body {
 
 .btn.primary {
   background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
+  color: var(--text-primary);
+  border-color: var(--accent-border);
 }
 
 .btn.primary:hover {
   background: color-mix(in srgb, var(--accent) 90%, var(--bg));
-  border-color: var(--accent);
+  border-color: var(--accent-border);
 }
 
 .btn.danger {
-  border-color: var(--line);
-  color: var(--mute);
+  border-color: var(--danger-line);
+  color: var(--danger-fg);
 }
 
 .btn.danger:hover {
+  color: var(--danger-fg);
+  border-color: var(--danger-line);
+  background: var(--danger-bg);
+}
+
+#clearAllBtn:hover {
   color: var(--danger-fg);
   border-color: var(--danger-line);
   background: var(--danger-bg);
@@ -335,7 +341,7 @@ body {
 .search-input:focus {
   background: var(--panel);
   border-color: var(--fg);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: 0 0 0 1px var(--fg);
 }
 
 /* Clear & Shortcut Trailing Controls */
@@ -411,7 +417,7 @@ body {
 }
 
 .summary-card:hover {
-  background: var(--panel-hover);
+  background: var(--accent-bg);
   border-color: var(--accent-border);
 }
 
@@ -421,7 +427,7 @@ body {
   border-radius: var(--radius-sm);
   background: var(--raise);
   border: 1px solid var(--line);
-  color: var(--fg-bright);
+  color: var(--accent-bright);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -444,7 +450,7 @@ body {
 .summary-label {
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--mute);
+  color: var(--text-muted);
   margin-top: 2px;
 }
 

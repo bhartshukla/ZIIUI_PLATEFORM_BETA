@@ -280,6 +280,35 @@ body {
   transform: none;
 }
 
+/* Shared logo styling — used by all pages for consistency */
+.ziiui-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  text-decoration: none;
+  color: var(--fg);
+  flex: none;
+  border-radius: 8px;
+  padding: .25rem .4rem;
+  height: 44px;
+  font-weight: 350;
+  letter-spacing: -.01em;
+  transition: none;
+}
+
+.ziiui-logo-img {
+  display: block;
+  flex: none;
+  height: 30px;
+  width: auto;
+  max-width: 150px;
+  aspect-ratio: 895 / 348;
+  object-fit: contain;
+  border-radius: 6px;
+  transition: none;
+  transform: none;
+}
+
 .beta-badge {
   display: inline-flex;
   align-items: center;
