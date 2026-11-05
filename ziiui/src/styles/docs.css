@@ -94,11 +94,71 @@
         /* ================================================================
            TOP BAR
            ================================================================ */
-        .topbar {
+        .topbar-inner {
+            width: min(100%, var(--maxw));
+            margin-inline: auto;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: 0 1.1rem;
+            height: var(--header-h);
+        }
+
+        .topnav {
+            display: flex;
+            align-items: center;
+            gap: .15rem;
+            margin-left: .75rem;
+            flex: none;
+        }
+
+        .topnav a {
+            color: var(--fg-2);
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 550;
+            padding: .45rem .7rem;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .topnav a:hover { background: var(--surface-2); color: var(--fg); }
+        .topnav a.active { color: var(--acc); background: var(--acc-soft); }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: .15rem;
+            flex: none;
+            margin-left: .25rem;
+            padding-left: .5rem;
+            border-left: 1px solid var(--border);
+        }
+
+        .icon-btn {
+            background: none;
+            border: 0;
+            color: var(--fg-2);
+            cursor: pointer;
+            padding: .45rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            text-decoration: none;
+        }
+
+        .icon-btn i { font-size: 1.15rem; line-height: 1; }
+        .icon-btn:hover { background: var(--surface-2); color: var(--fg); }
+
+        /* logo match main page */
+        .logo { display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--fg); border-radius: 8px; padding: .25rem .4rem; height: 44px; }
+        .logo-mark { height: 30px; width: auto; max-width: 150px; aspect-ratio: 895 / 348; object-fit: contain; border-radius: 6px; }
+        .beta-badge { font-size: .58rem; font-weight: 350; text-transform: uppercase; letter-spacing: .1em; color: var(--fg-2); background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 999px; padding: .12rem .5rem; line-height: 1; margin-left: .1rem; }
+.topbar {
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
             height: var(--header-h);
             z-index: 100;
             background: var(--header-bg);
