@@ -450,7 +450,7 @@ body {
 .summary-label {
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--mute);
   margin-top: 2px;
 }
 
