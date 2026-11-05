@@ -4303,7 +4303,7 @@ pre {
   outline-offset: 2px;
 }
 
-/* Component detail view toggle (Preview | Code) */
+/* Component detail view toggle (Preview | Code) — compact pill-shaped segmented control */
 .view-toggle {
   display: flex;
   gap: 0;
@@ -4311,20 +4311,22 @@ pre {
   border-radius: 10px;
   background: var(--surface);
   padding: 2px;
+  width: fit-content;
   min-height: 0;
 }
 .view-tab {
-  flex: 1;
+  flex: none;
   min-height: 0;
-  padding: .5rem .9rem;
+  padding: .3rem .6rem;
   border: 0;
   border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
   font: inherit;
-  font-size: .8rem;
+  font-size: .78rem;
   font-weight: 650;
   cursor: pointer;
+  white-space: nowrap;
   transition: background .18s ease, color .18s ease;
 }
 .view-tab:hover {
@@ -4333,9 +4335,9 @@ pre {
 }
 .view-tab.is-active,
 .view-tab[aria-selected="true"] {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 18%, transparent);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 .view-tab:focus-visible {
   outline: 2px solid var(--accent-border);
