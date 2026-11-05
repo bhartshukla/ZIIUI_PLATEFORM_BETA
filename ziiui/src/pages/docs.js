@@ -1,6 +1,12 @@
-/* Entry point for docs.html — collapsible sidebar, mobile drawer, theme toggle, scroll-spy. */
+/* Entry point for docs.html — collapsible sidebar, mobile drawer, theme toggle, scroll-spy, auto TOC, search, prev/next. */
 import { copyText } from '../lib/clipboard.js';
 import { applyThemeIcon, toggleTheme } from '../lib/theme.js';
+
+/* ---------- Reduced motion ---------- */
+var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function scrollBehavior() {
+  return prefersReducedMotion ? 'auto' : 'smooth';
+}
 
 /* ---------- Year ---------- */
 const yearEl = document.getElementById('year');
@@ -12,7 +18,9 @@ const themeBtn = document.getElementById('themeToggle');
 if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
 /* ---------- Mobile drawer ---------- */
-const menuToggle = document.getElementById('menuToggle');
+const docsMenuToggle = document.getElementById('docsMenuToggle');
+if (docsMenuToggle) docsMenuToggle.addEventListener('click', openDrawer);
+const menuToggle = docsMenuToggle;
 const sidePanel = document.getElementById('sidePanel');
 const sideOverlay = document.getElementById('sideOverlay');
 const sideClose = document.getElementById('sideClose');
@@ -21,11 +29,13 @@ function openDrawer() {
   sidePanel && sidePanel.classList.add('open');
   sideOverlay && sideOverlay.classList.add('open');
   menuToggle && menuToggle.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
 }
 function closeDrawer() {
   sidePanel && sidePanel.classList.remove('open');
   sideOverlay && sideOverlay.classList.remove('open');
   menuToggle && menuToggle.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
 }
 if (menuToggle) menuToggle.addEventListener('click', openDrawer);
 if (sideClose) sideClose.addEventListener('click', closeDrawer);
@@ -39,12 +49,41 @@ document.querySelectorAll('[data-toggle]').forEach(function (btn) {
     var target = document.getElementById(targetId);
     btn.setAttribute('aria-expanded', String(!expanded));
     if (target) target.hidden = expanded;
+    var icon = btn.querySelector('i');
+    if (icon) icon.style.transform = !expanded ? 'rotate(0deg)' : 'rotate(-90deg)';
   });
 });
 
+/* ---------- Right TOC: generate from actual H2/H3 headings ---------- */
+(function () {
+  var tocList = document.querySelector('.toc__list');
+  var main = document.getElementById('main');
+  if (!tocList || !main) return;
+
+  var headings = Array.from(main.querySelectorAll('h2[id], h3[id]'));
+  if (!headings.length) { tocList.style.display = 'none'; return; }
+
+  var html = '';
+  var currentH2 = null;
+  headings.forEach(function (h) {
+    if (h.tagName === 'H2') {
+      currentH2 = h;
+      html += '<li><a class="toc__link" href="#' + h.id + '" data-level="2">' + escText(h.textContent) + '</a></li>';
+    } else if (h.tagName === 'H3' && currentH2) {
+      html += '<li style="padding-left:0.9rem"><a class="toc__link" href="#' + h.id + '" data-level="3" style="font-size:0.74rem; opacity:.75">' + escText(h.textContent) + '</a></li>';
+    }
+  });
+  tocList.innerHTML = html;
+})();
+
+function escText(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 /* ---------- Active link highlighting (scroll spy) ---------- */
 (function () {
-  var links = Array.from(document.querySelectorAll('.sidebar__link, .toc__list a'));
+  var links = Array.from(document.querySelectorAll('.sidebar__link, .toc__link'));
   var sections = links
     .map(function (link) {
       var href = link.getAttribute('href') || '';
@@ -54,19 +93,18 @@ document.querySelectorAll('[data-toggle]').forEach(function (btn) {
     })
     .filter(Boolean);
 
-  if (!('IntersectionObserver' in window)) return;
+  if (!('IntersectionObserver' in window) || !sections.length) return;
 
   var observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
         var id = entry.target.id;
         links.forEach(function (link) {
-          var match = link.getAttribute('href') === '#' + id;
-          link.classList.toggle('is-active', match);
+          link.classList.toggle('is-active', link.getAttribute('href') === '#' + id);
         });
       }
     });
-  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  }, { rootMargin: '-24% 0px -72% 0px', threshold: 0 });
 
   sections.forEach(function (section) { observer.observe(section); });
 })();
@@ -110,16 +148,136 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
 });
 
 /* ---------- Sidebar search ---------- */
-var docsSearch = document.getElementById('docsSearch');
-if (docsSearch) {
+(function () {
+  var docsSearch = document.getElementById('docsSearch');
+  var clearBtn = document.getElementById('docsSearchClear');
+  if (!docsSearch) return;
+
+  var groups = Array.from(document.querySelectorAll('.sidebar__group'));
+  var allLinks = Array.from(document.querySelectorAll('.sidebar__link'));
+
+  // Search index: sidebar links (sections + component names) and the page's own
+  // headings, so results cover actual documentation content.
+  var index = allLinks.map(function (link) {
+    return { el: link, href: link.getAttribute('href'), text: link.textContent.trim() };
+  });
+  Array.from(document.querySelectorAll('#main h1[id], #main h2[id], #main h3[id]')).forEach(function (h) {
+    index.push({ el: h, href: '#' + h.id, text: h.textContent.trim() });
+  });
+
+  function setClearVisibility() {
+    if (clearBtn) clearBtn.hidden = !(docsSearch.value.trim().length > 0);
+  }
+
   docsSearch.addEventListener('input', function () {
+    setClearVisibility();
     var q = docsSearch.value.trim().toLowerCase();
-    document.querySelectorAll('.sidebar__link').forEach(function (link) {
+    allLinks.forEach(function (link) {
       var text = link.textContent.toLowerCase();
       var li = link.closest('li');
-      if (li) li.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+      var show = !q || text.indexOf(q) !== -1;
+      if (li) li.style.display = show ? '' : 'none';
+    });
+    groups.forEach(function (group) {
+      var visible = group.querySelectorAll('.sidebar__link').length >
+        group.querySelectorAll('.sidebar__link[style*="display: none"]').length;
+      var toggle = group.querySelector('[data-toggle]');
+      if (toggle && !q) toggle.parentElement.style.display = '';
+      group.style.display = visible || !q ? '' : 'none';
+      if (toggle) toggle.hidden = !visible && !!q ? false : toggle.hidden;
+      if (q && visible) toggle && toggle.setAttribute('aria-expanded', 'true');
     });
   });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      docsSearch.value = '';
+      docsSearch.dispatchEvent(new Event('input', { bubbles: true }));
+      docsSearch.focus();
+    });
+  }
+
+  docsSearch.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var q = docsSearch.value.trim().toLowerCase();
+      if (!q) return;
+      var match = index.find(function (item) {
+        var li = item.el.closest && item.el.closest('li');
+        var visible = li ? li.style.display !== 'none' : true;
+        return visible && item.text.toLowerCase().indexOf(q) !== -1;
+      });
+      if (!match) return;
+      var group = match.el.closest('.sidebar__group');
+      var toggle = group && group.querySelector('[data-toggle]');
+      if (toggle) toggle.setAttribute('aria-expanded', 'true');
+      var id = match.href.slice(1);
+      var target = document.getElementById(id);
+      if (target) {
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 72, behavior: scrollBehavior() });
+        history.replaceState(null, '', '#' + id);
+      }
+      closeDrawer();
+    }
+  });
+})();
+
+/* ---------- Previous / Next section navigation ---------- */
+(function () {
+  var container = document.getElementById('main');
+  if (!container) return;
+  var h2s = Array.from(container.querySelectorAll('h2[id]'));
+  if (h2s.length < 2) return;
+
+  var nav = document.createElement('nav');
+  nav.className = 'prev-next';
+  nav.setAttribute('aria-label', 'Documentation section navigation');
+  nav.innerHTML =
+    '<div class="prev-next__inner">' +
+    '  <a class="prev-next__link prev-next__link--prev" href="#" style="display:none"></a>' +
+    '  <a class="prev-next__link prev-next__link--next" href="#" style="display:none"></a>' +
+    '</div>';
+  container.appendChild(nav);
+
+  var prevLink = nav.querySelector('.prev-next__link--prev');
+  var nextLink = nav.querySelector('.prev-next__link--next');
+
+  function update() {
+    var scrollY = window.scrollY + 72 + 60;
+    var current = null;
+    var index = -1;
+    h2s.forEach(function (h, i) {
+      var top = h.getBoundingClientRect().top + window.scrollY;
+      if (top <= scrollY) { current = h; index = i; }
+    });
+    prevLink.style.display = index > 0 ? '' : 'none';
+    nextLink.style.display = index >= 0 && index < h2s.length - 1 ? '' : 'none';
+    if (index > 0) {
+      var p = h2s[index - 1];
+      prevLink.href = '#' + p.id;
+      prevLink.innerHTML = '<span class="prev-next__arrow">&#8592;</span><span class="prev-next__title"><span class="prev-next__dir">Previous</span><span class="prev-next__text">' + escText(p.textContent) + '</span></span>';
+    }
+    if (index >= 0 && index < h2s.length - 1) {
+      var n = h2s[index + 1];
+      nextLink.href = '#' + n.id;
+      nextLink.innerHTML = '<span class="prev-next__title"><span class="prev-next__dir">Next</span><span class="prev-next__text">' + escText(n.textContent) + '</span></span><span class="prev-next__arrow">&#8594;</span>';
+    }
+  }
+
+  update();
+  window.addEventListener('scroll', update);
+  prevLink.addEventListener('click', function (e) { e.preventDefault(); jump(prevLink.href); });
+  nextLink.addEventListener('click', function (e) { e.preventDefault(); jump(nextLink.href); });
+})();
+
+function jump(href) {
+  var id = href.split('#')[1];
+  if (!id) return;
+  var target = document.getElementById(id);
+  if (!target) return;
+  window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 72, behavior: scrollBehavior() });
+  history.replaceState(null, '', '#' + id);
+  closeDrawer();
 }
 
 /* ---------- Back to top ---------- */
@@ -129,9 +287,10 @@ if (backToTop) {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   });
   backToTop.addEventListener('click', function () {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
   });
 }
+
 document.querySelectorAll('a[href^="#"]').forEach(function (a) {
   a.addEventListener('click', function (e) {
     var id = a.getAttribute('href').slice(1);
@@ -140,7 +299,7 @@ document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     if (!target) return;
     e.preventDefault();
     var top = target.getBoundingClientRect().top + window.scrollY - 72;
-    window.scrollTo({ top: top, behavior: 'smooth' });
+    window.scrollTo({ top: top, behavior: scrollBehavior() });
     history.replaceState(null, '', '#' + id);
     closeDrawer();
   });

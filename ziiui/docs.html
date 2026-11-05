@@ -49,9 +49,6 @@
 
   <a class="skip" href="#main">Skip to content</a>
 
-  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidePanel">
-    <i class="ri-menu-line" aria-hidden="true"></i>
-  </button>
   <div class="side-overlay" id="sideOverlay" aria-hidden="true"></div>
 
   <!-- ============================================================
@@ -69,6 +66,9 @@
         <a href="docs.html" class="active" aria-current="page">Docs</a>
       </nav>
       <div class="topbar-actions">
+        <button class="icon-btn" type="button" id="docsMenuToggle" aria-label="Open documentation menu" title="Menu">
+          <i class="ri-menu-line" aria-hidden="true"></i>
+        </button>
         <button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle color theme" title="Toggle color theme">
           <i class="ri-moon-line" id="themeIcon" aria-hidden="true"></i>
         </button>
@@ -96,6 +96,7 @@
       <div class="sidebar__search">
         <i class="ri-search-line" aria-hidden="true"></i>
         <input type="search" id="docsSearch" placeholder="Search docs…" aria-label="Search documentation" autocomplete="off" spellcheck="false">
+        <button class="sidebar__search-clear" id="docsSearchClear" type="button" aria-label="Clear search" hidden>×</button>
       </div>
 
       <div class="sidebar__group">
