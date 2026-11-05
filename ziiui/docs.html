@@ -2,1221 +2,1532 @@
 <html lang="en" data-theme="dark">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ziiui — Documentation</title>
-    <meta name="description" content="How to use ziiui: pick a component, tweak it live, and copy standalone production-ready code.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZiiUI — Documentation</title>
+  <meta name="description" content="ZiiUI documentation: discover animated UI components, learn how they work, and copy production-ready code.">
+  <meta name="theme-color" content="#000000">
 
-    <link rel="icon" href="/favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.woff2?t=1769486070745" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.woff2?t=1769486070745" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
 
-    <script>
-      (function () {
-        try {
-          var saved = localStorage.getItem('ziiui-theme');
-          if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
-          else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
-            document.documentElement.setAttribute('data-theme', 'light');
-        } catch (_) { }
-      })();
-    </script>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('ziiui-theme');
+        if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+        else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+          document.documentElement.setAttribute('data-theme', 'light');
+      } catch (_) { }
+    })();
+  </script>
 
-    <!-- Critical shell CSS before first paint — prevents unstyled flash before module loads -->
-    <style id="critical-css">
-      html { overflow-x: hidden; }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--fg);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        min-height: 100vh;
-        min-height: 100dvh;
-        overflow-x: clip;
-        line-height: 1.6;
-      }
-      [hidden] { display: none !important }
-      [class^="ri-"], [class*=" ri-"] {
-        font-family: 'remixicon' !important;
-        font-style: normal;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-      .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background: var(--header-bg);
-        border-bottom: 1px solid var(--line);
-      }
-      .topbar__brand {
-        display: inline-flex;
-        align-items: center;
-        gap: .5rem;
-        text-decoration: none;
-        color: var(--fg);
-        font-weight: 700;
-        font-size: 1rem;
-      }
-    .topbar__mark { font-size: 1.25rem; line-height: 1 }
-    .topbar__beta {
-      font-size: .58rem; font-weight: 350; text-transform: uppercase;
-      letter-spacing: .1em; color: var(--mute);
-      background: var(--raise); border: 1px solid var(--line);
-      border-radius: 999px; padding: .12rem .5rem; line-height: 1;
-    }
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      text-decoration: none;
-      color: var(--fg);
-      flex: none;
-      border-radius: 8px;
-      padding: .25rem .4rem;
-      height: 44px;
-      font-weight: 350;
-      letter-spacing: -.01em;
-    }
-    .logo-mark {
-      display: block;
-      flex: none;
-      height: 30px;
-      width: auto;
-      max-width: 150px;
-      aspect-ratio: 895 / 348;
-      object-fit: contain;
-      border-radius: 6px;
-    }
-    .ziiui-logo-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      text-decoration: none;
-      color: var(--fg);
-      flex: none;
-      border-radius: 8px;
-      padding: .25rem .4rem;
-      height: 44px;
-    }
-    .ziiui-logo-img {
-      display: block;
-      flex: none;
-      height: 30px;
-      width: auto;
-      max-width: 150px;
-      aspect-ratio: 895 / 348;
-      object-fit: contain;
-      border-radius: 6px;
-    }
-    .beta-badge {
-      display: inline-flex;
-      align-items: center;
-      font-size: .58rem;
-      font-weight: 350;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--mute);
-      background: var(--raise);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: .12rem .5rem;
-      line-height: 1;
-      margin-left: .1rem;
-      flex: none;
-    }
-      .topbar__nav {
-        display: flex;
-        align-items: center;
-        gap: .15rem;
-        margin-left: .75rem;
-        flex: none;
-      }
-      .topbar__nav a {
-        color: var(--mute);
-        text-decoration: none;
-        font-size: .85rem;
-        font-weight: 550;
-        padding: .45rem .7rem;
-        border-radius: 8px;
-        white-space: nowrap;
-      }
-      .topbar__nav a.is-active { color: var(--acc); background: var(--acc-soft) }
-      .topbar__cta {
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-        background: var(--bg);
-        color: var(--fg);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: .45rem .8rem;
-        font: inherit;
-        font-size: .8rem;
-        font-weight: 600;
-        cursor: pointer;
-        line-height: 1;
-        text-decoration: none;
-      }
-      .topbar__cta i { font-size: 1rem; line-height: 1 }
-      .shell {
-        display: grid;
-        grid-template-columns: var(--sidebar-w, 260px) minmax(0, 1fr);
-        max-width: var(--maxw, 1200px);
-        margin: 0 auto;
-        padding-top: var(--header-h, 56px);
-        min-height: 100vh;
-      }
-      @media (max-width: 900px) {
-        :root { --sidebar-w: 210px; }
-      }
-      @media (max-width: 720px) {
-        .shell {
-          grid-template-columns: 1fr;
-        }
-      }
-      .sidebar {
-        position: sticky;
-        top: var(--header-h, 60px);
-        align-self: start;
-        height: calc(100vh - var(--header-h, 60px));
-        height: calc(100dvh - var(--header-h, 60px));
-        overflow-y: auto;
-        padding: 1rem .65rem 1.5rem;
-        background: var(--panel);
-        border-right: 1px solid var(--line);
-        min-width: 0;
-      }
-      .sidebar__group { margin-top: 1rem; }
-      .sidebar__label {
-        font-size: .64rem; font-weight: 800; letter-spacing: .14em;
-        text-transform: uppercase; color: var(--mute);
-        padding: .25rem .75rem .6rem; margin: 0;
-      }
-      .sidebar__list, .sidebar__sublist {
-        list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;
-      }
-      .sidebar__link {
-        display: block;
-        padding: .5rem .7rem .5rem .8rem;
-        border-radius: 0 6px 6px 0;
-        color: var(--fg);
-        text-decoration: none;
-        font-size: .83rem;
-        line-height: 1.35;
-        border-left: 2px solid transparent;
-      }
-      .sidebar__link:hover { background: var(--raise) }
-      .sidebar__toggle {
-        display: flex;
-        align-items: center;
-        gap: .55rem;
-        padding: .6rem .55rem;
-        margin: 0;
-        font: inherit;
-        font-size: .78rem;
-        font-weight: 700;
-        color: var(--fg);
-        background: none;
-        border: 0;
-        cursor: pointer;
-        width: 100%;
-        text-align: left;
-        border-radius: 6px;
-      }
-      .sidebar__toggle:hover { background: var(--raise) }
-      .main {
-        padding: var(--pad, 1.5rem);
-        max-width: var(--maxw, 1440px);
-        margin-inline: auto;
-        min-width: 0;
-      }
-      h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 1.2rem + .5vw, 2rem); font-weight: 700 }
-      h2 { margin: 1.5rem 0 .5rem; font-size: clamp(1rem, .9rem + .3vw, 1.25rem); font-weight: 700 }
-      h3 { margin: 1.25rem 0 .5rem; font-size: 1rem; font-weight: 600 }
-      p { margin: 0 0 1rem; color: var(--fg); }
-      .eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); margin: 0 0 .5rem }
-      .lead { font-size: 1rem; color: var(--fg); }
-      a { color: var(--acc); text-decoration: none }
-      a:hover { text-decoration: underline }
-      .steps { display: flex; flex-direction: column; gap: 1rem }
-      .step { display: flex; gap: 1rem }
-      .step__num {
-        font-size: .75rem; font-weight: 700;
-        color: var(--mute); flex: none; min-width: 64px;
-      }
-      .step__title { margin: 0 0 .25rem; font-size: .95rem; font-weight: 600 }
-      .step__desc { margin: 0; font-size: .85rem; color: var(--mute) }
-      .comp-grid { display: flex; flex-direction: column; gap: .75rem }
-      .comp {
-        display: flex;
-        align-items: center;
-        gap: .75rem;
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: .85rem 1rem;
-        color: var(--fg);
-        text-decoration: none;
-      }
-      .comp i { font-size: 1.1rem; flex: none }
-      .comp__name { font-weight: 600; min-width: 0 }
-      .comp__note { color: var(--mute); font-size: .85rem; min-width: 0 }
-      .comp__tag {
-        margin-left: auto;
-        font-size: .7rem; font-weight: 600;
-        color: var(--acc); background: var(--acc-soft);
-        border-radius: 999px; padding: .15rem .5rem;
-      }
-      .table-wrap { overflow-x: auto; margin: 0 0 1rem }
-      table { width: 100%; border-collapse: collapse; font-size: .85rem }
-      th { text-align: left; font-weight: 600; color: var(--mute); padding: .5rem .75rem; border-bottom: 1px solid var(--line) }
-      td { padding: .5rem .75rem; border-bottom: 1px solid var(--line); color: var(--fg) }
-      .code {
-        background: var(--code-bg);
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        overflow: hidden;
-        margin: 0 0 1rem;
-      }
-      .code__head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: .65rem 1rem;
-        border-bottom: 1px solid var(--line);
-        background: var(--panel);
-      }
-      .code__lang { font-size: .75rem; font-weight: 600; color: var(--mute) }
-      .code__copy {
-        background: var(--bg); color: var(--fg);
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        padding: .35rem .65rem;
-        font: inherit;
-        font-size: .75rem;
-        cursor: pointer;
-      }
-      .code__copy i { font-size: 1rem; line-height: 1 }
-      pre {
-        margin: 0;
-        padding: 1rem;
-        overflow: auto;
-        font: clamp(.72rem, .7rem + .2vw, .8rem)/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        color: var(--fg);
-      }
-      code {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: .85rem;
-      }
-      .callout {
-        display: flex;
-        align-items: flex-start;
-        gap: .75rem;
-        padding: .85rem 1rem;
-        background: var(--raise);
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        margin: 0 0 1rem;
-      }
-      .callout i { font-size: 1.1rem; flex: none; margin-top: .1rem }
-      .callout > div { min-width: 0 }
-      .callout strong { color: var(--fg) }
-      .footer {
-        display: flex;
-        align-items: center;
-        gap: .75rem;
-        padding: 1rem;
-        font-size: .78rem;
-        color: var(--mute);
-        border-top: 1px solid var(--line);
-      }
-      .footer a { color: var(--acc) }
-    </style>
-    <link rel="stylesheet" href="/src/styles/docs.css">
-  </head>
+  <style id="critical-css">
+    html { overflow-x: hidden; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; min-height: 100vh; min-height: 100dvh; overflow-x: clip; line-height: 1.6; }
+    [hidden] { display: none !important }
+    [class^="ri-"], [class*=" ri-"] { font-family: 'remixicon' !important; font-style: normal; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h, 56px); z-index: 100; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.25rem; gap: 1rem; }
+    .logo { display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--fg); border-radius: 8px; padding: .25rem .4rem; height: 44px; }
+    .logo-mark { height: 30px; width: auto; max-width: 150px; aspect-ratio: 895 / 348; object-fit: contain; border-radius: 6px; }
+    .beta-badge { font-size: .58rem; font-weight: 350; text-transform: uppercase; letter-spacing: .1em; color: var(--mute); background: var(--raise); border: 1px solid var(--line); border-radius: 999px; padding: .12rem .5rem; line-height: 1; margin-left: .1rem; }
+    .menu-toggle { display: none; position: fixed; top: 10px; left: 10px; z-index: 120; width: 42px; height: 42px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--fg); cursor: pointer; }
+    .side-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 140; opacity: 0; visibility: hidden; pointer-events: none; }
+    .side-close { display: none; position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 8px; background: transparent; border: 1px solid var(--line); color: var(--fg); cursor: pointer; }
+    .skip { position: absolute; left: -9999px; top: 0; background: var(--acc); color: #fff; padding: .5rem 1rem; border-radius: 0 0 8px 0; z-index: 999; font-weight: 600; font-size: .85rem; }
+    .skip:focus { left: 0; }
+  </style>
+  <link rel="stylesheet" href="/src/styles/docs.css">
+</head>
 
 <body>
 
-    <a class="skip" href="#main">Skip to content</a>
+  <a class="skip" href="#main">Skip to content</a>
 
-    <!-- ============================================================
-         TOP BAR
-         ============================================================ -->
-    <header class="topbar">
-        <a class="logo ziiui-logo-wrap" href="#top" aria-label="ziiui home">
-            <img class="logo-mark ziiui-logo-img" src="/ziiui-logo.jpg" alt="ziiui" width="895" height="348" fetchpriority="high" decoding="async" onerror="this.style.display='none'">
-            <span class="beta-badge" title="This platform is in beta">beta</span>
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidePanel">
+    <i class="ri-menu-line" aria-hidden="true"></i>
+  </button>
+  <div class="side-overlay" id="sideOverlay" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       TOP BAR
+       ============================================================ -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="logo ziiui-logo-wrap" href="index.html" aria-label="ZiiUI home">
+        <img class="logo-mark ziiui-logo-img" src="/ziiui-logo.jpg" alt="ZiiUI" width="895" height="348" fetchpriority="high" decoding="async" onerror="this.style.display='none'">
+        <span class="beta-badge" title="This platform is in beta">beta</span>
+      </a>
+      <nav class="topbar__nav" aria-label="Primary">
+        <a href="index.html">Components</a>
+        <a href="ai.html">AI Editor</a>
+        <a href="docs.html" class="is-active" aria-current="page">Docs</a>
+      </nav>
+      <div class="topbar-actions">
+        <button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <i class="ri-moon-line" id="themeIcon" aria-hidden="true"></i>
+        </button>
+        <a class="icon-btn" href="https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository">
+          <i class="ri-github-fill" aria-hidden="true"></i>
         </a>
-
-        <nav class="topbar__nav" aria-label="Primary">
-            <a href="#overview" class="is-active">Docs</a>
-            <a href="#components">Components</a>
-            <a href="#output">Output</a>
-            <a href="#tips">Tips</a>
-            
-        </nav>
-
-        <a class="topbar__cta" href="index.html">
-            <i class="ri-external-link-line" aria-hidden="true"></i>
-            Open the Lab
-        </a>
-    </header>
-
-    <!-- ============================================================
-         SHELL
-         ============================================================ -->
-    <div class="shell" id="top">
-
-        <!-- --------------------------------------------------------
-             SIDEBAR
-             -------------------------------------------------------- -->
-        <aside class="sidebar" aria-label="Documentation navigation">
-
-            <div class="sidebar__group">
-                <p class="sidebar__label">Getting started</p>
-                <ul class="sidebar__list">
-                    <li><a class="sidebar__link" href="#overview">Overview</a></li>
-                    <li><a class="sidebar__link" href="#quick-start">Quick start</a></li>
-                    <li><a class="sidebar__link" href="#how-it-works">How it works</a></li>
-                </ul>
-            </div>
-
-            <div class="sidebar__group">
-                <p class="sidebar__label">Component categories</p>
-
-                <!-- Text -->
-                <button class="sidebar__toggle" type="button"
-                    aria-expanded="true" aria-controls="nav-text" data-toggle>
-                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
-                    Text
-                </button>
-                <ul class="sidebar__sublist" id="nav-text">
-                    <li><a class="sidebar__link" href="#cat-text">Text Effects</a></li>
-                    <li><a class="sidebar__link" href="#cat-text">Custom Variants</a></li>
-                    <li><a class="sidebar__link" href="#cat-text">Text Roll</a></li>
-                    <li><a class="sidebar__link" href="#cat-text">Scramble / Shimmer</a></li>
-                </ul>
-
-                <!-- Cursor -->
-                <button class="sidebar__toggle" type="button"
-                    aria-expanded="true" aria-controls="nav-cursor" data-toggle>
-                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
-                    Cursor
-                </button>
-                <ul class="sidebar__sublist" id="nav-cursor">
-                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Expand</a></li>
-                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Icon Label</a></li>
-                    <li><a class="sidebar__link" href="#cat-cursor">Cursor: Image Reveal</a></li>
-                </ul>
-
-                <!-- Interactive -->
-                <button class="sidebar__toggle" type="button"
-                    aria-expanded="true" aria-controls="nav-interactive" data-toggle>
-                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
-                    Interactive
-                </button>
-                <ul class="sidebar__sublist" id="nav-interactive">
-                    <li><a class="sidebar__link" href="#cat-interactive">Draggable Mask</a></li>
-                    <li><a class="sidebar__link" href="#cat-interactive">Micro Hover</a></li>
-                </ul>
-
-                <!-- Scroll -->
-                <button class="sidebar__toggle" type="button"
-                    aria-expanded="true" aria-controls="nav-scroll" data-toggle>
-                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
-                    Scroll
-                </button>
-                <ul class="sidebar__sublist" id="nav-scroll">
-                    <li><a class="sidebar__link" href="#cat-scroll">List Reveal</a></li>
-                    <li><a class="sidebar__link" href="#cat-scroll">Scroll Stand</a></li>
-                    <li><a class="sidebar__link" href="#cat-scroll">Scrolling Mask</a></li>
-                </ul>
-
-                <!-- Shader -->
-                <button class="sidebar__toggle" type="button"
-                    aria-expanded="true" aria-controls="nav-shader" data-toggle>
-                    <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
-                    Shader
-                </button>
-                <ul class="sidebar__sublist" id="nav-shader">
-                    <li><a class="sidebar__link" href="#cat-shader">Noisy Pixel</a></li>
-                    <li><a class="sidebar__link" href="#cat-shader">Mirror Effect</a></li>
-                </ul>
-            </div>
-
-            <div class="sidebar__group">
-                <p class="sidebar__label">Reference</p>
-                <ul class="sidebar__list">
-                    <li><a class="sidebar__link" href="#output">Generated output</a></li>
-                    <li><a class="sidebar__link" href="#tips">Best practices</a></li>
-                    <li><a class="sidebar__link" href="#faq">FAQ</a></li>
-                </ul>
-            </div>
-
-        </aside>
-
-        <!-- --------------------------------------------------------
-             MAIN
-             -------------------------------------------------------- -->
-        <main class="main" id="main">
-
-            <!-- ====================================================
-                 OVERVIEW
-                 ==================================================== -->
-            <section id="overview">
-                <p class="eyebrow">Documentation</p>
-                <h1>ZiiUI — Motion, Made Interactive</h1>
-
-                <p class="lead" style="margin-top:1rem">
-                    Explore creative web effects, customize them in real time, and take
-                    the code directly into your project. ZiiUI brings animated
-                    components, interactive previews, and developer-friendly code
-                    together in one workspace.
-                </p>
-
-                <div class="steps" style="margin-top:1.5rem; gap:1rem">
-                    <a class="step" href="index.html">
-                        <span class="step__num">Explore</span>
-                        <h3 class="step__title">Component Library</h3>
-                        <p class="step__desc">Browse ready-to-use text effects, cursor
-                        interactions, scroll-driven sections, and WebGL shaders.</p>
-                    </a>
-                    <a class="step" href="ai.html">
-                        <span class="step__num">Lab</span>
-                        <h3 class="step__title">Open the Lab</h3>
-                        <p class="step__desc">Customize any component live, generate code
-                        with AI, and preview the result instantly.</p>
-                    </a>
-                </div>
-
-                <div class="callout" style="margin-top:1.5rem">
-                    <i class="ri-information-line" aria-hidden="true"></i>
-                    <div>
-                        <strong>Beta.</strong> ziiui is under active development. Component
-                        APIs may change. Report issues or suggest components on GitHub.
-                    </div>
-                </div>
-
-                <h2 id="quick-start" style="margin-top:2.5rem">Quick start</h2>
-
-                <div class="steps" style="margin-top:1rem">
-                    <div class="step">
-                        <span class="step__num">1</span>
-                        <h3 class="step__title">Browse the library</h3>
-                        <p class="step__desc">
-                            Pick a component from the sidebar. Components are grouped by
-                            category — Text, Cursor, Interactive, Scroll, and Shader.
-                        </p>
-                    </div>
-                    <div class="step">
-                        <span class="step__num">2</span>
-                        <h3 class="step__title">Select a component</h3>
-                        <p class="step__desc">
-                            Click any component to open its detail view with a live
-                            preview and controls panel.
-                        </p>
-                    </div>
-                    <div class="step">
-                        <span class="step__num">3</span>
-                        <h3 class="step__title">Open in the Lab</h3>
-                        <p class="step__desc">
-                            Click "Open the Lab" to customize the component live with
-                            AI assistance and code controls.
-                        </p>
-                    </div>
-                    <div class="step">
-                        <span class="step__num">4</span>
-                        <h3 class="step__title">Copy the code</h3>
-                        <p class="step__desc">
-                            Copy the generated standalone HTML file and paste it into
-                            your project. No build step required.
-                        </p>
-                    </div>
-                </div>
-
-                <h2 id="how-it-works" style="margin-top:2.5rem">How ZiiUI Works</h2>
-
-                <div class="steps" style="margin-top:1rem">
-                    <div class="step">
-                        <span class="step__num">01</span>
-                        <h3 class="step__title">Explore</h3>
-                        <p class="step__desc">
-                            Browse the component library and choose an effect that fits
-                            your project.
-                        </p>
-                    </div>
-                    <div class="step">
-                        <span class="step__num">02</span>
-                        <h3 class="step__title">Preview</h3>
-                        <p class="step__desc">
-                            Open the selected component in the Lab and inspect its live
-                            behavior.
-                        </p>
-                    </div>
-                    <div class="step">
-                        <span class="step__num">03</span>
-                        <h3 class="step__title">Customize</h3>
-                        <p class="step__desc">
-                            Use the available controls to adjust the component's
-                            appearance, timing, and behavior.
-                        </p>
-                    </div>
-                    <div class="step">
-                        <span class="step__num">04</span>
-                        <h3 class="step__title">Copy &amp; Build</h3>
-                        <p class="step__desc">
-                            Copy the generated code and integrate it into your project.
-                            Each component is a standalone HTML file — no build step
-                            required.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="code" style="margin-top:1.5rem">
-                    <div class="code__head">
-                        <span class="code__lang">HTML — structure</span>
-                        <button class="code__copy" type="button" data-copy="#code-structure">
-                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
-                            Copy
-                        </button>
-                    </div>
-<pre id="code-structure"><code><span class="tok-com">&lt;!-- 1. Base styles --&gt;</span>
-<span class="tok-tag">&lt;style&gt;</span>
-  <span class="tok-attr">body</span> { <span class="tok-attr">margin</span>: <span class="tok-num">0</span>; <span class="tok-attr">min-height</span>: <span class="tok-num">100vh</span>; <span class="tok-attr">display</span>: <span class="tok-key">flex</span>; }
-  <span class="tok-attr">#t</span> { <span class="tok-attr">font-size</span>: <span class="tok-fn">clamp</span>(<span class="tok-num">1.4rem</span>, <span class="tok-num">6vw</span>, <span class="tok-num">2.6rem</span>); }
-<span class="tok-tag">&lt;/style&gt;</span>
-
-<span class="tok-com">&lt;!-- 2. The text target --&gt;</span>
-<span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Your text here<span class="tok-tag">&lt;/p&gt;</span>
-
-<span class="tok-com">&lt;!-- 3. The animation --&gt;</span>
-<span class="tok-tag">&lt;script&gt;</span>
-  <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
-  <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
-  el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
-  <span class="tok-com">// ...split and animate</span>
-<span class="tok-tag">&lt;/script&gt;</span></code></pre>
-                </div>
-
-                <p style="margin-top:1rem">
-                    Nothing here is a black box. Swap the text, tweak the numbers, or
-                    strip out the reduced-motion guard if you don't need it.
-                </p>
-
-                <hr>
-
-                <h2 id="components">Components</h2>
-
-<p style="margin-top:1rem">
-                    ziiui ships with 27 components across seven categories. Each one
-                    is self-contained and copy-paste ready.
-                </p>
-
-                <div class="comp-grid" style="margin-top:1.25rem">
-
-                    <a class="comp" href="#cat-text">
-                        <span class="comp__name">
-                            <i class="ri-text" aria-hidden="true"></i>
-                            Text Effects
-                        </span>
-                        <span class="comp__note">
-                            Split by char, word, or line. Fade, blur, scale, slide, and
-                            custom spring variants.
-                        </span>
-                        <span class="comp__tag">08 components</span>
-                    </a>
-
-                    <a class="comp" href="#cat-cursor">
-                        <span class="comp__name">
-                            <i class="ri-cursor-line" aria-hidden="true"></i>
-                            Cursor Cues
-                        </span>
-                        <span class="comp__note">
-                            Custom cursors that react to their target — expanding labels,
-                            icon pointers, and photo previews.
-                        </span>
-                        <span class="comp__tag">03 components</span>
-                    </a>
-
-                    <a class="comp" href="#cat-interactive">
-                        <span class="comp__name">
-                            <i class="ri-drag-move-2-line" aria-hidden="true"></i>
-                            Interactive Layers
-                        </span>
-                        <span class="comp__note">
-                            Draggable canvas masks over video, and hover surfaces that
-                            burst with scattered media.
-                        </span>
-                        <span class="comp__tag">04 components</span>
-                    </a>
-
-                    <a class="comp" href="#cat-scroll">
-                        <span class="comp__name">
-                            <i class="ri-scroll-to-bottom-line" aria-hidden="true"></i>
-                            Scroll Sections
-                        </span>
-                        <span class="comp__note">
-                            Pinned, scroll-driven pages — list reveals, 3D card stacks,
-                            and full-screen video masks.
-                        </span>
-                        <span class="comp__tag">06 components</span>
-                    </a>
-
-                    <a class="comp" href="#cat-shader">
-                        <span class="comp__name">
-                            <i class="ri-magic-line" aria-hidden="true"></i>
-                            WebGL Shaders
-                        </span>
-                        <span class="comp__note">
-                            Custom fragment shaders for Three.js — pixel dissolves and
-                            Sobel-edge transitions.
-                        </span>
-                        <span class="comp__tag">02 components</span>
-                    </a>
-
-                    <a class="comp" href="#cat-menus">
-                        <span class="comp__name">
-                            <i class="ri-menu-line" aria-hidden="true"></i>
-                            Menus
-                        </span>
-                        <span class="comp__note">
-                            Grid squares that ripple to reveal navigation, and morphing
-                            curved SVG fullscreen menus.
-                        </span>
-                        <span class="comp__tag">02 components</span>
-                    </a>
-
-                    <a class="comp" href="#cat-footer">
-                        <span class="comp__name">
-                            <i class="ri-layout-footer-line" aria-hidden="true"></i>
-                            Footer
-                        </span>
-                        <span class="comp__note">
-                            Sticky footers with Lenis smooth scroll, animated footer
-                            links, and photo bursts.
-                        </span>
-                        <span class="comp__tag">03 components</span>
-                    </a>
-
-                    <a class="comp" href="#output">
-                        <span class="comp__name">
-                            <i class="ri-file-code-line" aria-hidden="true"></i>
-                            All output
-                        </span>
-                        <span class="comp__note">
-                            Every component produces a standalone HTML file. No build
-                            step, no dependencies to install.
-                        </span>
-                        <span class="comp__tag">Copy &amp; ship</span>
-                    </a>
-
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     TEXT
-                     ================================================ -->
-                <h2 id="cat-text">Text Effects</h2>
-
-                <p style="margin-top:1rem">
-                    Split your text into characters, words, or lines and animate each
-                    piece with a staggered transition. Perfect for headlines and labels.
-                </p>
-
-                <div class="preview" style="margin-top:1.25rem">
-                    <div class="preview__bar">
-                        <span class="preview__dots" aria-hidden="true">
-                            <span></span><span></span><span></span>
-                        </span>
-                        Preview — Text Effect
-                    </div>
-                    <div class="preview__body">
-                        <p class="preview__text">Animate your ideas</p>
-                    </div>
-                </div>
-
-                <h3 style="margin-top:1.75rem">Available variants</h3>
-
-                <div class="table-wrap" style="margin-top:0.75rem">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Note</th>
-                                <th>Preview</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Text Effect</code></td>
-                                <td>Split by char, word, or line</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Custom Variants</code></td>
-                                <td>Random spring, rotation, colour</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Text Roll</code></td>
-                                <td>Letters roll up in sequence</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Text Roll (custom)</code></td>
-                                <td>Rolls down, custom easing</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Text Scramble</code></td>
-                                <td>Random glyphs resolve to text</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Text Shimmer</code></td>
-                                <td>Light sweep across text</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Shimmer Wave</code></td>
-                                <td>3D wave through each letter</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Shimmer Wave (colour)</code></td>
-                                <td>Blue wave, custom depth</td>
-                                <td>Compact</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3 style="margin-top:1.75rem">Usage</h3>
-
-                <div class="code" style="margin-top:0.75rem">
-                    <div class="code__head">
-                        <span class="code__lang">HTML — copy &amp; paste</span>
-                        <button class="code__copy" type="button" data-copy="#code-text-effect">
-                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
-                            Copy
-                        </button>
-                    </div>
-<pre id="code-text-effect"><code><span class="tok-com">&lt;!-- Paste this into any HTML file --&gt;</span>
-<span class="tok-tag">&lt;style&gt;</span>
-  <span class="tok-attr">.u</span> {
-    <span class="tok-attr">opacity</span>: <span class="tok-num">0</span>;
-    <span class="tok-attr">transition</span>: <span class="tok-attr">opacity</span> <span class="tok-num">.5s</span> <span class="tok-key">ease</span>;
-    <span class="tok-attr">transition-delay</span>: <span class="tok-fn">calc</span>(<span class="tok-key">var</span>(<span class="tok-attr">--i</span>) * <span class="tok-num">.03s</span>);
-  }
-  <span class="tok-attr">.u.on</span> { <span class="tok-attr">opacity</span>: <span class="tok-num">1</span>; }
-<span class="tok-tag">&lt;/style&gt;</span>
-
-<span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Animate your ideas with motion-primitives<span class="tok-tag">&lt;/p&gt;</span>
-
-<span class="tok-tag">&lt;script&gt;</span>
-  <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
-  <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
-  el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
-
-  <span class="tok-key">let</span> i = <span class="tok-num">0</span>;
-  text.<span class="tok-fn">split</span>(<span class="tok-str">/(\s+)/</span>).<span class="tok-fn">forEach</span>(part =&gt; {
-    <span class="tok-key">if</span> (!part) <span class="tok-key">return</span>;
-    <span class="tok-key">if</span> (<span class="tok-str">/^\s+$/</span>.<span class="tok-fn">test</span>(part)) { el.<span class="tok-fn">append</span>(part); <span class="tok-key">return</span>; }
-    <span class="tok-key">const</span> w = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
-    w.<span class="tok-attr">className</span> = <span class="tok-str">'w'</span>;
-    <span class="tok-fn">Array</span>.<span class="tok-fn">from</span>(part).<span class="tok-fn">forEach</span>(ch =&gt; {
-      <span class="tok-key">const</span> s = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
-      s.<span class="tok-attr">className</span> = <span class="tok-str">'u'</span>;
-      s.<span class="tok-attr">style</span>.<span class="tok-fn">setProperty</span>(<span class="tok-str">'--i'</span>, i++);
-      s.<span class="tok-attr">textContent</span> = ch;
-      w.<span class="tok-fn">append</span>(s);
-    });
-    el.<span class="tok-fn">append</span>(w);
-  });
-
-  <span class="tok-fn">requestAnimationFrame</span>(() =&gt; <span class="tok-fn">requestAnimationFrame</span>(() =&gt; {
-    el.<span class="tok-fn">querySelectorAll</span>(<span class="tok-str">'.u'</span>).<span class="tok-fn">forEach</span>(u =&gt; u.<span class="tok-attr">classList</span>.<span class="tok-fn">add</span>(<span class="tok-str">'on'</span>));
-  }));
-<span class="tok-tag">&lt;/script&gt;</span></code></pre>
-                </div>
-
-                <div class="callout callout--tip" style="margin-top:1.25rem">
-                    <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
-                    <div>
-                        <strong>Tip.</strong> Every component checks
-                        <code>prefers-reduced-motion</code> and skips its animation when
-                        needed. Keep that guard in place — it's already included in
-                        the output.
-                    </div>
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     CURSOR
-                     ================================================ -->
-                <h2 id="cat-cursor">Cursor Cues</h2>
-
-                <p style="margin-top:1rem">
-                    Replace the default pointer with a custom cursor that reacts to
-                    its target. Built for hero sections that want tactile feedback.
-                </p>
-
-                <div class="preview" style="margin-top:1.25rem">
-                    <div class="preview__bar">
-                        <span class="preview__dots" aria-hidden="true">
-                            <span></span><span></span><span></span>
-                        </span>
-                        Preview — Cursor: Expand
-                    </div>
-                    <div class="preview__body">
-                        <p class="preview__text" style="font-size:1rem; color: var(--fg-3);">
-                            Hover the image to expand the cursor
-                        </p>
-                    </div>
-                </div>
-
-                <div class="table-wrap" style="margin-top:1.25rem">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Note</th>
-                                <th>Preview</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Cursor: Expand</code></td>
-                                <td>Custom cursor expands over an image</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Cursor: Icon Label</code></td>
-                                <td>Pointer icon with a trailing tag</td>
-                                <td>Compact</td>
-                            </tr>
-                            <tr>
-                                <td><code>Cursor: Image Reveal</code></td>
-                                <td>Photo preview follows the pointer</td>
-                                <td>Compact</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     INTERACTIVE
-                     ================================================ -->
-                <h2 id="cat-interactive">Interactive Layers</h2>
-
-                <p style="margin-top:1rem">
-                    Canvas-driven masks you can drag across video, plus hover surfaces
-                    that burst with scattered media on keyword hover.
-                </p>
-
-                <div class="table-wrap" style="margin-top:1.25rem">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Note</th>
-                                <th>Preview</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Draggable Mask</code></td>
-                                <td>Drag canvas windows over a video</td>
-                                <td>Large</td>
-                            </tr>
-                            <tr>
-                                <td><code>Micro Hover</code></td>
-                                <td>Photo burst on keyword hover</td>
-                                <td>Large</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     SCROLL
-                     ================================================ -->
-                <h2 id="cat-scroll">Scroll Sections</h2>
-
-                <p style="margin-top:1rem">
-                    Pinned, scroll-driven pages that reveal content as the user moves
-                    through the section. Ideal for storytelling layouts.
-                </p>
-
-                <div class="table-wrap" style="margin-top:1.25rem">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Note</th>
-                                <th>Preview</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>List Reveal</code></td>
-                                <td>Pinned list with image preview</td>
-                                <td>Large</td>
-                            </tr>
-                            <tr>
-                                <td><code>Scroll Stand</code></td>
-                                <td>3D cards rise on scroll</td>
-                                <td>Large</td>
-                            </tr>
-                            <tr>
-                                <td><code>Scrolling Mask</code></td>
-                                <td>Video revealed through scrolling text</td>
-                                <td>Large</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="callout callout--warn" style="margin-top:1.25rem">
-                    <i class="ri-error-warning-line" aria-hidden="true"></i>
-                    <div>
-                        <strong>Heads-up.</strong> Scroll components use GSAP and
-                        ScrollTrigger. The output loads them from a CDN at the top of
-                        the file — no install needed, but the page requires an internet
-                        connection on first load.
-                    </div>
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     SHADER
-                     ================================================ -->
-                <h2 id="cat-shader">WebGL Shaders</h2>
-
-                <p style="margin-top:1rem">
-                    Custom fragment shaders written for Three.js. These produce
-                    full-screen effects that dissolve or transition between images.
-                </p>
-
-                <div class="table-wrap" style="margin-top:1.25rem">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Note</th>
-                                <th>Preview</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Noisy Pixel</code></td>
-                                <td>WebGL pixel dissolve reveal</td>
-                                <td>Large</td>
-                            </tr>
-                            <tr>
-                                <td><code>Mirror Effect</code></td>
-                                <td>Sobel-edge dissolve between two images</td>
-                                <td>Large</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     OUTPUT
-                     ================================================ -->
-                <h2 id="output">Generated output</h2>
-
-                <p style="margin-top:1rem">
-                    Every output is a complete, standalone HTML document. Open it in a
-                    browser, host it on any static server, or paste the whole thing
-                    into a CodePen. The only external dependency is the library the
-                    effect actually needs — for example, GSAP for scroll effects, or
-                    Three.js for shaders.
-                </p>
-
-                <p style="margin-top:1rem">
-                    Here is a full example of a text effect, ready to copy:
-                </p>
-
-                <div class="code" style="margin-top:1.25rem">
-                    <div class="code__head">
-                        <span class="code__lang">HTML — full standalone file</span>
-                        <button class="code__copy" type="button" data-copy="#code-full">
-                            <i class="ri-file-copy-2-line" aria-hidden="true"></i>
-                            Copy
-                        </button>
-                    </div>
-<pre id="code-full"><code><span class="tok-tag">&lt;!DOCTYPE html&gt;</span>
-<span class="tok-tag">&lt;html</span> <span class="tok-attr">lang</span>=<span class="tok-str">"en"</span><span class="tok-tag">&gt;</span>
-<span class="tok-tag">&lt;head&gt;</span>
-  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">charset</span>=<span class="tok-str">"UTF-8"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">name</span>=<span class="tok-str">"viewport"</span> <span class="tok-attr">content</span>=<span class="tok-str">"width=device-width, initial-scale=1"</span><span class="tok-tag">&gt;</span>
-  <span class="tok-tag">&lt;title&gt;</span>Text Effect<span class="tok-tag">&lt;/title&gt;</span>
-  <span class="tok-tag">&lt;style&gt;</span>
-    <span class="tok-attr">body</span> {
-      <span class="tok-attr">margin</span>: <span class="tok-num">0</span>;
-      <span class="tok-attr">min-height</span>: <span class="tok-num">100vh</span>;
-      <span class="tok-attr">display</span>: <span class="tok-key">flex</span>;
-      <span class="tok-attr">padding</span>: <span class="tok-num">1rem</span>;
-      <span class="tok-attr">background</span>: <span class="tok-num">#0f1115</span>;
-      <span class="tok-attr">color</span>: <span class="tok-num">#f2f2f0</span>;
-      <span class="tok-attr">font-family</span>: <span class="tok-key">system-ui</span>, <span class="tok-key">sans-serif</span>;
-      <span class="tok-attr">text-align</span>: <span class="tok-key">center</span>;
-    }
-    <span class="tok-attr">#t</span> {
-      <span class="tok-attr">margin</span>: <span class="tok-key">auto</span>;
-      <span class="tok-attr">font-size</span>: <span class="tok-fn">clamp</span>(<span class="tok-num">1.4rem</span>, <span class="tok-num">6vw</span>, <span class="tok-num">2.6rem</span>);
-      <span class="tok-attr">font-weight</span>: <span class="tok-num">600</span>;
-    }
-    <span class="tok-attr">.u</span> {
-      <span class="tok-attr">opacity</span>: <span class="tok-num">0</span>;
-      <span class="tok-attr">display</span>: <span class="tok-key">inline-block</span>;
-      <span class="tok-attr">transition</span>: <span class="tok-attr">opacity</span> <span class="tok-num">.5s</span> <span class="tok-key">ease</span>;
-      <span class="tok-attr">transition-delay</span>: <span class="tok-fn">calc</span>(<span class="tok-key">var</span>(<span class="tok-attr">--i</span>) * <span class="tok-num">.03s</span>);
-    }
-    <span class="tok-attr">.u.on</span> { <span class="tok-attr">opacity</span>: <span class="tok-num">1</span>; }
-  <span class="tok-tag">&lt;/style&gt;</span>
-<span class="tok-tag">&lt;/head&gt;</span>
-<span class="tok-tag">&lt;body&gt;</span>
-
-  <span class="tok-tag">&lt;p</span> <span class="tok-attr">id</span>=<span class="tok-str">"t"</span><span class="tok-tag">&gt;</span>Animate your ideas with motion-primitives<span class="tok-tag">&lt;/p&gt;</span>
-
-  <span class="tok-tag">&lt;script&gt;</span>
-    <span class="tok-key">const</span> el = <span class="tok-fn">document</span>.<span class="tok-fn">getElementById</span>(<span class="tok-str">'t'</span>);
-    <span class="tok-key">const</span> text = el.<span class="tok-attr">textContent</span>;
-
-    <span class="tok-key">if</span> (!<span class="tok-fn">window</span>.<span class="tok-fn">matchMedia</span>(<span class="tok-str">'(prefers-reduced-motion: reduce)'</span>).<span class="tok-attr">matches</span>) {
-      el.<span class="tok-attr">textContent</span> = <span class="tok-str">''</span>;
-
-      <span class="tok-key">let</span> i = <span class="tok-num">0</span>;
-      text.<span class="tok-fn">split</span>(<span class="tok-str">/(\s+)/</span>).<span class="tok-fn">forEach</span>(part =&gt; {
-        <span class="tok-key">if</span> (!part) <span class="tok-key">return</span>;
-        <span class="tok-key">if</span> (<span class="tok-str">/^\s+$/</span>.<span class="tok-fn">test</span>(part)) { el.<span class="tok-fn">append</span>(part); <span class="tok-key">return</span>; }
-        <span class="tok-key">const</span> w = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
-        w.<span class="tok-attr">className</span> = <span class="tok-str">'w'</span>;
-        <span class="tok-fn">Array</span>.<span class="tok-fn">from</span>(part).<span class="tok-fn">forEach</span>(ch =&gt; {
-          <span class="tok-key">const</span> s = <span class="tok-fn">document</span>.<span class="tok-fn">createElement</span>(<span class="tok-str">'span'</span>);
-          s.<span class="tok-attr">className</span> = <span class="tok-str">'u'</span>;
-          s.<span class="tok-attr">style</span>.<span class="tok-fn">setProperty</span>(<span class="tok-str">'--i'</span>, i++);
-          s.<span class="tok-attr">textContent</span> = ch;
-          w.<span class="tok-fn">append</span>(s);
-        });
-        el.<span class="tok-fn">append</span>(w);
-      });
-
-      <span class="tok-fn">requestAnimationFrame</span>(() =&gt; <span class="tok-fn">requestAnimationFrame</span>(() =&gt; {
-        el.<span class="tok-fn">querySelectorAll</span>(<span class="tok-str">'.u'</span>).<span class="tok-fn">forEach</span>(u =&gt; u.<span class="tok-attr">classList</span>.<span class="tok-fn">add</span>(<span class="tok-str">'on'</span>));
-      }));
-    }
-  <span class="tok-tag">&lt;/script&gt;</span>
-<span class="tok-tag">&lt;/body&gt;</span>
-<span class="tok-tag">&lt;/html&gt;</span></code></pre>
-                </div>
-
-                <hr>
-
-                <!-- ================================================
-                     TIPS
-                     ================================================ -->
-                <h2 id="tips">Best practices</h2>
-
-                <ul class="list" style="margin-top:1rem">
-                    <li>
-                        <strong>Respect reduced motion.</strong> Every component already
-                        checks <code>prefers-reduced-motion</code> and skips its animation
-                        when needed. Keep that guard in place.
-                    </li>
-                    <li>
-                        <strong>Keep text reasonable.</strong> Text effects split into
-                        individual characters. A 40-character headline animates
-                        beautifully; a 400-character paragraph does not.
-                    </li>
-                    <li>
-                        <strong>One hero per page.</strong> Cursor, scroll, and shader
-                        effects are heavy on GPU and layout. Use one hero-level effect
-                        per page — don't stack them.
-                    </li>
-                    <li>
-                        <strong>Host the output anywhere.</strong> The output is a single
-                        HTML file. It works on GitHub Pages, Netlify, Vercel, a WordPress
-                        custom HTML block, or a self-hosted server.
-                    </li>
-                </ul>
-
-                <hr>
-
-                <!-- ================================================
-                     FAQ
-                     ================================================ -->
-                <h2 id="faq">FAQ</h2>
-
-                <h3 style="margin-top:1.25rem">Do I need to install anything?</h3>
-                <p style="margin-top:0.5rem">
-                    No. The output is a standalone HTML file. It loads any required
-                    library from a CDN at the top of the file.
-                </p>
-
-                <h3 style="margin-top:1.25rem">Can I use these in a React or Vue project?</h3>
-                <p style="margin-top:0.5rem">
-                    Yes. The output is plain HTML, CSS, and JavaScript. Drop it into a
-                    component, an iframe, or a custom HTML block.
-                </p>
-
-                <h3 style="margin-top:1.25rem">Can I modify the generated code?</h3>
-                <p style="margin-top:0.5rem">
-                    Absolutely. Nothing is minified or obfuscated. Swap the text, change
-                    the timings, strip the parts you don't need.
-                </p>
-
-                <h3 style="margin-top:1.25rem">Why does the preview height change?</h3>
-                <p style="margin-top:0.5rem">
-                    Each component declares a <code>previewSize</code> of
-                    <code>compact</code> or <code>large</code>. Text and cursor effects
-                    use a compact preview; scroll, interactive, and shader effects use a
-                    larger one.
-                </p>
-
-                <hr>
-
-                <p style="font-size:0.85rem; color: var(--fg-3);">
-                    Last updated — v1.0. Found a bug or want a new component?
-                    <a href="#">Open an issue on GitHub</a>.
-                </p>
-
-            </section>
-
-            <!-- Footer -->
-            <footer class="footer">
-                <span>© <span id="year">2025</span> ziiui — docs v1.0</span>
-                <span>
-                    Built with
-                    <a href="https://gsap.com" target="_blank" rel="noopener">GSAP</a> ·
-                    <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a>
-                </span>
-            </footer>
-
-        </main>
+      </div>
     </div>
+  </header>
 
-    <!-- ============================================================
-         SCRIPTS
-         ============================================================ -->
-    <script type="module" src="/src/pages/docs.js"></script>
+  <!-- ============================================================
+       SHELL
+       ============================================================ -->
+  <div class="shell" id="top">
+
+    <!-- --------------------------------------------------------
+         SIDEBAR
+         -------------------------------------------------------- -->
+    <aside class="sidebar" id="sidePanel" aria-label="Documentation navigation">
+
+      <button class="side-close" id="sideClose" type="button" aria-label="Close navigation">
+        <i class="ri-close-line" aria-hidden="true"></i>
+      </button>
+
+      <div class="sidebar__search">
+        <i class="ri-search-line" aria-hidden="true"></i>
+        <input type="search" id="docsSearch" placeholder="Search docs…" aria-label="Search documentation" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="sidebar__group">
+        <p class="sidebar__label">Getting Started</p>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="#hero">Introduction</a></li>
+          <li><a class="sidebar__link" href="#what-is-ziiui">What is ZiiUI?</a></li>
+          <li><a class="sidebar__link" href="#quick-start">Quick Start</a></li>
+          <li><a class="sidebar__link" href="#installation">Installation and Setup</a></li>
+          <li><a class="sidebar__link" href="#how-it-works">How ZiiUI Works</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar__group">
+        <p class="sidebar__label">Components</p>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="#components-overview">Component Overview</a></li>
+          <li><a class="sidebar__link" href="#component-categories">Browse by Category</a></li>
+        </ul>
+
+        <!-- Web -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-web" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Web
+        </button>
+        <ul class="sidebar__sublist" id="nav-web">
+          <li><a class="sidebar__link" href="#comp-split-scroll">Split Scroll</a></li>
+        </ul>
+
+        <!-- Menus -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-menus" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Menus
+        </button>
+        <ul class="sidebar__sublist" id="nav-menus">
+          <li><a class="sidebar__link" href="#comp-block-reveal">Block Reveal Animation</a></li>
+          <li><a class="sidebar__link" href="#comp-reveal-menu">Reveal Menu</a></li>
+        </ul>
+
+        <!-- Interactive -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-interactive" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Interactive
+        </button>
+        <ul class="sidebar__sublist" id="nav-interactive">
+          <li><a class="sidebar__link" href="#comp-draggable-mask">Draggable Mask</a></li>
+          <li><a class="sidebar__link" href="#comp-micro-hover">Micro Hover</a></li>
+          <li><a class="sidebar__link" href="#comp-hover-section">Hover Section</a></li>
+          <li><a class="sidebar__link" href="#comp-snake-hover">Snake Hover</a></li>
+          <li><a class="sidebar__link" href="#comp-image-trail">Image Trail</a></li>
+        </ul>
+
+        <!-- Scroll -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-scroll" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Scroll
+        </button>
+        <ul class="sidebar__sublist" id="nav-scroll">
+          <li><a class="sidebar__link" href="#comp-list-reveal">List Reveal</a></li>
+          <li><a class="sidebar__link" href="#comp-scroll-stand">Scroll Stand</a></li>
+          <li><a class="sidebar__link" href="#comp-scrolling-mask">Scrolling Mask</a></li>
+          <li><a class="sidebar__link" href="#comp-pin-rotate">Pin Rotate Sections</a></li>
+          <li><a class="sidebar__link" href="#comp-images-flow">Images Flow</a></li>
+          <li><a class="sidebar__link" href="#comp-clip-path-reveal">Clip Path Reveal</a></li>
+        </ul>
+
+        <!-- Shader -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-shader" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Shader
+        </button>
+        <ul class="sidebar__sublist" id="nav-shader">
+          <li><a class="sidebar__link" href="#comp-noisy-pixel">Noisy Pixel</a></li>
+          <li><a class="sidebar__link" href="#comp-mirror-effect">Mirror Effect</a></li>
+        </ul>
+
+        <!-- Footer -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-footer" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Footer
+        </button>
+        <ul class="sidebar__sublist" id="nav-footer">
+          <li><a class="sidebar__link" href="#comp-sticky-footer">Sticky Footer</a></li>
+          <li><a class="sidebar__link" href="#comp-editorial-footer">Editorial Footer</a></li>
+          <li><a class="sidebar__link" href="#comp-folder-footer">Folder Footer</a></li>
+        </ul>
+
+        <!-- Text -->
+        <button class="sidebar__toggle" type="button" aria-expanded="true" aria-controls="nav-text" data-toggle>
+          <i class="ri-arrow-down-s-line" aria-hidden="true"></i> Text
+        </button>
+        <ul class="sidebar__sublist" id="nav-text">
+          <li><a class="sidebar__link" href="#comp-text-effect">Text Effect</a></li>
+          <li><a class="sidebar__link" href="#comp-custom-variants">Custom Variants</a></li>
+          <li><a class="sidebar__link" href="#comp-text-roll">Text Roll</a></li>
+          <li><a class="sidebar__link" href="#comp-text-roll-custom">Text Roll (custom)</a></li>
+          <li><a class="sidebar__link" href="#comp-text-scramble">Text Scramble</a></li>
+          <li><a class="sidebar__link" href="#comp-text-shimmer">Text Shimmer</a></li>
+          <li><a class="sidebar__link" href="#comp-shimmer-wave">Shimmer Wave</a></li>
+          <li><a class="sidebar__link" href="#comp-shimmer-wave-colour">Shimmer Wave (colour)</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar__group">
+        <p class="sidebar__label">Guides</p>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="#guide-exploring">Exploring Components</a></li>
+          <li><a class="sidebar__link" href="#guide-previewing">Previewing Components</a></li>
+          <li><a class="sidebar__link" href="#guide-generated-code">Working with Generated Code</a></li>
+          <li><a class="sidebar__link" href="#guide-customizing">Customizing Components</a></li>
+          <li><a class="sidebar__link" href="#guide-integrating">Integrating into a Website</a></li>
+          <li><a class="sidebar__link" href="#guide-a11y">Responsive and Accessibility</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar__group">
+        <p class="sidebar__label">Reference</p>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="#component-reference">Component Reference</a></li>
+          <li><a class="sidebar__link" href="#dependencies">Dependencies and Libraries</a></li>
+          <li><a class="sidebar__link" href="#troubleshooting">Troubleshooting</a></li>
+          <li><a class="sidebar__link" href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar__group">
+        <p class="sidebar__label">Project</p>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" target="_blank" rel="noopener">GitHub / Contributing</a></li>
+        </ul>
+      </div>
+
+    </aside>
+
+    <!-- --------------------------------------------------------
+         MAIN
+         -------------------------------------------------------- -->
+    <main class="main" id="main">
+
+      <!-- ====================================================
+           HERO
+           ==================================================== -->
+      <section id="hero">
+        <p class="eyebrow">Documentation</p>
+        <h1>ZiiUI — Motion, Made Interactive</h1>
+        <p class="lead" style="margin-top:1rem">
+          Explore creative web effects and animated UI components. Preview interactions,
+          customize the experience, and take the code directly into your project.
+        </p>
+        <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.5rem">
+          <a class="topbar__cta" href="index.html" style="background:var(--acc); color:#fff; border-color:var(--acc)">Explore Components</a>
+          <a class="topbar__cta" href="ai.html">Open AI Editor</a>
+        </div>
+        <div class="callout" style="margin-top:1.5rem">
+          <i class="ri-information-line" aria-hidden="true"></i>
+          <div><strong>Beta.</strong> ZiiUI is under active development. Component APIs may change.</div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           WHAT IS ZIIUI
+           ==================================================== -->
+      <section id="what-is-ziiui">
+        <p class="eyebrow">Introduction</p>
+        <h2>What is ZiiUI?</h2>
+        <p style="margin-top:1rem">
+          ZiiUI is a frontend-first creative effects and animated UI component library.
+          It provides ready-to-use animated and interactive UI components that you can
+          preview in the browser, inspect as generated HTML, CSS, and JavaScript, and
+          copy directly into your own projects.
+        </p>
+        <ul class="list" style="margin-top:1rem">
+          <li>Discover animated and interactive UI components grouped by category.</li>
+          <li>Preview each component's actual animation and interactions in the browser.</li>
+          <li>Inspect generated HTML, CSS, and JavaScript for every component.</li>
+          <li>Copy code for use in your projects via Copy HTML, Copy CSS, Copy JavaScript, or Copy Full Component.</li>
+          <li>Customize supported component settings such as text and effect options where available.</li>
+          <li>Use the existing AI Editor to iterate on a component's code with natural language.</li>
+        </ul>
+        <p style="margin-top:1rem">
+          ZiiUI is front-end focused: it runs in the browser with no backend or database.
+          Generated snippets are standalone HTML documents that load any required libraries
+          from public CDNs.
+        </p>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           HOW IT WORKS
+           ==================================================== -->
+      <section id="how-it-works">
+        <p class="eyebrow">Workflow</p>
+        <h2>How ZiiUI Works</h2>
+        <div class="steps" style="margin-top:1rem">
+          <div class="step">
+            <span class="step__num">01 — Explore</span>
+            <h3 class="step__title">Explore</h3>
+            <p class="step__desc">Browse the component library and choose an effect that fits your project.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">02 — Preview</span>
+            <h3 class="step__title">Preview</h3>
+            <p class="step__desc">Open the selected component and inspect its live animation and interactions.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">03 — Customize</span>
+            <h3 class="step__title">Customize</h3>
+            <p class="step__desc">Use the available controls to adjust the component's text, split mode, and preset. Not every component exposes the same controls.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">04 — Copy &amp; Build</span>
+            <h3 class="step__title">Copy and Build</h3>
+            <p class="step__desc">Copy the generated HTML, CSS, JavaScript, or full component code and integrate it into your project.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           QUICK START
+           ==================================================== -->
+      <section id="quick-start">
+        <p class="eyebrow">Quick Start</p>
+        <h2>Quick Start</h2>
+        <div class="steps" style="margin-top:1rem">
+          <div class="step">
+            <span class="step__num">1</span>
+            <h3 class="step__title">Choose a Component</h3>
+            <p class="step__desc">Open the Components Library, browse by category, and select a component card to open its detail view.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">2</span>
+            <h3 class="step__title">Preview It</h3>
+            <p class="step__desc">Inspect the live preview. For scroll effects, scroll the preview; for interactive effects, hover or drag inside it.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">3</span>
+            <h3 class="step__title">Inspect the Code</h3>
+            <p class="step__desc">Switch to the Code view and use the HTML, CSS, and JavaScript tabs to read the generated output.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">4</span>
+            <h3 class="step__title">Copy the Code</h3>
+            <p class="step__desc">Use Copy HTML, Copy CSS, Copy JavaScript, or Copy Full Component. Export HTML downloads a standalone file.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">5</span>
+            <h3 class="step__title">Add It to a Project</h3>
+            <p class="step__desc">Paste the copied code into an HTML file or your framework. Load required libraries from the CDN links included at the top of the output.</p>
+          </div>
+        </div>
+        <div class="callout callout--tip" style="margin-top:1.25rem">
+          <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
+          <div>
+            <strong>Tip.</strong> Every component checks <code>prefers-reduced-motion</code> and skips its animation when needed.
+            Keep that guard in place in copied code.
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           INSTALLATION
+           ==================================================== -->
+      <section id="installation">
+        <p class="eyebrow">Installation and Setup</p>
+        <h2>Installation and Setup</h2>
+        <h3 style="margin-top:1rem">ZiiUI website setup</h3>
+        <p>
+          ZiiUI is a static frontend app. Run it locally with Vite:
+        </p>
+        <div class="code" style="margin-top:0.75rem">
+          <div class="code__head"><span class="code__lang">Shell</span></div>
+          <pre><code>npm install
+npm run dev</code></pre>
+        </div>
+        <p>Then open the local URL shown by Vite (typically <code>http://localhost:5173</code>).</p>
+        <p style="margin-top:0.75rem">
+          The app must be loaded over <code>http://</code> or <code>https://</code>. Opening HTML directly from disk via
+          <code>file://</code> is not supported for the interactive preview flow.
+        </p>
+        <h3 style="margin-top:1.5rem">Using copied component code in another website</h3>
+        <p>
+          Copied component code is a standalone HTML document. It loads its own dependencies from
+          public CDNs (GSAP, ScrollTrigger, Lenis, Three.js) where needed. No package installation
+          is required for the copied snippet itself.
+        </p>
+        <ul class="list" style="margin-top:1rem">
+          <li>Text effects: no external dependencies. Plain HTML, CSS, and JavaScript.</li>
+          <li>Scroll effects: require GSAP, ScrollTrigger, and (for some) Lenis and SplitText, loaded from CDN.</li>
+          <li>Shader effects: require Three.js, loaded from CDN.</li>
+          <li>Interactive and menu effects: require GSAP where noted in each component's Dependencies section.</li>
+          <li>Some components reference external images or fonts loaded from CDNs or image hosts.</li>
+        </ul>
+        <p style="margin-top:1rem">
+          ZiiUI does not provide a package-based installation method. Do not imply installing ZiiUI as
+          an npm package; use the copied standalone code instead.
+        </p>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           COMPONENT OVERVIEW
+           ==================================================== -->
+      <section id="components-overview">
+        <p class="eyebrow">Components</p>
+        <h2>Component Overview</h2>
+        <p style="margin-top:1rem">
+          ZiiUI ships with <strong>27 components across 7 categories</strong>. Each one is
+          self-contained and copy-paste ready. Counts are verified against the component
+          registry in <code>src/effects/registry.js</code>.
+        </p>
+      </section>
+
+      <section id="component-categories">
+        <h3 style="margin-top:1.5rem">Browse by Category</h3>
+        <div class="comp-grid" style="margin-top:1rem">
+          <a class="comp" href="#cat-web"><span class="comp__name"><i class="ri-global-line" aria-hidden="true"></i> Web</span><span class="comp__note">Cards split apart and flip on scroll.</span><span class="comp__tag">01 component</span></a>
+          <a class="comp" href="#cat-menus"><span class="comp__name"><i class="ri-menu-line" aria-hidden="true"></i> Menus</span><span class="comp__note">Grid blocks ripple and morphing curved SVG reveal menus.</span><span class="comp__tag">02 components</span></a>
+          <a class="comp" href="#cat-interactive"><span class="comp__name"><i class="ri-drag-move-2-line" aria-hidden="true"></i> Interactive</span><span class="comp__note">Draggable masks, hover surfaces, snake trails, image trails.</span><span class="comp__tag">05 components</span></a>
+          <a class="comp" href="#cat-scroll"><span class="comp__name"><i class="ri-scroll-to-bottom-line" aria-hidden="true"></i> Scroll</span><span class="comp__note">Pinned scroll-driven reveals, 3D cards, masks, flythroughs.</span><span class="comp__tag">06 components</span></a>
+          <a class="comp" href="#cat-shader"><span class="comp__name"><i class="ri-magic-line" aria-hidden="true"></i> Shader</span><span class="comp__note">WebGL pixel dissolve and Sobel-edge dissolve transitions.</span><span class="comp__tag">02 components</span></a>
+          <a class="comp" href="#cat-footer"><span class="comp__name"><i class="ri-layout-footer-line" aria-hidden="true"></i> Footer</span><span class="comp__note">Sticky, editorial, and folder-reveal footers.</span><span class="comp__tag">03 components</span></a>
+          <a class="comp" href="#cat-text"><span class="comp__name"><i class="ri-text" aria-hidden="true"></i> Text</span><span class="comp__note">Split, roll, scramble, shimmer, and wave text effects.</span><span class="comp__tag">08 components</span></a>
+        </div>
+      </section>
+
+      <!-- Category headings (anchors) -->
+      <h2 id="cat-web" style="margin-top:2.5rem">Web</h2>
+      <h2 id="cat-menus" style="margin-top:2.5rem">Menus</h2>
+      <h2 id="cat-interactive" style="margin-top:2.5rem">Interactive</h2>
+      <h2 id="cat-scroll" style="margin-top:2.5rem">Scroll</h2>
+      <h2 id="cat-shader" style="margin-top:2.5rem">Shader</h2>
+      <h2 id="cat-footer" style="margin-top:2.5rem">Footer</h2>
+      <h2 id="cat-text" style="margin-top:2.5rem">Text</h2>
+
+      <hr>
+
+      <!-- ====================================================
+           CODE EXAMPLE TABS
+           ==================================================== -->
+      <section id="code-example">
+        <p class="eyebrow">Code</p>
+        <h2>Code Example — Text Effect</h2>
+        <div class="tabs" role="tablist" aria-label="Code language">
+          <button class="tab is-active" data-tab="html" aria-selected="true">HTML</button>
+          <button class="tab" data-tab="css" aria-selected="false" tabindex="-1">CSS</button>
+          <button class="tab" data-tab="js" aria-selected="false" tabindex="-1">JavaScript</button>
+        </div>
+        <div class="tabpanel" id="tab-html">
+          <div class="code"><div class="code__head"><span class="code__lang">HTML</span><button class="code__copy" type="button" data-copy="#ce-html"><i class="ri-file-copy-2-line" aria-hidden="true"></i> Copy HTML</button></div><pre id="ce-html"><code>&lt;p id="t"&gt;Animate your ideas&lt;/p&gt;</code></pre></div>
+        </div>
+        <div class="tabpanel" id="tab-css" hidden>
+          <div class="code"><div class="code__head"><span class="code__lang">CSS</span><button class="code__copy" type="button" data-copy="#ce-css"><i class="ri-file-copy-2-line" aria-hidden="true"></i> Copy CSS</button></div><pre id="ce-css"><code>.u { opacity:0; transition: opacity .5s ease; transition-delay: calc(var(--i)*.03s); }
+.u.on { opacity:1; }</code></pre></div>
+        </div>
+        <div class="tabpanel" id="tab-js" hidden>
+          <div class="code"><div class="code__head"><span class="code__lang">JavaScript</span><button class="code__copy" type="button" data-copy="#ce-js"><i class="ri-file-copy-2-line" aria-hidden="true"></i> Copy JavaScript</button></div><pre id="ce-js"><code>const el = document.getElementById('t');
+const text = el.textContent;
+el.textContent = '';
+let i = 0;
+text.split(/(\s+)/).forEach(part => {
+  if (!part) return;
+  if (/^\s+$/.test(part)) { el.append(part); return; }
+  const w = document.createElement('span'); w.className='w';
+  [...part].forEach(ch => { const s=document.createElement('span'); s.className='u'; s.style.setProperty('--i', i++); s.textContent=ch; w.append(s); });
+  el.append(w);
+});
+requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.u').forEach(u=>u.classList.add('on'))));</code></pre></div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           COMPONENT DOCS
+           ==================================================== -->
+      <h2 style="margin-top:2.5rem">Component Documentation</h2>
+      <p>Each entry below documents one verified component from the registry.</p>
+
+      <!-- ===== WEB ===== -->
+      <section id="comp-split-scroll" class="comp-doc">
+        <h3>Split Scroll</h3>
+        <p><strong>Category:</strong> Web &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A full-screen scroll-driven section where three cards split apart with a growing gap, then flip in sequence. Used for storytelling hero sections.</p>
+        <h4>What It Does</h4>
+        <p>On scroll, the stage scales down, a gap opens between three card slices, and the cards flip over to reveal their backs. Hero parallax moves the headline and copy.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Stage scale-in entrance.</li>
+          <li>Gap opens between card slices (clip-path split).</li>
+          <li>Staggered 3D card flips.</li>
+          <li>Hero parallax on headline and copy.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll (scrubbed timeline).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field (<code>field: 'none'</code>). Adjust via code: gap target, phase timings, card content, fonts.</p>
+        <h4>How It Works</h4>
+        <p>Uses GSAP + ScrollTrigger with Lenis smooth scroll. Clip-path insets create the visual split; a proxy value animates the gap; cards flip with rotateY.</p>
+        <h4>Code</h4>
+        <p>HTML structure, CSS layout, and JavaScript (GSAP/ScrollTrigger/Lenis) are generated. Requires the CDN scripts listed in Dependencies.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li><li>Lenis 1.1.14</li><li>Google Fonts: Bebas Neue, DM Sans</li><li>Remixicon</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external images required beyond template defaults. Internet connection needed for CDN libraries on first load.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Layout adapts via flex; resize handler refreshes ScrollTrigger. Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Respects <code>prefers-reduced-motion</code> via GSAP defaults where applicable. No keyboard interaction documented.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy on GPU/layout. Use one hero-level effect per page.</p>
+        <h4>Related Components</h4>
+        <p>Pin Rotate Sections, Images Flow (other scroll-driven effects).</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/interactive/splitsection.{js,html,css}</code></p>
+      </section>
+
+      <!-- ===== MENUS ===== -->
+      <section id="comp-block-reveal" class="comp-doc">
+        <h3>Block Reveal Animation</h3>
+        <p><strong>Category:</strong> Menus &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A fullscreen navigation menu revealed by grid blocks rippling into place.</p>
+        <h4>What It Does</h4>
+        <p>Grid squares ripple to reveal the navigation content underneath.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Grid block ripple reveal.</li><li>Fullscreen navigation overlay.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic reveal).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust grid, colors, and timing via code.</p>
+        <h4>How It Works</h4>
+        <p>Uses GSAP to animate grid blocks. Requires GSAP from CDN.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>Google Fonts: Space Mono, Syne, DM Sans</li><li>Remixicon</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection needed for CDN libraries.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size; layout adapts to viewport.</p>
+        <h4>Accessibility</h4>
+        <p>Respects <code>prefers-reduced-motion</code> where supported by GSAP.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy overlay effect; use sparingly.</p>
+        <h4>Related Components</h4>
+        <p>Reveal Menu.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/menus/blockreveal.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-reveal-menu" class="comp-doc">
+        <h3>Reveal Menu</h3>
+        <p><strong>Category:</strong> Menus &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A fullscreen menu revealed by a morphing curved SVG transition.</p>
+        <h4>What It Does</h4>
+        <p>Morphing curved SVG reveals the fullscreen menu.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Morphing curved SVG reveal.</li><li>Fullscreen menu overlay.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic reveal).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust SVG path and timing via code.</p>
+        <h4>How It Works</h4>
+        <p>Uses GSAP to animate SVG paths. Requires GSAP from CDN.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>Google Fonts: Bebas Neue, Instrument Serif, Outfit</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection needed for CDN libraries.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size; layout adapts to viewport.</p>
+        <h4>Accessibility</h4>
+        <p>Respects <code>prefers-reduced-motion</code> where supported by GSAP.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy overlay effect; use sparingly.</p>
+        <h4>Related Components</h4>
+        <p>Block Reveal Animation.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/menus/revealmenu.{js,html,css}</code></p>
+      </section>
+
+      <!-- ===== INTERACTIVE ===== -->
+      <section id="comp-draggable-mask" class="comp-doc">
+        <h3>Draggable Mask</h3>
+        <p><strong>Category:</strong> Interactive &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>Draggable canvas windows that reveal a clipped region of an underlying video.</p>
+        <h4>What It Does</h4>
+        <p>Canvas masks follow pointer drag over a video, drawing the clipped video region inside each mask. A HUD shows live coordinates.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Draggable mask containers.</li>
+          <li>Live clipped video rendering via canvas.</li>
+          <li>Coordinate HUD overlay.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Drag (mouse down/move/up).</li><li>Hover (mouseenter/mouseleave on masks).</li><li>Pointer move (global HUD).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust mask count, size, and video source via code.</p>
+        <h4>How It Works</h4>
+        <p>Canvas 2D draws clipped video frames per mask using drawImage with computed scale/offset. State tracked in a Map.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None (vanilla JS, HTML5 video/canvas).</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Requires a video source. External video URL must be reachable.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size; video scales to viewport aspect.</p>
+        <h4>Accessibility</h4>
+        <p>Mouse-driven only; no keyboard interaction documented.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Performance depends on video resolution and mask count.</p>
+        <h4>Related Components</h4>
+        <p>Micro Hover, Hover Section.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/interactive/maskdrag.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-micro-hover" class="comp-doc">
+        <h3>Micro Hover</h3>
+        <p><strong>Category:</strong> Interactive &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A hover surface that bursts with scattered photos on keyword hover.</p>
+        <h4>What It Does</h4>
+        <p>Hovering keywords triggers a scattered photo burst animation; leaving stops it.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Photo burst on keyword hover/focus.</li>
+          <li>Scattered media with clip-path reveal.</li>
+          <li>Stop on mouseleave.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Hover (mouseenter on keywords).</li><li>Focus (keyboard focus on keywords).</li><li>Hover leave (mouseleave stops burst).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust photo set and timing via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP timeline scatters photo elements with random positions/rotations and clip-path reveal, then exits.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>Google Fonts: DM Sans, DM Serif Display</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Photo assets required (template images).</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size; positions use percentages.</p>
+        <h4>Accessibility</h4>
+        <p>Supports keyboard focus to trigger burst. Respects reduced motion via GSAP.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy animation; one hero-level effect per page.</p>
+        <h4>Related Components</h4>
+        <p>Hover Section, Image Trail.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/interactive/microhover.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-hover-section" class="comp-doc">
+        <h3>Hover Section</h3>
+        <p><strong>Category:</strong> Interactive &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A project list where a floating thumbnail follows the pointer on hover.</p>
+        <h4>What It Does</h4>
+        <p>Hovering a project reveals and moves a floating thumbnail to follow the cursor.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Floating thumbnail follows pointer.</li>
+          <li>Scale-in on hover, scale-out on leave.</li>
+          <li>Thumbnail swaps per project.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Hover (mouseenter on projects).</li><li>Pointer move (mousemove updates position).</li><li>Hover leave (mouseleave hides thumbnail).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust project list and thumbnails via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP quickTo moves the thumbnail; mousemove handler drives x/y.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Thumbnail images required.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Mouse-driven; no keyboard interaction documented.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Pointer-driven; not touch-optimized.</p>
+        <h4>Related Components</h4>
+        <p>Micro Hover, Snake Hover.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/interactive/hoversection.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-snake-hover" class="comp-doc">
+        <h3>Snake Hover</h3>
+        <p><strong>Category:</strong> Interactive &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>An SVG ink snake trail that follows tile hover.</p>
+        <h4>What It Does</h4>
+        <p>Dynamic SVG ink snake trail appears on tile hover.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>SVG ink snake trail.</li><li>Tile hover trigger.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Hover (mouseenter on tiles).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust ink path and colors via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP animates SVG path on hover. Requires GSAP.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>Google Fonts: DM Sans</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection for CDN.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Mouse-driven; no keyboard interaction documented.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Pointer-driven.</p>
+        <h4>Related Components</h4>
+        <p>Hover Section, Image Trail.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/interactive/snakehover.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-image-trail" class="comp-doc">
+        <h3>Image Trail</h3>
+        <p><strong>Category:</strong> Interactive &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>Images trail behind the cursor as it moves.</p>
+        <h4>What It Does</h4>
+        <p>Dynamic cursor image trail spawns images on pointer move/down.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Image spawn on pointer move (distance threshold).</li>
+          <li>Scale/rotate in, fade out.</li>
+          <li>Cycles through image set.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Pointer move.</li><li>Pointer down.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust image list and spawn distance via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP tweens image elements; spawn gated by distance threshold.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>External images (lummi.ai CDN)</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>External image URLs must be reachable.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Pointer-driven; no keyboard interaction documented.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Depends on external image host availability.</p>
+        <h4>Related Components</h4>
+        <p>Micro Hover, Snake Hover.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/interactive/imagetrail.{js,html,css}</code></p>
+      </section>
+
+      <!-- ===== SCROLL ===== -->
+      <section id="comp-list-reveal" class="comp-doc">
+        <h3>List Reveal</h3>
+        <p><strong>Category:</strong> Scroll &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A pinned scroll section: a list scrolls while a preview image updates.</p>
+        <h4>What It Does</h4>
+        <p>Pinned list with image preview that changes as you scroll.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Pinned scroll container.</li><li>Active list item highlighting.</li><li>Preview image swap.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll (scrubbed).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust list items and images via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger pins the container; Lenis smooths scroll; preview image src updates on progress.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li><li>Lenis</li><li>Google Fonts: Instrument Serif</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Preview images required.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-driven; respects reduced motion where applicable.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Requires internet for CDN libraries.</p>
+        <h4>Related Components</h4>
+        <p>Scroll Stand, Images Flow.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/scroll/list.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-scroll-stand" class="comp-doc">
+        <h3>Scroll Stand</h3>
+        <p><strong>Category:</strong> Scroll &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>3D cards rise into place on scroll with a split-text heading.</p>
+        <h4>What It Does</h4>
+        <p>3D cards rise on scroll; heading words change color.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>3D card rise (rotateX/Y).</li><li>SplitText heading words color transition.</li><li>Lenis smooth scroll.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll (scrubbed).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust cards and timing via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger + SplitText + Lenis.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5 / 3.13.0 SplitText</li><li>ScrollTrigger</li><li>Lenis</li><li>Google Fonts: Outfit</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection for CDN.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-driven; respects reduced motion where applicable.</p>
+        <h4>Limitations and Notes</h4>
+        <p>SplitText is a GSAP premium plugin loaded from CDN here.</p>
+        <h4>Related Components</h4>
+        <p>List Reveal, Pin Rotate Sections.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/scroll/scrolldown.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-scrolling-mask" class="comp-doc">
+        <h3>Scrolling Mask</h3>
+        <p><strong>Category:</strong> Scroll &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>Video revealed through scrolling text mask.</p>
+        <h4>What It Does</h4>
+        <p>Video revealed through scrolling text.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Text-masked video reveal on scroll.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust text and video via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger drives the mask.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Video source required.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-driven.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Requires video asset.</p>
+        <h4>Related Components</h4>
+        <p>Clip Path Reveal.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/scroll/scrollmask.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-pin-rotate" class="comp-doc">
+        <h3>Pin Rotate Sections</h3>
+        <p><strong>Category:</strong> Scroll &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>Pinned cards rotate into view on scroll.</p>
+        <h4>What It Does</h4>
+        <p>Pinned cards rotate into view.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Pinned scroll sections.</li><li>Card rotation into view.</li><li>Lenis smooth scroll.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust cards via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger + Lenis.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li><li>Lenis</li><li>Google Fonts: Outfit</li><li>Remixicon</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection for CDN.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-driven.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy scroll effect.</p>
+        <h4>Related Components</h4>
+        <p>Scroll Stand, Images Flow.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/scroll/pinrotate.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-images-flow" class="comp-doc">
+        <h3>Images Flow</h3>
+        <p><strong>Category:</strong> Scroll &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>3D image flythrough on scroll.</p>
+        <h4>What It Does</h4>
+        <p>3D image flythrough on scroll.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>3D image flythrough.</li><li>Lenis smooth scroll.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust images via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger + Lenis.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li><li>Lenis</li><li>Google Fonts: Raleway, Instrument Serif</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Images required.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-driven.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Image assets required.</p>
+        <h4>Related Components</h4>
+        <p>List Reveal, Clip Path Reveal.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/scroll/imageflow.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-clip-path-reveal" class="comp-doc">
+        <h3>Clip Path Reveal</h3>
+        <p><strong>Category:</strong> Scroll &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>Full-screen panels reveal on scroll via clip-path.</p>
+        <h4>What It Does</h4>
+        <p>Full-screen panels reveal on scroll.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Clip-path panel reveals.</li><li>Lenis smooth scroll.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust panels via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger + Lenis animates clip-path.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li><li>Lenis</li><li>Google Fonts: Cormorant Unicase, Outfit, DM Mono</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection for CDN.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-driven.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy scroll effect.</p>
+        <h4>Related Components</h4>
+        <p>Scrolling Mask, Images Flow.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/scroll/clipreveal.{js,html,css}</code></p>
+      </section>
+
+      <!-- ===== SHADER ===== -->
+      <section id="comp-noisy-pixel" class="comp-doc">
+        <h3>Noisy Pixel</h3>
+        <p><strong>Category:</strong> Shader &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A WebGL shader that dissolves an image into animated characters on scroll.</p>
+        <h4>What It Does</h4>
+        <p>WebGL pixel dissolve reveal: image breaks into animated glyphs as you scroll.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Fragment shader pixel dissolve.</li>
+          <li>Character atlas rendering.</li>
+          <li>Scroll-driven progress.</li>
+          <li>Lenis smooth scroll.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust pixel size, characters, and images via code.</p>
+        <h4>How It Works</h4>
+        <p>Three.js renders a full-screen quad with a custom fragment shader; ScrollTrigger drives progress; a built-in Lenis implementation smooths scroll.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>Three.js r128</li><li>GSAP 3.12.5</li><li>ScrollTrigger</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Source image required (template default).</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size; renderer resizes with stage.</p>
+        <h4>Accessibility</h4>
+        <p>WebGL canvas; no reduced-motion handling documented in template.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Requires WebGL support and internet for CDN.</p>
+        <h4>Related Components</h4>
+        <p>Mirror Effect.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/shader/noisy.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-mirror-effect" class="comp-doc">
+        <h3>Mirror Effect</h3>
+        <p><strong>Category:</strong> Shader &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A WebGL shader that dissolves between two images using Sobel edges.</p>
+        <h4>What It Does</h4>
+        <p>Sobel-edge dissolve between two images.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Sobel-edge dissolve transition.</li><li>Two-image transition.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Automatic (WebGL render).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust images via code.</p>
+        <h4>How It Works</h4>
+        <p>Three.js renders a full-screen quad with a custom fragment shader.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>Three.js r128</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Two source images required.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>WebGL canvas; no reduced-motion handling documented.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Requires WebGL support and internet for CDN.</p>
+        <h4>Related Components</h4>
+        <p>Noisy Pixel.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/shader/mirror.{js,html,css}</code></p>
+      </section>
+
+      <!-- ===== FOOTER ===== -->
+      <section id="comp-sticky-footer" class="comp-doc">
+        <h3>Sticky Footer</h3>
+        <p><strong>Category:</strong> Footer &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A sticky footer revealed with Lenis smooth scroll.</p>
+        <h4>What It Does</h4>
+        <p>Sticky footer with smooth scroll reveal.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Sticky footer.</li><li>Lenis smooth scroll.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust footer content via code.</p>
+        <h4>How It Works</h4>
+        <p>Lenis smooths scroll; CSS sticky positioning reveals footer.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>Lenis 1.1.14</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection for CDN.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Scroll-based reveal.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Requires Lenis from CDN.</p>
+        <h4>Related Components</h4>
+        <p>Editorial Footer, Folder Footer.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/footer/footer1.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-editorial-footer" class="comp-doc">
+        <h3>Editorial Footer</h3>
+        <p><strong>Category:</strong> Footer &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>A footer with split text animation and magnetic links.</p>
+        <h4>What It Does</h4>
+        <p>Split text animated footer with magnetic links.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Split text animation.</li><li>Magnetic links.</li><li>GSAP + ScrollTrigger.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Scroll.</li><li>Hover (magnetic links).</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust content via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP + ScrollTrigger drives split text and magnetic hover.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5</li><li>ScrollTrigger</li><li>Google Fonts: Inter</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Internet connection for CDN.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Hover-driven magnetic effect; keyboard unverified.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Heavy footer effect.</p>
+        <h4>Related Components</h4>
+        <p>Sticky Footer, Folder Footer.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/footer/footer2.{js,html,css}</code></p>
+      </section>
+
+      <section id="comp-folder-footer" class="comp-doc">
+        <h3>Folder Footer</h3>
+        <p><strong>Category:</strong> Footer &nbsp;·&nbsp; <strong>Preview size:</strong> Large</p>
+        <h4>Overview</h4>
+        <p>Footer folders reveal a burst of photos on hover.</p>
+        <h4>What It Does</h4>
+        <p>Folders reveal a burst of photos on hover.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Folder hover reveal.</li><li>Photo burst.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Hover.</li></ul>
+        <h4>Customization</h4>
+        <p>No editable text field. Adjust folders and photos via code.</p>
+        <h4>How It Works</h4>
+        <p>GSAP drives the photo burst on hover.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>GSAP 3.12.5 (cdn.jsdelivr.net)</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>Photo assets required.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Large preview size.</p>
+        <h4>Accessibility</h4>
+        <p>Hover-driven; keyboard unverified.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Also categorized as Interactive in registry.</p>
+        <h4>Related Components</h4>
+        <p>Micro Hover, Sticky Footer.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/footer/folderfooter.{js,html,css}</code></p>
+      </section>
+
+      <!-- ===== TEXT ===== -->
+      <section id="comp-text-effect" class="comp-doc">
+        <h3>Text Effect</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>Split text into characters, words, or lines and animate each piece with a staggered transition.</p>
+        <h4>What It Does</h4>
+        <p>Splits editable text and animates each piece with fade/blur/scale/slide presets.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list">
+          <li>Split by char, word, or line.</li>
+          <li>Presets: fade, blur, fade-in-blur, scale, slide.</li>
+          <li>Staggered transition-delay.</li>
+          <li>Reduced-motion guard.</li>
+        </ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic animation).</li><li>Replay button in library.</li></ul>
+        <h4>Customization</h4>
+        <ul class="list">
+          <li>Text content.</li>
+          <li>Split by: char / word / line.</li>
+          <li>Preset: fade / blur / fade-in-blur / scale / slide.</li>
+        </ul>
+        <h4>How It Works</h4>
+        <p>JavaScript splits text into spans with <code>--i</code> index; CSS transition-delay staggers; requestAnimationFrame triggers.</p>
+        <h4>Code</h4>
+        <p>HTML, CSS, and JavaScript tabs available in the library.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview; font-size uses clamp.</p>
+        <h4>Accessibility</h4>
+        <p>Checks <code>prefers-reduced-motion</code> and skips animation.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Long text increases DOM size; keep headlines reasonable.</p>
+        <h4>Related Components</h4>
+        <p>Custom Variants, Text Roll.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/effect.css</code>, <code>src/effects/builders.js</code></p>
+      </section>
+
+      <section id="comp-custom-variants" class="comp-doc">
+        <h3>Custom Variants</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>Text animation with random spring, rotation, and colour per character.</p>
+        <h4>What It Does</h4>
+        <p>Random spring, rotation, colour per character.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Random spring motion.</li><li>Per-character rotation.</li><li>Colour variation.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li></ul>
+        <h4>How It Works</h4>
+        <p>JavaScript splits into characters with randomized transforms; CSS animates.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>Reduced-motion guard included.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Text-only customization.</p>
+        <h4>Related Components</h4>
+        <p>Text Effect, Text Roll.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/fancy.{js,css}</code></p>
+      </section>
+
+      <section id="comp-text-roll" class="comp-doc">
+        <h3>Text Roll</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>Letters roll up in sequence.</p>
+        <h4>What It Does</h4>
+        <p>Letters roll up in sequence.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Vertical roll-up per letter.</li><li>Staggered timing.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li></ul>
+        <h4>How It Works</h4>
+        <p>rollPage builder with fixed duration/easing.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>Reduced-motion guard included.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Fixed parameters; use Text Roll (custom) for different easing.</p>
+        <h4>Related Components</h4>
+        <p>Text Roll (custom).</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/roll.{js,css}</code>, <code>src/effects/builders.js</code></p>
+      </section>
+
+      <section id="comp-text-roll-custom" class="comp-doc">
+        <h3>Text Roll (custom)</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>Letters roll down with custom easing.</p>
+        <h4>What It Does</h4>
+        <p>Rolls down, custom easing.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Vertical roll-down per letter.</li><li>Custom easing.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li></ul>
+        <h4>How It Works</h4>
+        <p>rollPage builder with different duration/easing/direction params.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>Reduced-motion guard included.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Fixed custom parameters; adjust via code.</p>
+        <h4>Related Components</h4>
+        <p>Text Roll.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/roll.{js,css}</code>, <code>src/effects/builders.js</code></p>
+      </section>
+
+      <section id="comp-text-scramble" class="comp-doc">
+        <h3>Text Scramble</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>Random glyphs resolve into the final text.</p>
+        <h4>What It Does</h4>
+        <p>Random glyphs resolve to text.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Glyph scramble then resolve.</li><li>Grapheme-aware splitting.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li></ul>
+        <h4>How It Works</h4>
+        <p>scramblePage builder uses graphemes + scramble JS.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>Reduced-motion guard included.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Text-only customization.</p>
+        <h4>Related Components</h4>
+        <p>Text Shimmer.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/scramble.{js,css}</code>, <code>src/effects/builders.js</code></p>
+      </section>
+
+      <section id="comp-text-shimmer" class="comp-doc">
+        <h3>Text Shimmer</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>A light sweep across text.</p>
+        <h4>What It Does</h4>
+        <p>Light sweep across text.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>CSS light sweep animation.</li><li>No JavaScript.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic CSS animation).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li></ul>
+        <h4>How It Works</h4>
+        <p>Pure CSS animation via shimmer.css; no JS.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>CSS animation; reduced-motion not enforced by template (verify).</p>
+        <h4>Limitations and Notes</h4>
+        <p>No JS; customization via CSS.</p>
+        <h4>Related Components</h4>
+        <p>Shimmer Wave.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/shimmer.css</code></p>
+      </section>
+
+      <section id="comp-shimmer-wave" class="comp-doc">
+        <h3>Shimmer Wave</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>A 3D wave passing through each letter.</p>
+        <h4>What It Does</h4>
+        <p>3D wave through each letter.</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Per-letter 3D wave.</li><li>Base/gradient color params.</li><li>Depth and scale params.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li><li>Base color, gradient color, depth, scale, radius (via code).</li></ul>
+        <h4>How It Works</h4>
+        <p>wavePage builder with base/grad/z/s/r params.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>Reduced-motion guard included.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Parameters fixed in registry; adjust via code.</p>
+        <h4>Related Components</h4>
+        <p>Shimmer Wave (colour).</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/wave.{js,css}</code>, <code>src/effects/builders.js</code></p>
+      </section>
+
+      <section id="comp-shimmer-wave-colour" class="comp-doc">
+        <h3>Shimmer Wave (colour)</h3>
+        <p><strong>Category:</strong> Text &nbsp;·&nbsp; <strong>Preview size:</strong> Compact</p>
+        <h4>Overview</h4>
+        <p>A monochrome wave with custom depth.</p>
+        <h4>What It Does</h4>
+        <p>Monochrome wave, custom depth (registry note: "Blue wave, custom depth").</p>
+        <h4>Features and Effects</h4>
+        <ul class="list"><li>Per-letter wave with custom depth.</li><li>Monochrome gradient.</li></ul>
+        <h4>Interactions</h4>
+        <ul class="list"><li>Page load (automatic).</li></ul>
+        <h4>Customization</h4>
+        <ul class="list"><li>Text content.</li><li>Depth, scale, radius (via code).</li></ul>
+        <h4>How It Works</h4>
+        <p>wavePage builder with shallow depth params.</p>
+        <h4>Dependencies</h4>
+        <ul class="list"><li>None.</li></ul>
+        <h4>Assets and Setup</h4>
+        <p>No external assets.</p>
+        <h4>Responsive Behavior</h4>
+        <p>Compact preview.</p>
+        <h4>Accessibility</h4>
+        <p>Reduced-motion guard included.</p>
+        <h4>Limitations and Notes</h4>
+        <p>Parameters fixed in registry; adjust via code.</p>
+        <h4>Related Components</h4>
+        <p>Shimmer Wave.</p>
+        <h4>Source Reference</h4>
+        <p><code>src/effects/registry.js</code>, <code>src/effects/templates/text/wave.{js,css}</code>, <code>src/effects/builders.js</code></p>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           GUIDES
+           ==================================================== -->
+      <section id="guide-exploring">
+        <p class="eyebrow">Guides</p>
+        <h2>Exploring Components</h2>
+        <p>Browse categories in the Components Library sidebar, filter by category chips, and open a component card to view its detail page with preview and code.</p>
+      </section>
+
+      <section id="guide-previewing">
+        <h2>Previewing Components</h2>
+        <p>The detail view shows a live preview in a sandboxed iframe. Use the Open in new window and Fullscreen actions. Scroll effects require scrolling inside the preview; interactive effects respond to hover/drag.</p>
+      </section>
+
+      <section id="guide-generated-code">
+        <h2>Working with Generated Code</h2>
+        <p>Switch to the Code view for HTML, CSS, and JavaScript tabs. Use Copy HTML, Copy CSS, Copy JavaScript, or Copy Full Component. Export HTML downloads a standalone file. Each output is a complete HTML document.</p>
+      </section>
+
+      <section id="guide-customizing">
+        <h2>Customizing Components</h2>
+        <p>Text components expose a text field plus split/preset controls (Text Effect). Other components have no editable controls in the UI; customize by editing the generated code. The AI Editor can iterate on a component's code with natural language where configured.</p>
+      </section>
+
+      <section id="guide-integrating">
+        <h2>Integrating Components into a Website</h2>
+        <p>Paste copied code into an HTML file or framework component. Keep CDN script/style tags. Ensure external images/fonts are reachable. Host on any static server (GitHub Pages, Netlify, Vercel).</p>
+      </section>
+
+      <section id="guide-a11y">
+        <h2>Responsive and Accessibility Considerations</h2>
+        <p>Text effects use clamp for responsive sizing. Scroll/interactive effects use large previews. Every component checks <code>prefers-reduced-motion</code> where implemented; verify per component. Keyboard support varies; many effects are pointer/scroll-driven. Apply additional accessibility (focus management, ARIA) in your integration as needed.</p>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           REFERENCE
+           ==================================================== -->
+      <section id="component-reference">
+        <p class="eyebrow">Reference</p>
+        <h2>Component Reference</h2>
+        <div class="table-wrap" style="margin-top:1rem">
+          <table>
+            <thead><tr><th>Component</th><th>Category</th><th>Preview</th><th>Dependencies</th></tr></thead>
+            <tbody>
+              <tr><td>Split Scroll</td><td>Web</td><td>Large</td><td>GSAP, ScrollTrigger, Lenis</td></tr>
+              <tr><td>Block Reveal Animation</td><td>Menus</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>Reveal Menu</td><td>Menus</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>Draggable Mask</td><td>Interactive</td><td>Large</td><td>None</td></tr>
+              <tr><td>Micro Hover</td><td>Interactive</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>Hover Section</td><td>Interactive</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>Snake Hover</td><td>Interactive</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>Image Trail</td><td>Interactive</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>List Reveal</td><td>Scroll</td><td>Large</td><td>GSAP, ScrollTrigger, Lenis</td></tr>
+              <tr><td>Scroll Stand</td><td>Scroll</td><td>Large</td><td>GSAP, ScrollTrigger, SplitText, Lenis</td></tr>
+              <tr><td>Scrolling Mask</td><td>Scroll</td><td>Large</td><td>GSAP, ScrollTrigger</td></tr>
+              <tr><td>Pin Rotate Sections</td><td>Scroll</td><td>Large</td><td>GSAP, ScrollTrigger, Lenis</td></tr>
+              <tr><td>Images Flow</td><td>Scroll</td><td>Large</td><td>GSAP, ScrollTrigger, Lenis</td></tr>
+              <tr><td>Clip Path Reveal</td><td>Scroll</td><td>Large</td><td>GSAP, ScrollTrigger, Lenis</td></tr>
+              <tr><td>Noisy Pixel</td><td>Shader</td><td>Large</td><td>Three.js, GSAP, ScrollTrigger</td></tr>
+              <tr><td>Mirror Effect</td><td>Shader</td><td>Large</td><td>Three.js</td></tr>
+              <tr><td>Sticky Footer</td><td>Footer</td><td>Large</td><td>Lenis</td></tr>
+              <tr><td>Editorial Footer</td><td>Footer</td><td>Large</td><td>GSAP, ScrollTrigger</td></tr>
+              <tr><td>Folder Footer</td><td>Footer</td><td>Large</td><td>GSAP</td></tr>
+              <tr><td>Text Effect</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Custom Variants</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Text Roll</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Text Roll (custom)</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Text Scramble</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Text Shimmer</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Shimmer Wave</td><td>Text</td><td>Compact</td><td>None</td></tr>
+              <tr><td>Shimmer Wave (colour)</td><td>Text</td><td>Compact</td><td>None</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="dependencies">
+        <h2>Dependencies and Libraries</h2>
+        <ul class="list">
+          <li><strong>GSAP 3.12.5</strong> — animation engine for scroll, interactive, menu, footer effects.</li>
+          <li><strong>ScrollTrigger</strong> — scroll-driven timelines.</li>
+          <li><strong>Lenis 1.1.14</strong> — smooth scroll.</li>
+          <li><strong>Three.js r128</strong> — WebGL shaders.</li>
+          <li><strong>SplitText (GSAP)</strong> — text splitting for Scroll Stand.</li>
+          <li><strong>Google Fonts</strong> — per-component font families.</li>
+          <li><strong>Remixicon</strong> — icon set.</li>
+        </ul>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <ul class="list">
+          <li><strong>Missing external library:</strong> ensure CDN script tags are present and reachable.</li>
+          <li><strong>Missing image/asset:</strong> verify image URLs and network access.</li>
+          <li><strong>Component not rendering:</strong> check console for JS errors; ensure running over http/https.</li>
+          <li><strong>Animation not triggering:</strong> scroll effects need scroll inside preview; check reduced-motion settings.</li>
+          <li><strong>Responsive layout issue:</strong> verify viewport meta and container widths.</li>
+        </ul>
+      </section>
+
+      <section id="faq">
+        <h2>FAQ</h2>
+        <h3>What is ZiiUI?</h3>
+        <p>A frontend-first creative effects and animated UI component library with preview and code export.</p>
+        <h3>How do I find a component?</h3>
+        <p>Browse by category in the Components Library or this docs Component Reference.</p>
+        <h3>How do I preview a component?</h3>
+        <p>Open its detail view; the preview runs in a sandboxed iframe.</p>
+        <h3>How do I copy component code?</h3>
+        <p>Use Copy HTML, Copy CSS, Copy JavaScript, or Copy Full Component in the Code view.</p>
+        <h3>What is included in Copy Full Component?</h3>
+        <p>The complete standalone HTML document.</p>
+        <h3>Do components require external libraries?</h3>
+        <p>Some do (scroll/shader effects). Text effects require none. See each component's Dependencies.</p>
+        <h3>Can I customize a component?</h3>
+        <p>Text Effect exposes split/preset controls; others via code editing or AI Editor.</p>
+        <h3>Can I use copied code in an existing website?</h3>
+        <p>Yes; paste into HTML or a framework component and keep CDN tags.</p>
+        <h3>Are all components responsive?</h3>
+        <p>Text effects use clamp; others use large previews. Verify per component.</p>
+        <h3>Does every component support the same controls?</h3>
+        <p>No. Controls vary by component.</p>
+      </section>
+
+      <hr>
+
+      <p style="font-size:0.85rem; color: var(--fg-3);">
+        Last updated — v0.1.0. Source: <a href="https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" target="_blank" rel="noopener">GitHub</a>.
+      </p>
+
+      <footer class="footer">
+        <span>© <span id="year">2025</span> ZiiUI — docs v0.1.0</span>
+        <span>Built with <a href="https://gsap.com" target="_blank" rel="noopener">GSAP</a> · <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a></span>
+      </footer>
+
+    </main>
+
+    <!-- --------------------------------------------------------
+         RIGHT TOC (wide screens)
+         -------------------------------------------------------- -->
+    <aside class="toc" aria-label="On this page">
+      <p class="toc__label">On this page</p>
+      <ul class="toc__list">
+        <li><a href="#hero">Introduction</a></li>
+        <li><a href="#what-is-ziiui">What is ZiiUI?</a></li>
+        <li><a href="#how-it-works">How ZiiUI Works</a></li>
+        <li><a href="#quick-start">Quick Start</a></li>
+        <li><a href="#installation">Installation and Setup</a></li>
+        <li><a href="#components-overview">Component Overview</a></li>
+        <li><a href="#component-categories">Browse by Category</a></li>
+        <li><a href="#guide-exploring">Guides</a></li>
+        <li><a href="#component-reference">Component Reference</a></li>
+        <li><a href="#dependencies">Dependencies</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </aside>
+
+  </div>
+
+  <button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">
+    <i class="ri-arrow-up-line" aria-hidden="true"></i>
+  </button>
+
+  <script type="module" src="/src/pages/docs.js"></script>
 </body>
 
 </html>
