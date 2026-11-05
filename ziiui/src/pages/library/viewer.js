@@ -263,7 +263,8 @@ export function rebuild() {
     }
 
     store.html = String(generated).replace(/__TEXT__/g, () => esc(empty ? PLACEHOLDER : raw));
-    $('label').textContent = cur.name + (cur.opts ? ' · ' + perVal + ' · ' + presetVal : '');
+    const labelEl = $('label');
+    if (labelEl) labelEl.textContent = cur.name + (cur.opts ? ' · ' + perVal + ' · ' + presetVal : '');
     $('frame').title = 'Preview of ' + cur.name;
     updateHint(empty);
 
