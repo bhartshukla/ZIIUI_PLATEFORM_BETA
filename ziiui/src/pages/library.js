@@ -8,7 +8,7 @@ import { buildNav, applySearch, openSidebar, closeSidebar, shuffleComponents } f
 import {
   selectEffect, showDiscovery, showMissingComponent, rebuild, replay,
   onInput, onCopy, handleCodeTabEvent, onCopyTab, toggleFullscreen,
-  isFullscreen, updateFullscreenUI
+  isFullscreen, updateFullscreenUI, setView, openInNewWindow
 } from './library/viewer.js';
 import { initAIPanel, announceInterruptedRequest, resetToOriginal, exportDraftFile } from './library/ai-panel.js';
 
@@ -39,6 +39,9 @@ function wire() {
   on('restoreOriginalBtn', 'click', guard(resetToOriginal, 'restoreOriginal'));
   on('previewFullscreen', 'click', guard(toggleFullscreen, 'toggleFullscreen'));
   on('stageExitFs', 'click', guard(toggleFullscreen, 'stageExitFs'));
+  on('viewTabPreview', 'click', () => setView('preview'));
+  on('viewTabCode', 'click', () => setView('code'));
+  on('previewOpenWindow', 'click', guard(openInNewWindow, 'openInNewWindow'));
   on('exportComponent', 'click', guard(exportDraftFile, 'exportComponent'));
   on('copy', 'click', guard(onCopy, 'copy'));
   on('copyTab', 'click', guard(onCopyTab, 'copyTab'));

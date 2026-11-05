@@ -4303,6 +4303,74 @@ pre {
   outline-offset: 2px;
 }
 
+/* Component detail view toggle (Preview | Code) */
+.view-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 2px;
+  min-height: 0;
+}
+.view-tab {
+  flex: 1;
+  min-height: 0;
+  padding: .5rem .9rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+.view-tab:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+.view-tab.is-active,
+.view-tab[aria-selected="true"] {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.view-tab:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 2px;
+}
+
+.detail-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.preview-controls {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 540px) {
+  .view-toggle { padding: 1px; }
+  .view-tab { padding: .45rem .7rem; font-size: .75rem; }
+  .preview-controls { width: 100%; justify-content: flex-start; gap: .35rem; }
+  .code-header { flex-direction: column; align-items: stretch; gap: .5rem; }
+  .code-header .code-actions { width: 100%; justify-content: flex-start; gap: .35rem; }
+}
+
 .detail-toolbar {
   display: flex;
   align-items: center;

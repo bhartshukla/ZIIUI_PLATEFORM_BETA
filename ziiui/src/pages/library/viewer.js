@@ -563,3 +563,31 @@ export async function toggleFullscreen() {
     }
   }
 }
+
+/** Switch the detail content between the preview and code views. */
+export function setView(view) {
+  const previewView = $('previewView');
+  const codeView = $('codeView');
+  if (!previewView || !codeView) return;
+  const showPreview = view === 'preview';
+  previewView.hidden = !showPreview;
+  codeView.hidden = showPreview;
+  document.querySelectorAll('.view-tab').forEach((t) => {
+    const on = t.dataset.view === view;
+    t.setAttribute('aria-selected', String(on));
+    t.classList.toggle('is-active', on);
+    t.tabIndex = on ? 0 : -1;
+  });
+  if (!showPreview) renderCodeView();
+}
+
+/** Open the current component code in a new window/tab. */
+export function openInNewWindow() {
+  const code = activeCode();
+  if (!code) { say('No component code to open.'); return; }
+  const win = window.open('', '_blank');
+  if (!win) { say('Could not open in a new window.'); return; }
+  win.document.write(code);
+  win.document.close();
+  say('Opened component in a new window.');
+}

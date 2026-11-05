@@ -941,24 +941,23 @@
               aria-hidden="true"></i> Back to Components</button>
         </p>
         <div id="componentDetailContent">
-          <section class="card" id="previewCard" aria-labelledby="pname">
+          <!-- View toggle: Preview | Code -->
+          <div class="view-toggle" role="group" aria-label="Component detail view">
+            <button class="view-tab is-active" id="viewTabPreview" type="button" role="tab" data-view="preview" aria-selected="true">Preview</button>
+            <button class="view-tab" id="viewTabCode" type="button" role="tab" data-view="code" aria-selected="false">Code</button>
+          </div>
+
+          <!-- Preview view: live component preview + essential controls -->
+          <section class="detail-view card" id="previewView" data-view="preview">
             <div class="card-head">
               <div class="ttl">
                 <span class="kick">Preview</span>
                 <h2 id="pname"></h2>
               </div>
-              <div class="preview-actions">
-                <span class="chip" id="pcat"></span>
-                <span class="chip ai-draft-badge" id="aiDraftBadge" hidden>
-                  <i class="ri-sparkling-2-line" aria-hidden="true"></i> AI Draft
-                </span>
-                <button class="b sm preview-action-btn ai-restore-btn" id="restoreOriginalBtn" type="button" aria-label="Discard AI draft and restore original component" title="Restore original component" hidden>
-                  <i class="ri-arrow-go-back-line" aria-hidden="true"></i>
-                  <span>Restore Original</span>
-                </button>
-                <button class="b sm preview-action-btn" id="previewReset" type="button" aria-label="Reset and replay preview" title="Reset preview">
-                  <i class="ri-refresh-line" aria-hidden="true"></i>
-                  <span>Reset</span>
+              <span class="chip" id="pcat"></span>
+              <div class="preview-controls">
+                <button class="b sm preview-action-btn" id="previewOpenWindow" type="button" aria-label="Open component in a new window" title="Open in new window">
+                  <i class="ri-external-link-line" aria-hidden="true"></i> Open in new window
                 </button>
                 <button class="b sm preview-action-btn" id="previewFullscreen" type="button" aria-label="Toggle fullscreen preview" title="Fullscreen preview">
                   <i class="ri-fullscreen-line" aria-hidden="true" id="previewFsIcon"></i>
@@ -966,18 +965,16 @@
                 </button>
               </div>
             </div>
-            <div class="pbody">
-              <div class="stage" id="previewStage">
-                <div class="preview-loader" id="previewLoader" hidden aria-hidden="true">
-                  <i class="ri-loader-4-line preview-spin"></i>
-                  <span>Loading preview…</span>
-                </div>
-                <iframe id="frame" title="Effect preview" sandbox="allow-scripts"></iframe>
-                <button class="stage-exit-fs" id="stageExitFs" type="button" aria-label="Exit fullscreen" hidden>
-                  <i class="ri-fullscreen-exit-line" aria-hidden="true"></i>
-                  <span>Exit Fullscreen</span>
-                </button>
+            <div class="stage" id="previewStage">
+              <div class="preview-loader" id="previewLoader" hidden aria-hidden="true">
+                <i class="ri-loader-4-line preview-spin"></i>
+                <span>Loading preview…</span>
               </div>
+              <iframe id="frame" title="Effect preview" sandbox="allow-scripts"></iframe>
+              <button class="stage-exit-fs" id="stageExitFs" type="button" aria-label="Exit fullscreen" hidden>
+                <i class="ri-fullscreen-exit-line" aria-hidden="true"></i>
+                <span>Exit Fullscreen</span>
+              </button>
             </div>
             <div class="preview-meta-bar">
               <div class="pfoot" id="pnote"></div>
@@ -991,6 +988,7 @@
             </div>
           </section>
 
+          <!-- Controls: text / options (always available) -->
           <section class="card" id="ccard" aria-labelledby="ctitle">
             <div class="card-head">
               <h2 class="kick" id="ctitle">Controls</h2>
@@ -1028,15 +1026,10 @@
             </div>
           </section>
 
-          <section class="card" id="docs" aria-labelledby="codetitle">
-            <div class="card-head">
-              <div class="ttl">
-                <div class="ttl-row">
-                  <h2 id="codetitle">Generated code</h2>
-                  <span class="chip sm ai-draft-tag" id="aiCodeDraftTag" hidden>AI Draft</span>
-                </div>
-                <span class="meta" id="label"></span>
-              </div>
+          <!-- Code view: tabbed generated code + actions -->
+          <section class="detail-view card" id="codeView" data-view="code" hidden>
+            <div class="card-head code-header">
+              <h2 id="codetitle">Generated Code</h2>
               <div class="code-actions">
                 <button class="b sm code-action-btn" id="exportComponent" type="button" aria-label="Export component HTML file" title="Export standalone HTML file">
                   <i class="ri-download-2-line" aria-hidden="true"></i> Export HTML
