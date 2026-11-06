@@ -2,64 +2,76 @@
            TOKENS
            ================================================================ */
         :root {
-            --bg: #000000;
-            --surface: #0d0d0d;
-            --surface-2: #171717;
-            --border: #222222;
-            --border-2: #333333;
-            --fg: #ffffff;
-            --fg-2: #a3a3a3;
-            --fg-3: #737373;
+            /* Dark theme — base */
+            --bg: #050608;
+            --sidebar-bg: #090B0F;
+            --card-bg: #0D1015;
+            --surface: #11151B;
+            --surface-2: #161B24;
+            --border: #2A323D;
+            --border-2: #3A424E;
+            --fg: #F5F7FA;
+            --fg-2: #A7B0BD;
+            --fg-3: #8793A3;
+            --text-secondary: #A7B0BD;
+            --text-muted: #8793A3;
             --accent: #2196FF;
             --accent-bright: #31B8FF;
             --accent-bg: #0D1B35;
             --accent-border: #1B5D96;
-            --badge-bg: #252C38;
-            --text-secondary: #A7B0BD;
-            --text-muted: #8793A3;
-            --header-bg: rgba(0, 0, 0, 0.95);
-            --code-bg: #0a0a0a;
-            --code-fg: #e5e5e5;
-            --code-key: #ffffff;
-            --code-str: #d4d4d4;
-            --code-com: #737373;
-            --code-fn: #ffffff;
-            --code-tag: #ffffff;
+            --badge-bg: #151A22;
+            --header-bg: rgba(5, 6, 8, 0.92);
+            --code-bg: #0B0E13;
+            --code-fg: #E8EAED;
+            --code-key: #FFFFFF;
+            --code-str: #D4D4D4;
+            --code-com: #8793A3;
+            --code-fn: #FFFFFF;
+            --code-tag: #FFFFFF;
             --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --mono: 'Inter', monospace;
-            --sidebar-w: 260px;
-            --toc-w: 260px;
-            --header-h: 56px;
+            --sidebar-w: 270px;
+            --toc-w: 210px;
+            --header-h: 72px;
             --maxw: 1200px;
-            --radius: 10px;
-            --radius-lg: 16px;
+        --mainw: 800px;
+            --radius: 8px;
+            --radius-lg: 12px;
             --acc: #2196FF;
             --acc-dark: #1B5D96;
             --acc-soft: rgba(33, 150, 255, 0.10);
-            [data-theme="light"] {
-            --bg: #ffffff;
-            --surface: #f5f5f5;
-            --surface-2: #ebebeb;
-            --border: #e0e0e0;
-            --border-2: #cccccc;
-            --fg: #000000;
-            --fg-2: #737373;
-            --fg-3: #737373;
-            --accent: #2196FF;
-            --accent-bright: #1B5D96;
-            --accent-bg: #E8F2FF;
-            --accent-border: #9EC5FF;
-            --header-bg: rgba(255, 255, 255, 0.95);
-            --code-bg: #f5f5f5;
-            --code-fg: #1a1a1a;
-            --code-key: #000000;
-            --code-str: #1a1a1a;
-            --code-com: #737373;
-            --code-fn: #000000;
-            --code-tag: #000000;
-            --acc: #2196FF;
-            --acc-dark: #1B5D96;
-            --acc-soft: rgba(33, 150, 255, 0.12);
+        }
+
+        [data-theme="light"] {
+            /* Light theme — base */
+            --bg: #FFFFFF;
+            --sidebar-bg: #F7F9FC;
+            --card-bg: #FFFFFF;
+            --surface: #F1F4F8;
+            --surface-2: #E9EDF3;
+            --border: #DCE3EC;
+            --border-2: #C7D2DE;
+            --fg: #101828;
+            --fg-2: #596579;
+            --fg-3: #78869A;
+            --text-secondary: #596579;
+            --text-muted: #78869A;
+            --accent: #1677D2;
+            --accent-bright: #2196FF;
+            --accent-bg: #E8F3FF;
+            --accent-border: #B8D9FA;
+            --badge-bg: #EEF2F7;
+            --header-bg: rgba(255, 255, 255, 0.92);
+            --code-bg: #F4F6F9;
+            --code-fg: #1A1A1A;
+            --code-key: #101828;
+            --code-str: #1A1A1A;
+            --code-com: #78869A;
+            --code-fn: #101828;
+            --code-tag: #101828;
+            --acc: #1677D2;
+            --acc-dark: #0E5FA8;
+            --acc-soft: rgba(22, 119, 210, 0.12);
             color-scheme: light;
         }
 
@@ -110,13 +122,13 @@
 
         ::selection {
             background: var(--acc);
-            color: #fff;
+            color: var(--fg);
         }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px }
+        ::-webkit-scrollbar { width: 6px; height: 6px }
         ::-webkit-scrollbar-track { background: transparent }
-        ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 8px }
+        ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 6px }
         ::-webkit-scrollbar-thumb:hover { background: var(--fg-3) }
 
         /* ================================================================
@@ -340,8 +352,8 @@
         }
 
         ::selection {
-            background: #ffffff;
-            color: #000000;
+            background: var(--acc);
+            color: var(--fg);
         }
 
         .topbar__nav a.is-active {
@@ -404,8 +416,8 @@
         .toc__list a.is-active { color: var(--acc); border-left-color: var(--acc); font-weight: 600; }
 
         .comp-doc { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-        .comp-doc h3 { font-size: 1.2rem; margin: 0 0 0.5rem; }
-        .comp-doc h4 { margin-top: 1.25rem; font-size: 0.9rem; color: var(--fg); }
+        .comp-doc h3 { font-size: 1.125rem; margin: 0 0 0.5rem; }
+        .comp-doc h4 { margin-top: 1.25rem; font-size: 1rem; color: var(--fg); }
 
         /* Mobile drawer */
         .side-overlay {
@@ -530,6 +542,8 @@
             color: var(--acc);
             background: var(--acc-soft);
             font-weight: 600;
+            border-left: 3px solid var(--acc);
+            padding-left: calc(0.75rem - 3px);
         }
 
         .sidebar__link:focus-visible {
@@ -592,8 +606,8 @@
         /* ---- Main ---- */
         .main {
             min-width: 0;
-            padding: 3.5rem clamp(1.5rem, 4vw, 4rem) 6rem;
-            max-width: 780px;
+            padding: 3rem clamp(1.5rem, 4vw, 4rem) 6rem;
+            max-width: var(--mainw);
             margin-inline: auto;
         }
 
@@ -612,7 +626,7 @@
         }
 
         h1 {
-            font-size: clamp(1.85rem, 3.5vw, 2.35rem);
+            font-size: clamp(2.25rem, 4vw, 2.625rem);
             font-weight: 700;
             letter-spacing: -0.025em;
             line-height: 1.15;
@@ -621,7 +635,7 @@
         }
 
         h2 {
-            font-size: 1.35rem;
+            font-size: clamp(1.625rem, 3vw, 2rem);
             font-weight: 650;
             letter-spacing: -0.015em;
             line-height: 1.3;
@@ -631,7 +645,7 @@
         }
 
         h3 {
-            font-size: 1.05rem;
+            font-size: clamp(1.125rem, 2vw, 1.375rem);
             font-weight: 650;
             letter-spacing: -0.01em;
             margin: 0;
@@ -639,7 +653,7 @@
         }
 
         h4 {
-            font-size: 0.9rem;
+            font-size: 1.125rem;
             font-weight: 650;
             margin: 0;
             color: var(--fg);
@@ -672,7 +686,7 @@
         hr {
             border: 0;
             border-top: 1px solid var(--border);
-            margin: 2.5rem 0;
+            margin: 4rem 0;
         }
 
         /* ================================================================
@@ -779,7 +793,7 @@
         }
 
         .step {
-            padding: 1.25rem;
+            padding: 1.35rem 1.5rem;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
@@ -826,7 +840,7 @@
             justify-content: space-between;
             gap: 1rem;
             padding: 0.6rem 0.9rem;
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--surface-2);
             border-bottom: 1px solid var(--border);
         }
 
@@ -893,8 +907,8 @@
             scrollbar-color: var(--border-2) transparent;
         }
 
-        .code pre::-webkit-scrollbar { height: 8px }
-        .code pre::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 8px }
+        .code pre::-webkit-scrollbar { height: 6px }
+        .code pre::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 6px }
 
         /* Syntax tokens */
         .tok-key { color: var(--code-key) }
@@ -982,10 +996,6 @@
             background: var(--border-2);
         }
 
-        .preview__dots span:nth-child(1) { background: #555555 }
-        .preview__dots span:nth-child(2) { background: #777777 }
-        .preview__dots span:nth-child(3) { background: #999999 }
-
         .preview__body {
             padding: 2.5rem 1.5rem;
             display: grid;
@@ -1019,7 +1029,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.35rem;
-            padding: 1rem 1.1rem;
+            padding: 1.35rem 1.5rem;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
