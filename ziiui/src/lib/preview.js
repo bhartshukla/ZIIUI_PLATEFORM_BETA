@@ -14,16 +14,16 @@ export function injectDebug(code) {
   const src = String(code || '');
   const marker = '<head>';
   const i = src.indexOf(marker);
-  if (i === -1) return DEBUG_HOOK + '\n' + src;
+  if (i === -1) {return `${DEBUG_HOOK  }\n${  src}`;}
   const at = i + marker.length;
-  return src.slice(0, at) + '\n' + DEBUG_HOOK + src.slice(at);
+  return `${src.slice(0, at)  }\n${  DEBUG_HOOK  }${src.slice(at)}`;
 }
 
 const urls = new WeakMap();
 
 /** Load HTML into an iframe safely and immediately using srcdoc (with blob/data fallback). */
 export function setFrameHTML(frame, source) {
-  if (!frame) return;
+  if (!frame) {return;}
   const content = String(source == null ? '' : source);
   const old = urls.get(frame);
   if (old) {
@@ -47,13 +47,13 @@ export function setFrameHTML(frame, source) {
     urls.set(frame, url);
     frame.src = url;
   } catch (_) {
-    frame.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+    frame.src = `data:text/html;charset=utf-8,${  encodeURIComponent(content)}`;
   }
 }
 
 /** Clear an iframe completely to stop running animation loops and release resources. */
 export function clearFrameHTML(frame) {
-  if (!frame) return;
+  if (!frame) {return;}
   const old = urls.get(frame);
   if (old) {
     URL.revokeObjectURL(old);
@@ -69,9 +69,9 @@ export function clearFrameHTML(frame) {
 
 export function errorDoc(title, message) {
   return buildDoc({
-    title: 'ziiui — ' + title,
+    title: `ziiui — ${  title}`,
     css: 'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f1115;color:#eceef2;font-family:system-ui,sans-serif;text-align:center;padding:2rem}h1{font-size:1.05rem;margin:0 0 .6rem;font-weight:700}code{display:block;color:#ff8a8a;font-size:.85rem;white-space:pre-wrap;word-break:break-word}',
-    body: '<div><h1>' + esc(title) + '</h1><code>' + esc(message) + '</code></div>'
+    body: `<div><h1>${  esc(title)  }</h1><code>${  esc(message)  }</code></div>`
   });
 }
 

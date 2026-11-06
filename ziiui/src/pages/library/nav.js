@@ -40,7 +40,7 @@ function setActiveCategory(category) {
 }
 
 function matchesSearch(effect, query) {
-  if (!query) return true;
+  if (!query) {return true;}
   const terms = query.split(/\s+/).filter(Boolean);
   const searchable = [
     effect.name,
@@ -54,11 +54,11 @@ function matchesSearch(effect, query) {
 
 function updateCategoryFilterCounts(searched) {
   const filters = $('categoryFilters');
-  if (!filters) return;
+  if (!filters) {return;}
   filters.querySelectorAll('.category-filter').forEach((button) => {
     const category = button.dataset.category;
     const total = button.querySelector('.category-count');
-    if (!total) return;
+    if (!total) {return;}
     const count = category === 'All'
       ? searched.length
       : searched.filter((effect) => belongsToCategory(effect, category)).length;
@@ -72,14 +72,14 @@ function belongsToCategory(effect, category) {
 
 function renderCategories() {
   const filters = $('categoryFilters');
-  if (!filters) return;
+  if (!filters) {return;}
   filters.replaceChildren();
 
   ['All', ...CATEGORIES].forEach((category) => {
     const count = category === 'All'
       ? EFFECTS.length
       : EFFECTS.filter((effect) => belongsToCategory(effect, category)).length;
-    if (!count) return;
+    if (!count) {return;}
 
     const button = document.createElement('button');
     const icon = document.createElement('i');
@@ -110,11 +110,11 @@ function makeEffectButton(effect) {
   button.setAttribute('aria-current', 'false');
   name.className = 'component-link-name';
   name.textContent = effect.name;
-  button.title = effect.name + ' — ' + effect.note;
+  button.title = `${effect.name  } — ${  effect.note}`;
   button.append(name);
   button.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (onSelectEffect) onSelectEffect(effect, true);
+    if (onSelectEffect) {onSelectEffect(effect, true);}
   });
   return button;
 }
@@ -136,7 +136,7 @@ function renderList() {
 
     CATEGORIES.forEach((category) => {
       const effects = searched.filter((effect) => belongsToCategory(effect, category));
-      if (!effects.length) return;
+      if (!effects.length) {return;}
 
       const group = document.createElement('section');
       const heading = document.createElement('button');
@@ -207,7 +207,7 @@ function renderList() {
     });
   }
 
-  if (empty) empty.hidden = visible.length !== 0;
+  if (empty) {empty.hidden = visible.length !== 0;}
   const galleryEmpty = $('galleryEmpty');
   if (galleryEmpty) {
     galleryEmpty.hidden = visible.length !== 0;
@@ -222,7 +222,7 @@ function renderList() {
     count.textContent = '';
   }
   const allCount = $('allComponentsCount');
-  if (allCount) allCount.textContent = String(EFFECTS.length);
+  if (allCount) {allCount.textContent = String(EFFECTS.length);}
   const allFilter = $('allComponentsFilter');
   if (allFilter) {
     allFilter.setAttribute('aria-pressed', String(activeCategory === 'All' && !activeEffectId));
@@ -241,14 +241,14 @@ function prefersReducedMotion() {
 }
 
 function unlockAutoplayOnUserGesture() {
-  if (userInteracted || typeof window === 'undefined') return;
+  if (userInteracted || typeof window === 'undefined') {return;}
   userInteracted = true;
   window.removeEventListener('pointerdown', unlockAutoplayOnUserGesture);
   window.removeEventListener('keydown', unlockAutoplayOnUserGesture);
   window.removeEventListener('scroll', unlockAutoplayOnUserGesture);
 
   const grid = $('componentGrid');
-  if (!grid || prefersReducedMotion()) return;
+  if (!grid || prefersReducedMotion()) {return;}
   grid.querySelectorAll('.component-card-video').forEach((video) => {
     const card = video.closest('.component-card');
     if (card && card.dataset.videoState !== 'playing' && video.dataset.failed !== 'true') {
@@ -266,9 +266,9 @@ if (typeof window !== 'undefined') {
 const isJsdom = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent || '');
 
 function loadCardVideo(video) {
-  if (!video || video.dataset.loaded === 'true') return;
+  if (!video || video.dataset.loaded === 'true') {return;}
   const src = video.dataset.src;
-  if (!src) return;
+  if (!src) {return;}
   video.src = src;
   video.dataset.loaded = 'true';
   if (!isJsdom && typeof video.load === 'function') {
@@ -277,7 +277,7 @@ function loadCardVideo(video) {
 }
 
 function playCardVideo(card, video) {
-  if (!card || !video || video.dataset.failed === 'true') return;
+  if (!card || !video || video.dataset.failed === 'true') {return;}
   if (prefersReducedMotion()) {
     pauseCardVideo(card, video);
     return;
@@ -311,7 +311,7 @@ function playCardVideo(card, video) {
 }
 
 function pauseCardVideo(card, video) {
-  if (!card || !video) return;
+  if (!card || !video) {return;}
   if (!isJsdom && typeof video.pause === 'function') {
     try {
       video.pause();
@@ -322,7 +322,7 @@ function pauseCardVideo(card, video) {
 }
 
 function bindCardVideo(card, video) {
-  if (!card || !video) return;
+  if (!card || !video) {return;}
 
   // Video autoplay is driven by viewport visibility, remaining independent of hover.
   // If video is missing or fails to load, remove it cleanly without fake/default video.
@@ -335,7 +335,7 @@ function bindCardVideo(card, video) {
 
 export function pauseAllCardVideos() {
   const grid = $('componentGrid');
-  if (!grid) return;
+  if (!grid) {return;}
   grid.querySelectorAll('.component-card-video').forEach((video) => {
     const card = video.closest('.component-card');
     pauseCardVideo(card, video);
@@ -344,7 +344,7 @@ export function pauseAllCardVideos() {
 
 function renderCards(effects) {
   const grid = $('componentGrid');
-  if (!grid) return;
+  if (!grid) {return;}
   grid.replaceChildren();
 
   // Reset any active observer
@@ -358,7 +358,7 @@ function renderCards(effects) {
       entries.forEach((entry) => {
         const card = entry.target;
         const video = card.querySelector('.component-card-video');
-        if (!video || video.dataset.failed === 'true') return;
+        if (!video || video.dataset.failed === 'true') {return;}
 
         // Autoplay when visible in viewport; pause when outside for performance
         if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
@@ -472,12 +472,12 @@ function renderCards(effects) {
     card.append(media, footer);
 
     const triggerPreview = () => {
-      if (card.disabled) return;
-      if (onSelectEffect) onSelectEffect(effect, true);
+      if (card.disabled) {return;}
+      if (onSelectEffect) {onSelectEffect(effect, true);}
     };
 
     const triggerViewCode = () => {
-      if (card.disabled) return;
+      if (card.disabled) {return;}
       if (onSelectEffect) {
         onSelectEffect(effect, true);
         setTimeout(() => {
@@ -485,14 +485,14 @@ function renderCards(effects) {
           if (docs) {
             docs.scrollIntoView({ behavior: 'smooth', block: 'start' });
             const codePanel = $('codePanel');
-            if (codePanel) codePanel.focus({ preventScroll: true });
+            if (codePanel) {codePanel.focus({ preventScroll: true });}
           }
         }, 60);
       }
     };
 
     card.addEventListener('click', (event) => {
-      if (event.target.closest('.card-action-btn')) return;
+      if (event.target.closest('.card-action-btn')) {return;}
       triggerPreview();
     });
 
@@ -527,7 +527,7 @@ function renderCards(effects) {
 
 export function showSidebarSkeleton() {
   const side = $('sidePanel');
-  if (side) side.classList.add('is-skeleton-loading');
+  if (side) {side.classList.add('is-skeleton-loading');}
   const skeleton = $('sidebarSkeleton');
   if (skeleton) {
     skeleton.hidden = false;
@@ -538,7 +538,7 @@ export function showSidebarSkeleton() {
 
 export function hideSidebarSkeleton() {
   const side = $('sidePanel');
-  if (side) side.classList.remove('is-skeleton-loading');
+  if (side) {side.classList.remove('is-skeleton-loading');}
   const skeleton = $('sidebarSkeleton');
   if (skeleton) {
     skeleton.hidden = true;
@@ -549,7 +549,7 @@ export function hideSidebarSkeleton() {
 
 export function showMainSkeleton() {
   const catalog = $('catalogSection');
-  if (catalog) catalog.classList.add('is-skeleton-loading');
+  if (catalog) {catalog.classList.add('is-skeleton-loading');}
   const skeleton = $('catalogSkeleton');
   if (skeleton) {
     skeleton.hidden = false;
@@ -560,7 +560,7 @@ export function showMainSkeleton() {
 
 export function hideMainSkeleton() {
   const catalog = $('catalogSection');
-  if (catalog) catalog.classList.remove('is-skeleton-loading');
+  if (catalog) {catalog.classList.remove('is-skeleton-loading');}
   const skeleton = $('catalogSkeleton');
   if (skeleton) {
     skeleton.hidden = true;
@@ -573,9 +573,9 @@ export function buildNav(onSelect, showCategory) {
   onSelectEffect = onSelect;
   onShowCategory = typeof showCategory === 'function' ? showCategory : setActiveCategory;
   const total = $('catalogTotal');
-  if (total) total.textContent = '';
+  if (total) {total.textContent = '';}
   const allFilter = $('allComponentsFilter');
-  if (allFilter) allFilter.addEventListener('click', () => onShowCategory('All'));
+  if (allFilter) {allFilter.addEventListener('click', () => onShowCategory('All'));}
   renderCategories();
   renderList();
   hideSidebarSkeleton();
@@ -585,16 +585,16 @@ export function buildNav(onSelect, showCategory) {
   if (nav) {
     nav.addEventListener('keydown', (event) => {
       const keys = ['ArrowDown', 'ArrowUp', 'Home', 'End'];
-      if (!keys.includes(event.key)) return;
+      if (!keys.includes(event.key)) {return;}
       const buttons = [...nav.querySelectorAll('.component-link:not(:disabled)')];
       const current = buttons.indexOf(document.activeElement);
-      if (current < 0 || !buttons.length) return;
+      if (current < 0 || !buttons.length) {return;}
       event.preventDefault();
       let next = current;
-      if (event.key === 'Home') next = 0;
-      else if (event.key === 'End') next = buttons.length - 1;
-      else if (event.key === 'ArrowDown') next = Math.min(buttons.length - 1, current + 1);
-      else if (event.key === 'ArrowUp') next = Math.max(0, current - 1);
+      if (event.key === 'Home') {next = 0;}
+      else if (event.key === 'End') {next = buttons.length - 1;}
+      else if (event.key === 'ArrowDown') {next = Math.min(buttons.length - 1, current + 1);}
+      else if (event.key === 'ArrowUp') {next = Math.max(0, current - 1);}
       buttons[next].focus();
     });
   }
@@ -604,14 +604,14 @@ export function buildNav(onSelect, showCategory) {
     grid.__wiredGridKeys = true;
     grid.addEventListener('keydown', (event) => {
       const keys = ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape'];
-      if (!keys.includes(event.key)) return;
+      if (!keys.includes(event.key)) {return;}
       const cards = [...grid.querySelectorAll('.component-card')].filter((c) => !c.disabled && c.getAttribute('aria-disabled') !== 'true');
       const current = cards.indexOf(document.activeElement.closest('.component-card') || document.activeElement);
-      if (current < 0 || !cards.length) return;
+      if (current < 0 || !cards.length) {return;}
 
       if (event.key === 'Escape') {
         const search = $('searchInput');
-        if (search) search.focus();
+        if (search) {search.focus();}
         return;
       }
 
@@ -619,14 +619,14 @@ export function buildNav(onSelect, showCategory) {
       let next = current;
       const columns = typeof window !== 'undefined' && window.innerWidth > 768 ? 2 : 1;
 
-      if (event.key === 'Home') next = 0;
-      else if (event.key === 'End') next = cards.length - 1;
-      else if (event.key === 'ArrowRight') next = Math.min(cards.length - 1, current + 1);
-      else if (event.key === 'ArrowLeft') next = Math.max(0, current - 1);
-      else if (event.key === 'ArrowDown') next = Math.min(cards.length - 1, current + columns);
-      else if (event.key === 'ArrowUp') next = Math.max(0, current - columns);
+      if (event.key === 'Home') {next = 0;}
+      else if (event.key === 'End') {next = cards.length - 1;}
+      else if (event.key === 'ArrowRight') {next = Math.min(cards.length - 1, current + 1);}
+      else if (event.key === 'ArrowLeft') {next = Math.max(0, current - 1);}
+      else if (event.key === 'ArrowDown') {next = Math.min(cards.length - 1, current + columns);}
+      else if (event.key === 'ArrowUp') {next = Math.max(0, current - columns);}
 
-      if (cards[next]) cards[next].focus();
+      if (cards[next]) {cards[next].focus();}
     });
   }
 
@@ -635,16 +635,16 @@ export function buildNav(onSelect, showCategory) {
     filterChips.__wiredFilterKeys = true;
     filterChips.addEventListener('keydown', (event) => {
       const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
-      if (!keys.includes(event.key)) return;
+      if (!keys.includes(event.key)) {return;}
       const buttons = [...filterChips.querySelectorAll('.category-filter:not(:disabled)')];
       const current = buttons.indexOf(document.activeElement);
-      if (current < 0 || !buttons.length) return;
+      if (current < 0 || !buttons.length) {return;}
       event.preventDefault();
       let next = current;
-      if (event.key === 'Home') next = 0;
-      else if (event.key === 'End') next = buttons.length - 1;
-      else if (event.key === 'ArrowRight') next = (current + 1) % buttons.length;
-      else if (event.key === 'ArrowLeft') next = (current - 1 + buttons.length) % buttons.length;
+      if (event.key === 'Home') {next = 0;}
+      else if (event.key === 'End') {next = buttons.length - 1;}
+      else if (event.key === 'ArrowRight') {next = (current + 1) % buttons.length;}
+      else if (event.key === 'ArrowLeft') {next = (current - 1 + buttons.length) % buttons.length;}
       if (buttons[next]) {
         buttons[next].focus();
         buttons[next].click();
@@ -653,7 +653,7 @@ export function buildNav(onSelect, showCategory) {
   }
 
   const more = $('seeMore');
-  if (more) more.addEventListener('click', showMoreComponents);
+  if (more) {more.addEventListener('click', showMoreComponents);}
 }
 
 export function markCurrent(effect, scrollIntoView) {
@@ -671,7 +671,7 @@ export function markCurrent(effect, scrollIntoView) {
         btn.setAttribute('aria-pressed', String(btn.dataset.category === parentCat));
       });
       const allFilter = $('allComponentsFilter');
-      if (allFilter) allFilter.setAttribute('aria-pressed', 'false');
+      if (allFilter) {allFilter.setAttribute('aria-pressed', 'false');}
 
       // Auto-expand parent category if collapsed
       collapsedCategories.delete(parentCat);
@@ -679,7 +679,7 @@ export function markCurrent(effect, scrollIntoView) {
       if (group) {
         const list = group.querySelector('.component-group-list');
         const toggle = group.querySelector('.component-group-toggle');
-        if (list) list.hidden = false;
+        if (list) {list.hidden = false;}
         if (toggle) {
           toggle.setAttribute('aria-expanded', 'true');
           toggle.setAttribute('aria-label', `Collapse ${parentCat} components`);
@@ -688,7 +688,7 @@ export function markCurrent(effect, scrollIntoView) {
     }
   } else {
     const allFilter = $('allComponentsFilter');
-    if (allFilter) allFilter.setAttribute('aria-pressed', String(activeCategory === 'All'));
+    if (allFilter) {allFilter.setAttribute('aria-pressed', String(activeCategory === 'All'));}
     document.querySelectorAll('.category-nav-filter').forEach((btn) => {
       btn.setAttribute('aria-pressed', 'false');
     });
@@ -714,15 +714,15 @@ export function syncSearchClearButton() {
   const clearBtn = $('searchClearBtn');
   const searchBox = $('componentSearch');
   const hasText = !!(input && input.value.trim().length > 0);
-  if (clearBtn) clearBtn.hidden = !hasText;
-  if (searchBox) searchBox.classList.toggle('has-query', hasText);
+  if (clearBtn) {clearBtn.hidden = !hasText;}
+  if (searchBox) {searchBox.classList.toggle('has-query', hasText);}
 }
 
 export function applySearch(event) {
   const source = event && event.currentTarget;
   const query = source ? source.value.trim().toLowerCase() : searchQuery();
   visibleCardCount = CARD_INCREMENT;
-  if (source && source.value.trim().toLowerCase() !== query) source.value = query;
+  if (source && source.value.trim().toLowerCase() !== query) {source.value = query;}
   syncSearchClearButton();
   renderList();
 }
@@ -740,7 +740,7 @@ export function showMoreComponents() {
   visibleCardCount += CARD_INCREMENT;
   renderList();
   const more = $('seeMore');
-  if (more && !more.hidden) more.focus();
+  if (more && !more.hidden) {more.focus();}
 }
 
 export function shuffleComponents() {
@@ -762,14 +762,14 @@ export function openSidebar() {
   const side = $('sidePanel');
   const overlay = $('sideOverlay');
   const toggle = $('menuToggle');
-  if (!side || !overlay) return;
+  if (!side || !overlay) {return;}
   side.classList.add('open');
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
-  if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  if (toggle) {toggle.setAttribute('aria-expanded', 'true');}
   if (syncSidebarAccessibility(side, true)) {
     const close = $('sideClose');
-    if (close) close.focus();
+    if (close) {close.focus();}
   }
 }
 
@@ -777,18 +777,18 @@ export function closeSidebar() {
   const side = $('sidePanel');
   const overlay = $('sideOverlay');
   const toggle = $('menuToggle');
-  if (!side || !overlay) return;
+  if (!side || !overlay) {return;}
   const restoreFocus = side.contains(document.activeElement);
   side.classList.remove('open');
   overlay.classList.remove('active');
   document.body.style.overflow = '';
-  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  if (toggle) {toggle.setAttribute('aria-expanded', 'false');}
   const compact = syncSidebarAccessibility(side, false);
   if (restoreFocus) {
-    if (compact && toggle) toggle.focus();
+    if (compact && toggle) {toggle.focus();}
     else if (!compact) {
       const search = $('searchInput');
-      if (search) search.focus();
+      if (search) {search.focus();}
     }
   }
 }
@@ -815,20 +815,20 @@ export function setNavigationLocked(locked) {
     nav.querySelectorAll('.component-link, .component-group-toggle').forEach((button) => { button.disabled = navigationLocked; });
   }
   const grid = $('componentGrid');
-  if (grid) grid.querySelectorAll('.component-card').forEach((button) => { button.disabled = navigationLocked; });
+  if (grid) {grid.querySelectorAll('.component-card').forEach((button) => { button.disabled = navigationLocked; });}
   const allFilter = $('allComponentsFilter');
-  if (allFilter) allFilter.disabled = navigationLocked;
-  if (nav) nav.querySelectorAll('.category-nav-filter').forEach((button) => { button.disabled = navigationLocked; });
+  if (allFilter) {allFilter.disabled = navigationLocked;}
+  if (nav) {nav.querySelectorAll('.category-nav-filter').forEach((button) => { button.disabled = navigationLocked; });}
   const filters = $('categoryFilters');
-  if (filters) filters.querySelectorAll('button').forEach((button) => { button.disabled = navigationLocked; });
+  if (filters) {filters.querySelectorAll('button').forEach((button) => { button.disabled = navigationLocked; });}
   const search = $('searchInput');
-  if (search) search.disabled = navigationLocked;
+  if (search) {search.disabled = navigationLocked;}
   const clearBtn = $('searchClearBtn');
-  if (clearBtn) clearBtn.disabled = navigationLocked;
+  if (clearBtn) {clearBtn.disabled = navigationLocked;}
   const more = $('seeMore');
-  if (more) more.disabled = navigationLocked;
+  if (more) {more.disabled = navigationLocked;}
   const shuffle = $('shuffleComponents');
-  if (shuffle) shuffle.disabled = navigationLocked;
+  if (shuffle) {shuffle.disabled = navigationLocked;}
   const banner = $('aiLockBanner');
-  if (banner) banner.hidden = !navigationLocked;
+  if (banner) {banner.hidden = !navigationLocked;}
 }

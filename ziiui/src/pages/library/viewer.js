@@ -39,7 +39,7 @@ export function hidePreviewLoading() {
     loader.classList.add('hidden');
     loader.setAttribute('aria-hidden', 'true');
     setTimeout(() => {
-      if (loader && loader.classList.contains('hidden')) loader.hidden = true;
+      if (loader && loader.classList.contains('hidden')) {loader.hidden = true;}
     }, 200);
   }
 }
@@ -59,7 +59,7 @@ const MAX_SPLIT_CACHE = 25;
 
 export function splitComponentCode(source) {
   const src = String(source || '');
-  if (codeSplitCache.has(src)) return codeSplitCache.get(src);
+  if (codeSplitCache.has(src)) {return codeSplitCache.get(src);}
 
   const document = new DOMParser().parseFromString(src, 'text/html');
   const styleBlocks = [...document.querySelectorAll('style')].map((node) => node.textContent.trim()).filter(Boolean);
@@ -90,7 +90,7 @@ const TAB_NAMES = { html: 'HTML', css: 'CSS', js: 'JavaScript' };
 
 export function getComponentDependencies(source) {
   const src = String(source || '');
-  if (!src) return [];
+  if (!src) {return [];}
 
   const deps = [];
   const lower = src.toLowerCase();
@@ -135,7 +135,7 @@ export function getComponentDependencies(source) {
 
 export function renderDependencies(source = activeCode()) {
   const container = $('previewDeps');
-  if (!container) return;
+  if (!container) {return;}
   const deps = getComponentDependencies(source);
   if (!deps.length) {
     container.innerHTML = '<span class="dep-chip dep-chip-pure" title="Self-contained vanilla HTML/CSS/JS with zero external dependencies"><i class="ri-check-line" aria-hidden="true"></i> Vanilla (Zero dependencies)</span>';
@@ -150,11 +150,11 @@ function renderCodeView(source = activeCode()) {
   const output = $('code-out');
   const panel = $('codePanel');
   const selectedTab = $(`codeTab${codeTab[0].toUpperCase()}${codeTab.slice(1)}`);
-  if (!output) return;
+  if (!output) {return;}
   const sections = splitComponentCode(source);
   const content = sections[codeTab];
   output.textContent = content || `No ${codeTab === 'js' ? 'JavaScript' : codeTab.toUpperCase()} in this component.`;
-  if (panel && selectedTab) panel.setAttribute('aria-labelledby', selectedTab.id);
+  if (panel && selectedTab) {panel.setAttribute('aria-labelledby', selectedTab.id);}
   document.querySelectorAll('.code-tab').forEach((tab) => {
     const selected = tab.dataset.codeTab === codeTab;
     tab.setAttribute('aria-selected', String(selected));
@@ -180,9 +180,9 @@ export function refreshCodeView() {
 
 export function handleCodeTabEvent(event) {
   const tabs = [...document.querySelectorAll('.code-tab')];
-  if (!tabs.length) return;
+  if (!tabs.length) {return;}
   const current = event.target.closest('.code-tab');
-  if (!current) return;
+  if (!current) {return;}
   if (event.type === 'click') {
     codeTab = current.dataset.codeTab;
     renderCodeView();
@@ -190,11 +190,11 @@ export function handleCodeTabEvent(event) {
   }
   const index = tabs.indexOf(current);
   let next = index;
-  if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-  else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
-  else if (event.key === 'Home') next = 0;
-  else if (event.key === 'End') next = tabs.length - 1;
-  else return;
+  if (event.key === 'ArrowRight') {next = (index + 1) % tabs.length;}
+  else if (event.key === 'ArrowLeft') {next = (index + tabs.length - 1) % tabs.length;}
+  else if (event.key === 'Home') {next = 0;}
+  else if (event.key === 'End') {next = tabs.length - 1;}
+  else {return;}
   event.preventDefault();
   codeTab = tabs[next].dataset.codeTab;
   renderCodeView();
@@ -203,7 +203,7 @@ export function handleCodeTabEvent(event) {
 
 function updatePreviewHeight(effect) {
   const frame = $('frame');
-  if (!frame) return;
+  if (!frame) {return;}
   frame.classList.remove('preview-compact', 'preview-large');
   frame.classList.add(effect.previewSize === 'large' ? 'preview-large' : 'preview-compact');
 }
@@ -218,30 +218,30 @@ function getBuildCacheKey(id, opts, per, preset) {
 /** Render `code` (default: the active code) in the preview iframe. */
 export function play(code) {
   const src = code || activeCode();
-  if (!src) return;
+  if (!src) {return;}
   wireFrameEvents();
   showPreviewLoading();
   nonce++;
-  setFrameHTML($('frame'), injectDebug(src + '\n<!-- ' + nonce + ' -->'));
+  setFrameHTML($('frame'), injectDebug(`${src  }\n<!-- ${  nonce  } -->`));
 }
 
 function updateHint(empty, trimmed) {
   const h = $('hint');
-  if (!h) return;
+  if (!h) {return;}
   const ta = $('text');
   const n = ta ? ta.value.length : 0;
   h.classList.toggle('warn', !!trimmed);
   h.textContent = trimmed
-    ? 'Text was trimmed to ' + MAX.toLocaleString() + ' characters.'
+    ? `Text was trimmed to ${  MAX.toLocaleString()  } characters.`
     : empty ? 'Text is empty, so the placeholder is shown.'
-      : n.toLocaleString() + ' / ' + MAX.toLocaleString() + ' characters';
+      : `${n.toLocaleString()  } / ${  MAX.toLocaleString()  } characters`;
 }
 
 export function rebuild() {
   clearTimeout(buildTimer);
   buildTimer = null;
   const cur = store.cur;
-  if (!cur) return;
+  if (!cur) {return;}
   try {
     const ta = $('text');
     const raw = norm(ta ? ta.value : '');
@@ -264,8 +264,8 @@ export function rebuild() {
 
     store.html = String(generated).replace(/__TEXT__/g, () => esc(empty ? PLACEHOLDER : raw));
     const labelEl = $('label');
-    if (labelEl) labelEl.textContent = cur.name + (cur.opts ? ' · ' + perVal + ' · ' + presetVal : '');
-    $('frame').title = 'Preview of ' + cur.name;
+    if (labelEl) {labelEl.textContent = cur.name + (cur.opts ? ` · ${  perVal  } · ${  presetVal}` : '');}
+    $('frame').title = `Preview of ${  cur.name}`;
     updateHint(empty);
 
     hooks.afterBuild(store.html); // syncs AI state / edited code
@@ -274,7 +274,7 @@ export function rebuild() {
   } catch (err) {
     store.html = '';
     const out = $('code-out');
-    if (out) out.textContent = 'Could not build this effect: ' + err.message;
+    if (out) {out.textContent = `Could not build this effect: ${  err.message}`;}
     hidePreviewLoading();
     setFrameHTML($('frame'), injectDebug(errorDoc('Build error', err.message)));
     report(err, 'rebuild');
@@ -285,7 +285,7 @@ function scheduleBuild() {
   clearTimeout(buildTimer);
   buildTimer = setTimeout(rebuild, DEBOUNCE);
 }
-export function flushBuild() { if (buildTimer) rebuild(); }
+export function flushBuild() { if (buildTimer) {rebuild();} }
 
 export function replay() {
   const btn = $('previewReset');
@@ -300,11 +300,11 @@ export function replay() {
 export function onInput() {
   store.dirty = true;
   const ta = $('text');
-  if (!ta) return;
+  if (!ta) {return;}
   let trimmed = false;
   if (ta.value.length > MAX) {
     let v = ta.value.slice(0, MAX);
-    if (/[\uD800-\uDBFF]$/.test(v)) v = v.slice(0, -1); // never cut a surrogate pair
+    if (/[\uD800-\uDBFF]$/.test(v)) {v = v.slice(0, -1);} // never cut a surrogate pair
     ta.value = v;
     trimmed = true;
   }
@@ -315,20 +315,20 @@ export function onInput() {
 function placeTextField(e) {
   const mode = e.field === 'none' ? 'none' : (e.cat === 'Cursor' ? 'slot' : 'controls');
   const tblock = $('tblock'), cslot = $('cslot'), controls = $('controls');
-  if (mode === 'slot' && cslot) cslot.append(tblock);
-  else if (mode === 'controls' && controls) controls.append(tblock);
-  if (cslot) cslot.hidden = mode !== 'slot';
+  if (mode === 'slot' && cslot) {cslot.append(tblock);}
+  else if (mode === 'controls' && controls) {controls.append(tblock);}
+  if (cslot) {cslot.hidden = mode !== 'slot';}
   const ccard = $('ccard');
-  if (ccard) ccard.hidden = mode !== 'controls';
-  if (controls) controls.classList.toggle('no-opts', !e.opts);
+  if (ccard) {ccard.hidden = mode !== 'controls';}
+  if (controls) {controls.classList.toggle('no-opts', !e.opts);}
   const tl = $('tlabel');
-  if (tl) tl.textContent = FIELD_LABELS[e.id] || 'Text';
+  if (tl) {tl.textContent = FIELD_LABELS[e.id] || 'Text';}
 }
 
 function componentURL(id) {
   const url = new URL(window.location.href);
-  if (id) url.searchParams.set('component', id);
-  else url.searchParams.delete('component');
+  if (id) {url.searchParams.set('component', id);}
+  else {url.searchParams.delete('component');}
   return url.pathname + url.search + url.hash;
 }
 
@@ -338,20 +338,20 @@ function setDetailView(effect) {
   const content = $('componentDetailContent');
   const error = $('routeError');
   const fab = $('aiFab');
-  if (catalog) catalog.hidden = true;
-  if (detail) detail.hidden = false;
-  if (content) content.hidden = true;
-  if (error) error.hidden = true;
-  if ($('detailCategory')) $('detailCategory').textContent = effect.cat;
-  if ($('detailName')) $('detailName').textContent = effect.name;
-  if (fab) fab.hidden = false;
-  if (content) content.hidden = false;
+  if (catalog) {catalog.hidden = true;}
+  if (detail) {detail.hidden = false;}
+  if (content) {content.hidden = true;}
+  if (error) {error.hidden = true;}
+  if ($('detailCategory')) {$('detailCategory').textContent = effect.cat;}
+  if ($('detailName')) {$('detailName').textContent = effect.name;}
+  if (fab) {fab.hidden = false;}
+  if (content) {content.hidden = false;}
   document.title = `${effect.name} — ziiui Components`;
 }
 
 export function selectEffect(e, fromUser, options = {}) {
   if (isBusy()) { say('AI is working… Component selection is temporarily locked.'); return; }
-  if (!e) return;
+  if (!e) {return;}
   if (options.updateURL !== false && fromUser) {
     window.history.pushState({ componentId: e.id }, '', componentURL(e.id));
   }
@@ -361,9 +361,9 @@ export function selectEffect(e, fromUser, options = {}) {
   store.dirty = false;
   setDetailView(e);
   const ta = $('text');
-  if (e.field !== 'none' && ta) ta.value = e.text || '';
+  if (e.field !== 'none' && ta) {ta.value = e.text || '';}
   const opts = $('opts');
-  if (opts) opts.hidden = !e.opts;
+  if (opts) {opts.hidden = !e.opts;}
   try { placeTextField(e); } catch (err) { report(err, 'placeTextField'); }
   try { updatePreviewHeight(e); } catch (err) { report(err, 'previewHeight'); }
   $('pname').textContent = e.name;
@@ -373,10 +373,10 @@ export function selectEffect(e, fromUser, options = {}) {
   rebuild();
   try { hooks.afterSelect(); } catch (err) { report(err, 'afterSelect'); }
   if (fromUser) {
-    say('Previewing ' + e.name + (e.cat === 'Cursor' ? '. Its text field is below the preview.' : ''));
-    if (window.matchMedia('(max-width: 900px)').matches) closeSidebar();
+    say(`Previewing ${  e.name  }${e.cat === 'Cursor' ? '. Its text field is below the preview.' : ''}`);
+    if (window.matchMedia('(max-width: 900px)').matches) {closeSidebar();}
     const detail = $('componentDetail');
-    if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (detail) {detail.scrollIntoView({ behavior: 'smooth', block: 'start' });}
   }
 }
 
@@ -384,23 +384,23 @@ export function showDiscovery(category = 'All', options = {}) {
   if (options.updateURL) {
     window.history.pushState({ componentId: null }, '', componentURL(null));
   }
-  if (window.matchMedia('(max-width: 900px)').matches) closeSidebar();
+  if (window.matchMedia('(max-width: 900px)').matches) {closeSidebar();}
   const catalog = $('catalogSection');
   const detail = $('componentDetail');
   const content = $('componentDetailContent');
   const error = $('routeError');
   const fab = $('aiFab');
-  if (catalog) catalog.hidden = false;
-  if (detail) detail.hidden = true;
-  if (content) content.hidden = false;
-  if (error) error.hidden = true;
+  if (catalog) {catalog.hidden = false;}
+  if (detail) {detail.hidden = true;}
+  if (content) {content.hidden = false;}
+  if (error) {error.hidden = true;}
   if (fab) {
     fab.hidden = false;
     fab.classList.remove('is-open');
     fab.setAttribute('aria-expanded', 'false');
   }
   const panel = $('aiPanel');
-  if (panel) panel.hidden = true;
+  if (panel) {panel.hidden = true;}
   document.body.style.overflow = '';
   updateFullscreenUI(false);
   hidePreviewLoading();
@@ -415,7 +415,7 @@ export function showDiscovery(category = 'All', options = {}) {
   markCurrent(null, false);
   showAllComponents(category);
   hooks.afterSelect();
-  if (options.scroll !== false && catalog) catalog.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (options.scroll !== false && catalog) {catalog.scrollIntoView({ behavior: 'smooth', block: 'start' });}
 }
 
 export function showMissingComponent() {
@@ -424,13 +424,13 @@ export function showMissingComponent() {
   const content = $('componentDetailContent');
   const error = $('routeError');
   const fab = $('aiFab');
-  if (catalog) catalog.hidden = true;
-  if (detail) detail.hidden = false;
-  if (content) content.hidden = true;
-  if (error) error.hidden = false;
-  if (fab) fab.hidden = true;
+  if (catalog) {catalog.hidden = true;}
+  if (detail) {detail.hidden = false;}
+  if (content) {content.hidden = true;}
+  if (error) {error.hidden = false;}
+  if (fab) {fab.hidden = true;}
   const panel = $('aiPanel');
-  if (panel) panel.hidden = true;
+  if (panel) {panel.hidden = true;}
   updateFullscreenUI(false);
   hidePreviewLoading();
   clearFrameHTML($('frame'));
@@ -443,10 +443,10 @@ export function showMissingComponent() {
 }
 
 export async function onCopy() {
-  if (copyBusy) return;
+  if (copyBusy) {return;}
   flushBuild();
   const code = activeCode();
-  if (!code) return;
+  if (!code) {return;}
   copyBusy = true;
   const btn = $('copy');
   let ok = false;
@@ -472,10 +472,10 @@ let copyTabBusy = false;
 let copyTabReset = null;
 
 export async function onCopyTab() {
-  if (copyTabBusy) return;
+  if (copyTabBusy) {return;}
   flushBuild();
   const code = activeCode();
-  if (!code) return;
+  if (!code) {return;}
   const sections = splitComponentCode(code);
   const tabContent = sections[codeTab];
   const currentName = TAB_NAMES[codeTab] || 'Tab';
@@ -492,23 +492,23 @@ export async function onCopyTab() {
   let ok = false;
   try { ok = await copyText(tabContent); } catch (err) { report(err, 'copyTab'); }
 
-  if (label) label.textContent = ok ? `Copied ${currentName}!` : 'Copy failed';
-  if (icon) icon.className = ok ? 'ri-check-line' : 'ri-close-line';
-  if (btn) btn.dataset.state = ok ? 'ok' : 'fail';
+  if (label) {label.textContent = ok ? `Copied ${currentName}!` : 'Copy failed';}
+  if (icon) {icon.className = ok ? 'ri-check-line' : 'ri-close-line';}
+  if (btn) {btn.dataset.state = ok ? 'ok' : 'fail';}
   say(ok ? `${currentName} copied to clipboard` : 'Copy failed.');
 
   clearTimeout(copyTabReset);
   copyTabReset = setTimeout(() => {
-    if (label) label.textContent = `Copy ${TAB_NAMES[codeTab] || 'Tab'}`;
-    if (icon) icon.className = 'ri-file-copy-line';
-    if (btn) delete btn.dataset.state;
+    if (label) {label.textContent = `Copy ${TAB_NAMES[codeTab] || 'Tab'}`;}
+    if (icon) {icon.className = 'ri-file-copy-line';}
+    if (btn) {delete btn.dataset.state;}
     copyTabBusy = false;
   }, 1800);
 }
 
 export function isFullscreen() {
   const stage = $('previewStage');
-  if (!stage) return false;
+  if (!stage) {return false;}
   return (
     (typeof document !== 'undefined' && document.fullscreenElement === stage) ||
     stage.classList.contains('is-fullscreen')
@@ -522,8 +522,8 @@ export function updateFullscreenUI(active) {
   const fsLabel = $('previewFsLabel');
   const fsBtn = $('previewFullscreen');
 
-  if (stage) stage.classList.toggle('is-fullscreen', active);
-  if (exitBtn) exitBtn.hidden = !active;
+  if (stage) {stage.classList.toggle('is-fullscreen', active);}
+  if (exitBtn) {exitBtn.hidden = !active;}
   if (fsIcon) {
     fsIcon.className = active ? 'ri-fullscreen-exit-line' : 'ri-fullscreen-line';
   }
@@ -542,7 +542,7 @@ export function updateFullscreenUI(active) {
 
 export async function toggleFullscreen() {
   const stage = $('previewStage');
-  if (!stage) return;
+  if (!stage) {return;}
   const active = isFullscreen();
   if (active) {
     if (typeof document !== 'undefined' && document.fullscreenElement) {
@@ -569,7 +569,7 @@ export async function toggleFullscreen() {
 export function setView(view) {
   const previewView = $('previewView');
   const codeView = $('codeView');
-  if (!previewView || !codeView) return;
+  if (!previewView || !codeView) {return;}
   const showPreview = view === 'preview';
   previewView.hidden = !showPreview;
   codeView.hidden = showPreview;
@@ -579,7 +579,7 @@ export function setView(view) {
     t.classList.toggle('is-active', on);
     t.tabIndex = on ? 0 : -1;
   });
-  if (!showPreview) renderCodeView();
+  if (!showPreview) {renderCodeView();}
 }
 
 /** Open the current component code in a new window/tab. */

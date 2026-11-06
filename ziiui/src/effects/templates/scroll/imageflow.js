@@ -1,4 +1,4 @@
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   const lenis = new Lenis();
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => { lenis.raf(time * 1000); });
@@ -36,8 +36,8 @@ window.addEventListener("load", () => {
   images.forEach((eachImage, index) => { gsap.set(eachImage, initPos[index]); });
 
   ScrollTrigger.create({
-    trigger: ".flow",
-    start: "top top",
+    trigger: '.flow',
+    start: 'top top',
     end: `+=${screenHeight * 10}px`,
     pin: true, pinSpacing: true, scrub: 1,
     onUpdate: (self) => {
@@ -50,7 +50,7 @@ window.addEventListener("load", () => {
         let x = gsap.utils.interpolate(start.x, end.x, imgProgress);
         let y = gsap.utils.interpolate(start.y, end.y, imgProgress);
         let z = gsap.utils.interpolate(start.z, end.z, imgProgress);
-        let scale = gsap.utils.interpolate(start.scale, end.scale, imgProgress);
+        const scale = gsap.utils.interpolate(start.scale, end.scale, imgProgress);
         if (index === images.length - 1) { x = 0; y = 0; z = z * 0.4; }
         gsap.set(eachImage, { x, y, z, scale });
       });

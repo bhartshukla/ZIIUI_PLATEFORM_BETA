@@ -1,11 +1,11 @@
-const video = document.querySelector("#clip-video");
-const masks = document.querySelectorAll(".maskContainer");
-const globalHud = document.querySelector(".globalHud");
+const video = document.querySelector('#clip-video');
+const masks = document.querySelectorAll('.maskContainer');
+const globalHud = document.querySelector('.globalHud');
 let isHoveringMask = false;
 
 const state = new Map();
 
-document.addEventListener("mousemove", e => {
+document.addEventListener('mousemove', e => {
   if (!isHoveringMask) {
     globalHud.innerHTML = `X: ${e.clientX}px <br/> Y: ${e.clientY}px`;
   }
@@ -14,12 +14,12 @@ document.addEventListener("mousemove", e => {
 
 function updateCoords(mask) {
   const s = state.get(mask);
-  mask.querySelector(".coords").textContent =
+  mask.querySelector('.coords').textContent =
     `X: ${Math.round(s.x)}px Y: ${Math.round(s.y)}px`;
 }
 
 function drawClipped(ctx, video, rect) {
-  if (!video.videoWidth || !video.videoHeight) return;
+  if (!video.videoWidth || !video.videoHeight) {return;}
   const videoAspect = video.videoWidth / video.videoHeight;
   const windowAspect = window.innerWidth / window.innerHeight;
   let dw, dh, dx, dy;
@@ -42,21 +42,21 @@ function initMasks() {
   masks.forEach(mask => {
     const r = mask.getBoundingClientRect();
     state.set(mask, { x: r.left, y: r.top, w: r.width, h: r.height });
-    mask.style.left = "0";
-    mask.style.top = "0";
+    mask.style.left = '0';
+    mask.style.top = '0';
     mask.style.transform = `translate3d(${r.left}px, ${r.top}px, 0)`;
-    mask.addEventListener("mouseenter", () => {
+    mask.addEventListener('mouseenter', () => {
       isHoveringMask = true;
-      globalHud.textContent = "GRAB";
+      globalHud.textContent = 'GRAB';
     });
-    mask.addEventListener("mouseleave", () => { isHoveringMask = false; });
+    mask.addEventListener('mouseleave', () => { isHoveringMask = false; });
   });
 }
 
 function initCanvases() {
   masks.forEach(mask => {
     const s = state.get(mask);
-    const canvas = mask.querySelector("canvas");
+    const canvas = mask.querySelector('canvas');
     canvas.width = s.w;
     canvas.height = s.h;
   });
@@ -65,8 +65,8 @@ function initCanvases() {
 function draw() {
   masks.forEach(mask => {
     const s = state.get(mask);
-    const canvas = mask.querySelector("canvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = mask.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawClipped(ctx, video, s);
     updateCoords(mask);
@@ -77,33 +77,33 @@ function draw() {
 masks.forEach(mask => {
   let dragging = false;
   let ox = 0, oy = 0;
-  mask.addEventListener("mousedown", e => {
+  mask.addEventListener('mousedown', e => {
     dragging = true;
     const s = state.get(mask);
     ox = e.clientX - s.x;
     oy = e.clientY - s.y;
-    mask.style.cursor = "grabbing";
+    mask.style.cursor = 'grabbing';
   });
-  document.addEventListener("mousemove", e => {
-    if (!dragging) return;
+  document.addEventListener('mousemove', e => {
+    if (!dragging) {return;}
     const s = state.get(mask);
     s.x = e.clientX - ox;
     s.y = e.clientY - oy;
     mask.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
   });
-  document.addEventListener("mouseup", () => {
+  document.addEventListener('mouseup', () => {
     dragging = false;
-    mask.style.cursor = "grab";
+    mask.style.cursor = 'grab';
   });
 });
 
 let started = false;
 function start() {
-  if (started) return;
+  if (started) {return;}
   started = true;
   initMasks();
   initCanvases();
   draw();
 }
-video.addEventListener("playing", start);
-video.addEventListener("loadeddata", start);
+video.addEventListener('playing', start);
+video.addEventListener('loadeddata', start);

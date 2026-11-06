@@ -26,9 +26,9 @@ export function updateDraftIndicators() {
   const badge = $('aiDraftBadge');
   const restoreBtn = $('restoreOriginalBtn');
   const codeTag = $('aiCodeDraftTag');
-  if (badge) badge.hidden = !isDraft;
-  if (restoreBtn) restoreBtn.hidden = !isDraft;
-  if (codeTag) codeTag.hidden = !isDraft;
+  if (badge) {badge.hidden = !isDraft;}
+  if (restoreBtn) {restoreBtn.hidden = !isDraft;}
+  if (codeTag) {codeTag.hidden = !isDraft;}
 }
 
 /* ---------- state sync with the viewer ---------- */
@@ -48,7 +48,7 @@ function syncAfterBuild(html) {
   compState.lastUpdated = Date.now();
   store.compState = compState;
   persistAIState();
-  if (el.code) el.code.value = store.edited;
+  if (el.code) {el.code.value = store.edited;}
   updateDraftIndicators();
 }
 
@@ -65,7 +65,7 @@ function onComponentChange() {
   renderSelected();
   renderChat();
   updateContextIndicator();
-  if (el.code) el.code.value = store.editActive ? store.edited : store.html;
+  if (el.code) {el.code.value = store.editActive ? store.edited : store.html;}
   updateStatus();
   updateDraftIndicators();
   flushPersist();
@@ -73,15 +73,15 @@ function onComponentChange() {
 
 /* ---------- panel ---------- */
 function togglePanel(force) {
-  if (!el.panel || !el.fab) return;
+  if (!el.panel || !el.fab) {return;}
   const open = typeof force === 'boolean' ? force : el.panel.hidden;
   if (!store.cur && open) {
     el.panel.hidden = false;
     el.fab.classList.add('is-open');
     el.fab.setAttribute('aria-expanded', 'true');
-    if (el.headSub) el.headSub.textContent = 'Choose a component';
+    if (el.headSub) {el.headSub.textContent = 'Choose a component';}
     renderSelected();
-    if (chat) chat.render([], 'Choose a component first before editing with AI.');
+    if (chat) {chat.render([], 'Choose a component first before editing with AI.');}
     updateContextIndicator();
     syncAIInputState();
     return;
@@ -108,23 +108,23 @@ function syncAIInputState() {
 
 function renderSelected() {
   const cur = store.cur;
-  if (!el.sel) return;
+  if (!el.sel) {return;}
   if (!cur) {
-    if (el.headSub) el.headSub.textContent = 'No component selected';
+    if (el.headSub) {el.headSub.textContent = 'No component selected';}
     el.sel.innerHTML = '<span class="ai-sel-empty">Select a component first to start editing.</span>';
     syncAIInputState();
     return;
   }
-  if (el.headSub) el.headSub.textContent = 'Selected: ' + cur.name;
+  if (el.headSub) {el.headSub.textContent = `Selected: ${  cur.name}`;}
   el.sel.innerHTML =
-    '<div class="ai-sel-info"><strong>' + esc(cur.name) + '</strong>' +
-    '<span>Category: ' + esc(cur.cat) + '</span></div>' +
+    `<div class="ai-sel-info"><strong>${  esc(cur.name)  }</strong>` +
+    `<span>Category: ${  esc(cur.cat)  }</span></div>` +
     '<button class="ai-btn ghost" type="button" id="aiViewCode" aria-label="View component code">' +
     '<i class="ri-code-s-slash-line" aria-hidden="true"></i> View Code</button>';
   const v = $('aiViewCode');
   if (v) {
     v.addEventListener('click', () => {
-      if (el.code) el.code.value = store.editActive ? store.edited : store.html;
+      if (el.code) {el.code.value = store.editActive ? store.edited : store.html;}
       openModal();
     });
   }
@@ -132,7 +132,7 @@ function renderSelected() {
 }
 
 function renderChat() {
-  if (!chat) return;
+  if (!chat) {return;}
   if (!store.cur) { chat.render([], 'Select a component to start editing.'); syncAIInputState(); return; }
   const s = getComponentState(store.cur.id);
   chat.render(
@@ -143,7 +143,7 @@ function renderChat() {
 }
 
 function updateContextIndicator() {
-  if (!el.context) return;
+  if (!el.context) {return;}
   el.context.textContent = store.cur && store.compState
     ? describeContext(store.compState, store.cur.name)
     : 'New AI session';
@@ -151,7 +151,7 @@ function updateContextIndicator() {
 
 /* ---------- generate ---------- */
 async function generate() {
-  if (isBusy()) return;
+  if (isBusy()) {return;}
   const cur = store.cur;
   if (!cur) { chat.add('err', 'Select a component first.'); return; }
   const compState = store.compState;
@@ -175,8 +175,8 @@ async function generate() {
   persistAIState();
 
   el.prompt.value = '';
-  if (el.send) el.send.disabled = true;
-  if (el.fab) el.fab.classList.add('is-processing');
+  if (el.send) {el.send.disabled = true;}
+  if (el.fab) {el.fab.classList.add('is-processing');}
   syncAIInputState();
   setNavigationLocked(true);
   pushChatMessage(compState, 'user', request);
@@ -196,7 +196,7 @@ async function generate() {
       request,
       signal: req.signal
     });
-    if (!isCurrent(req) || cur.id !== store.cur.id) return;
+    if (!isCurrent(req) || cur.id !== store.cur.id) {return;}
     if ((compState.revision || 0) !== Number(req.baseRevision || 0)) {
       el.prompt.value = request;
       chat.add('err', 'This AI result was generated from an older version and was ignored.');
@@ -206,9 +206,9 @@ async function generate() {
     store.edited = code;
     store.editActive = true;
     addCodeVersion(compState, code, request);
-    pushChatMessage(compState, 'assistant', 'Applied: ' + request);
+    pushChatMessage(compState, 'assistant', `Applied: ${  request}`);
     chat.add('ai', 'Updated the component. Opening the AI editor…');
-    if (el.code) el.code.value = code;
+    if (el.code) {el.code.value = code;}
     refreshCodeView();
     updateContextIndicator();
     updateDraftIndicators();
@@ -217,7 +217,7 @@ async function generate() {
     updateStatus();
     say('AI version generated — original component preserved.');
   } catch (err) {
-    if (!isActiveRequest(req)) return;
+    if (!isActiveRequest(req)) {return;}
     chat.hideLoading();
     el.prompt.value = request;
     const aborted = err && err.name === 'AbortError';
@@ -226,7 +226,7 @@ async function generate() {
       : describeAIError(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
-    if (el.fab) el.fab.classList.remove('is-processing');
+    if (el.fab) {el.fab.classList.remove('is-processing');}
     const wasActive = isActiveRequest(req);
     endRequest(req);
     if (wasActive) {
@@ -238,33 +238,33 @@ async function generate() {
 
 /* ---------- modal ---------- */
 function openModal() {
-  if (!el.modal) return;
+  if (!el.modal) {return;}
   if (el.modal.hidden) {
     modalReturnFocus = document.activeElement;
     modalPreviousOverflow = document.body.style.overflow;
   }
   const target = store.editActive ? store.edited : store.html;
-  if (el.code && el.code.value !== target) el.code.value = target || '';
-  if (el.modalTitle) el.modalTitle.textContent = store.cur ? store.cur.name : 'Component';
+  if (el.code && el.code.value !== target) {el.code.value = target || '';}
+  if (el.modalTitle) {el.modalTitle.textContent = store.cur ? store.cur.name : 'Component';}
   el.modal.hidden = false;
   document.body.style.overflow = 'hidden';
   updateStatus();
   runPreview();
   setTimeout(() => {
-    if (!el.modal.hidden) $('aiModalClose').focus();
+    if (!el.modal.hidden) {$('aiModalClose').focus();}
   }, 30);
 }
 
 function closeModal() {
-  if (!el.modal || el.modal.hidden) return;
+  if (!el.modal || el.modal.hidden) {return;}
   el.modal.hidden = true;
   document.body.style.overflow = modalPreviousOverflow;
-  if (modalReturnFocus && modalReturnFocus.isConnected) modalReturnFocus.focus();
+  if (modalReturnFocus && modalReturnFocus.isConnected) {modalReturnFocus.focus();}
   modalReturnFocus = null;
 }
 
 function keepModalFocus(event) {
-  if (event.key !== 'Tab' || !el.modal || el.modal.hidden) return;
+  if (event.key !== 'Tab' || !el.modal || el.modal.hidden) {return;}
   const focusable = [...el.modal.querySelectorAll(
     'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
   )].filter((node) => node.getClientRects().length > 0);
@@ -284,13 +284,13 @@ function keepModalFocus(event) {
 }
 
 function runPreview() {
-  if (!el.previewFrame) return;
+  if (!el.previewFrame) {return;}
   const code = el.code ? el.code.value : '';
   setFrameHTML(el.previewFrame, code && code.trim() ? injectDebug(code) : emptyPreviewDoc());
 }
 
 function updateStatus() {
-  if (!el.modalStatus) return;
+  if (!el.modalStatus) {return;}
   const edited = store.editActive && store.edited && store.edited !== store.html;
   el.modalStatus.textContent = edited
     ? 'AI version generated — original component preserved.'
@@ -299,7 +299,7 @@ function updateStatus() {
 }
 
 function showTab(which) {
-  if (!el.code) return;
+  if (!el.code) {return;}
   el.code.value = which === 'original' ? (store.html || '') : (store.editActive ? store.edited : (store.html || ''));
   document.querySelectorAll('.ai-tab').forEach((t) => {
     const on = t.dataset.tab === which;
@@ -311,7 +311,7 @@ function showTab(which) {
 }
 
 function applyEdited() {
-  if (!store.cur || !el.code) return;
+  if (!store.cur || !el.code) {return;}
   const val = el.code.value;
   store.edited = val;
   store.editActive = val !== store.html;
@@ -328,13 +328,13 @@ export function resetToOriginal() {
   store.edited = store.html;
   store.editActive = false;
   setCurrentCode(store.compState, '');
-  if (el.code) el.code.value = store.html || '';
+  if (el.code) {el.code.value = store.html || '';}
   refreshCodeView();
-  if (store.html) setFrameHTML($('frame'), injectDebug(store.html));
+  if (store.html) {setFrameHTML($('frame'), injectDebug(store.html));}
   updateStatus();
   updateDraftIndicators();
   runPreview();
-  if (chat) chat.add('sys', 'Reset to original canonical component.');
+  if (chat) {chat.add('sys', 'Reset to original canonical component.');}
   say('Reset to original canonical component.');
 }
 
@@ -351,7 +351,7 @@ export function exportDraftFile() {
   const ok = exportFile(filename, code);
   if (ok) {
     say(`Exported ${filename}`);
-    if (chat) chat.add('sys', `Exported ${filename}`);
+    if (chat) {chat.add('sys', `Exported ${filename}`);}
   }
   return ok;
 }
@@ -364,7 +364,7 @@ async function copyEdited() {
       ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
       : '<i class="ri-close-line" aria-hidden="true"></i> Copy failed';
     setTimeout(() => {
-      if (btn) btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy Code';
+      if (btn) {btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy Code';}
     }, 1800);
   }
   chat.add('sys', ok ? 'Edited code copied to clipboard.' : 'Copy failed.');
@@ -373,7 +373,7 @@ async function copyEdited() {
 
 function clearThisComponent() {
   const cur = store.cur;
-  if (!cur) return;
+  if (!cur) {return;}
   const state = store.compState;
   const hasHistory = !!(state && (
     state.chatHistory.length ||
@@ -384,7 +384,7 @@ function clearThisComponent() {
     chat.add('sys', 'There is no saved AI history to clear for this component.');
     return;
   }
-  if (!window.confirm('Clear chat history and AI versions for "' + cur.name + '"? The original component will remain.')) return;
+  if (!window.confirm(`Clear chat history and AI versions for "${  cur.name  }"? The original component will remain.`)) {return;}
   clearComponentHistory(cur.id);
   store.edited = store.html;
   store.editActive = false;
@@ -393,7 +393,7 @@ function clearThisComponent() {
   renderChat();
   updateContextIndicator();
   chat.add('sys', 'Component AI history cleared.');
-  say('Cleared AI history for ' + cur.name + '.');
+  say(`Cleared AI history for ${  cur.name  }.`);
   play(store.html);
 }
 
@@ -406,7 +406,7 @@ function clearEverything() {
     chat.add('sys', 'There is no saved AI history to clear.');
     return;
   }
-  if (!window.confirm('Clear ALL AI history for every component? Original components will remain intact.')) return;
+  if (!window.confirm('Clear ALL AI history for every component? Original components will remain intact.')) {return;}
   clearAllAIHistory();
   store.edited = store.html;
   store.editActive = false;
@@ -434,9 +434,9 @@ export function initAIPanel() {
   hooks.afterBuild = syncAfterBuild;
   hooks.afterSelect = onComponentChange;
 
-  if (el.auto) el.auto.checked = !!getAISettings().autoPreview;
+  if (el.auto) {el.auto.checked = !!getAISettings().autoPreview;}
 
-  const on = (id, evt, fn) => { const n = $(id); if (n) n.addEventListener(evt, fn); };
+  const on = (id, evt, fn) => { const n = $(id); if (n) {n.addEventListener(evt, fn);} };
   on('aiFab', 'click', () => togglePanel());
   on('aiClose', 'click', () => togglePanel(false));
   on('aiSend', 'click', guard(generate, 'aiGenerate'));
@@ -451,16 +451,16 @@ export function initAIPanel() {
   on('aiCopyBtn', 'click', guard(copyEdited, 'aiCopy'));
   on('aiExportBtn', 'click', guard(exportDraftFile, 'aiExport'));
   document.querySelectorAll('.ai-tab').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
-  if (el.modal) el.modal.addEventListener('click', (e) => { if (e.target === el.modal) closeModal(); });
+  if (el.modal) {el.modal.addEventListener('click', (e) => { if (e.target === el.modal) {closeModal();} });}
 
   if (el.prompt) {
     el.prompt.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) generate(); }
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) {generate();} }
     });
   }
   if (el.code) {
     el.code.addEventListener('input', () => {
-      if (!store.compState) return;
+      if (!store.compState) {return;}
       const val = el.code.value;
       store.edited = val;
       store.editActive = val !== store.html;
@@ -476,13 +476,13 @@ export function initAIPanel() {
   if (el.auto) {
     el.auto.addEventListener('change', () => {
       setAutoPreview(el.auto.checked);
-      if (el.auto.checked) runPreview();
+      if (el.auto.checked) {runPreview();}
     });
   }
 
   document.addEventListener('keydown', (e) => {
     keepModalFocus(e);
-    if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape') {return;}
     if (el.modal && !el.modal.hidden) { e.preventDefault(); closeModal(); return; }
     if (el.panel && !el.panel.hidden) { e.preventDefault(); togglePanel(false); }
   });

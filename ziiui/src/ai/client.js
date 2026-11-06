@@ -20,13 +20,13 @@ const abortError = () => new DOMException('Aborted', 'AbortError');
 const MAX_CODE_CHARS = 200000;
 
 function extractResponseText(payload) {
-  if (!payload) return '';
+  if (!payload) {return '';}
   const choice = payload?.choices?.[0];
   const message = choice?.message;
-  if (typeof message?.content === 'string') return message.content;
+  if (typeof message?.content === 'string') {return message.content;}
   if (Array.isArray(message?.content)) {
     return message.content.map((part) => {
-      if (typeof part === 'string') return part;
+      if (typeof part === 'string') {return part;}
       if (part && typeof part === 'object') {
         return part.text || part.content || '';
       }
@@ -48,10 +48,10 @@ function extractResponseText(payload) {
  * @returns {Promise<string>} the complete updated HTML
  */
 export async function generateCode({ component, compState, request, signal }) {
-  if (!aiIsConfigured()) throw new Error('NOKEY');
+  if (!aiIsConfigured()) {throw new Error('NOKEY');}
   const prompt = String(request || '').trim();
-  if (!prompt) throw new Error('INVALID');
-  if (prompt.length > 4000) throw new Error('INVALID');
+  if (!prompt) {throw new Error('INVALID');}
+  if (prompt.length > 4000) {throw new Error('INVALID');}
 
   // Enrich component with Layer B memory and Layer C task intent
   const taskIntent = classifyTaskIntent(prompt);
@@ -83,14 +83,14 @@ export async function generateCode({ component, compState, request, signal }) {
 
   const headers = { 'Content-Type': 'application/json' };
   if (!AI_USES_PROXY) {
-    headers.Authorization = 'Bearer ' + AI_API_KEY;
+    headers.Authorization = `Bearer ${  AI_API_KEY}`;
     headers['HTTP-Referer'] = window.location.origin || 'https://ziiui.local';
     headers['X-Title'] = 'ZiiUI';
   }
 
   let lastError = null;
   for (const model of AI_MODELS) {
-    if (signal && signal.aborted) throw abortError();
+    if (signal && signal.aborted) {throw abortError();}
     try {
       const response = await fetch(AI_ENDPOINT, {
         method: 'POST',
@@ -98,13 +98,13 @@ export async function generateCode({ component, compState, request, signal }) {
         body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 5000 }),
         signal
       });
-      if (response.status === 401 || response.status === 403) throw new Error('AUTH');
-      if (response.status === 408 || response.status === 504) throw new Error('TIMEOUT');
+      if (response.status === 401 || response.status === 403) {throw new Error('AUTH');}
+      if (response.status === 408 || response.status === 504) {throw new Error('TIMEOUT');}
       if (response.status === 429) { lastError = new Error('RATE'); continue; }
       if (!response.ok) {
         let detail = '';
         try { detail = await response.text(); } catch (_) { /* ignore */ }
-        lastError = new Error('API:' + response.status + (detail ? ' - ' + detail.slice(0, 140) : ''));
+        lastError = new Error(`API:${  response.status  }${detail ? ` - ${  detail.slice(0, 140)}` : ''}`);
         continue;
       }
 
@@ -123,13 +123,13 @@ export async function generateCode({ component, compState, request, signal }) {
 
       return code;
     } catch (err) {
-      if (err && err.name === 'AbortError') throw err;
-      if (err && err.message === 'AUTH') throw err;
-      if (err && err.message === 'TIMEOUT') throw err;
+      if (err && err.name === 'AbortError') {throw err;}
+      if (err && err.message === 'AUTH') {throw err;}
+      if (err && err.message === 'TIMEOUT') {throw err;}
       lastError = err instanceof TypeError ? new Error('NETWORK') : err;
     }
   }
-  if (lastError && lastError.message === 'NETWORK') throw lastError;
-  if (lastError && lastError.message === 'RATE') throw lastError;
+  if (lastError && lastError.message === 'NETWORK') {throw lastError;}
+  if (lastError && lastError.message === 'RATE') {throw lastError;}
   throw new Error('ALLMODELS');
 }

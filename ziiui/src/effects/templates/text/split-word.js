@@ -1,6 +1,6 @@
 let i = 0;
 text.split(/(\s+)/).forEach(part => {
-  if (!part) return;
+  if (!part) {return;}
   if (/^\s+$/.test(part)) { el.append(part); return; }
   const s = document.createElement('span');
   s.className = 'u';

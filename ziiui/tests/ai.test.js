@@ -85,9 +85,9 @@ describe('AI state', () => {
 
   it('caps chat history and versions', () => {
     const s = getOrCreateComponentState('a', 'A', 'Text', 'o');
-    for (let i = 0; i < AI_MAX_MESSAGES + 10; i++) pushChatMessage(s, 'user', 'm' + i);
+    for (let i = 0; i < AI_MAX_MESSAGES + 10; i++) {pushChatMessage(s, 'user', `m${  i}`);}
     expect(s.chatHistory).toHaveLength(AI_MAX_MESSAGES);
-    for (let i = 0; i < AI_MAX_VERSIONS + 5; i++) addCodeVersion(s, 'code' + i, 'p');
+    for (let i = 0; i < AI_MAX_VERSIONS + 5; i++) {addCodeVersion(s, `code${  i}`, 'p');}
     expect(s.codeVersions).toHaveLength(AI_MAX_VERSIONS);
   });
 

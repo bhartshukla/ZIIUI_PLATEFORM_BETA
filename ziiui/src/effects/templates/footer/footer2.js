@@ -2,9 +2,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 document.querySelectorAll('.line').forEach(line => {
   const text = line.textContent;
-  line.innerHTML = text.split(' ').map(word => {
-    return `<span class="word">${[...word].map(c => `<span class="char">${c}</span>`).join('')}</span>&nbsp;`;
-  }).join('');
+  line.innerHTML = text.split(' ').map(word => `<span class="word">${[...word].map(c => `<span class="char">${c}</span>`).join('')}</span>&nbsp;`).join('');
 });
 
 const footerTL = gsap.timeline({ paused: true });

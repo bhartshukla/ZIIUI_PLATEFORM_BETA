@@ -25,7 +25,7 @@ export function buildRequestFingerprint(componentId, prompt, baseRevision, model
 }
 
 export function isDuplicateRequest(componentId, prompt, baseRevision, model = '') {
-  if (!active) return false;
+  if (!active) {return false;}
   const fingerprint = buildRequestFingerprint(componentId, prompt, baseRevision, model);
   return active.componentId === componentId && active.requestFingerprint === fingerprint;
 }
@@ -55,7 +55,7 @@ export function beginRequest(componentId, prompt = '', baseRevision = 0, model =
 export const isCurrent = (req) => active === req && (!req || !req.signal || !req.signal.aborted);
 
 export function endRequest(req) {
-  if (!req) return;
+  if (!req) {return;}
   clearTimeout(req.timeoutId);
   if (active === req) {
     active = null;
@@ -64,14 +64,14 @@ export function endRequest(req) {
 }
 
 export function cancelActiveRequest() {
-  if (!active) return;
+  if (!active) {return;}
   try { active.controller.abort(); } catch (_) { /* ignore */ }
 }
 
 /** Read and clear the marker left by an interrupted request (or null). */
 export function consumePendingMarker() {
   const raw = safeGet(AI_PENDING_KEY);
-  if (!raw) return null;
+  if (!raw) {return null;}
   safeRemove(AI_PENDING_KEY);
   try { return JSON.parse(raw); } catch (_) { return null; }
 }

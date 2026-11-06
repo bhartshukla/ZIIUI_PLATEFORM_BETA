@@ -174,8 +174,8 @@ window.addEventListener('resize', () => {
   const w = window.innerWidth, h = window.innerHeight;
   renderer1.setSize(w, h);
   renderer2.setSize(w, h);
-  if (mat1) mat1.uniforms.uResolution.value.set(w, h);
-  if (mat2) mat2.uniforms.uResolution.value.set(w, h);
+  if (mat1) {mat1.uniforms.uResolution.value.set(w, h);}
+  if (mat2) {mat2.uniforms.uResolution.value.set(w, h);}
 });
 
 const hint = document.getElementById('scrollHint');

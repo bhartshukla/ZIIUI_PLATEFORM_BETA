@@ -36,10 +36,10 @@ function normalizeComponentState(componentId, entry = {}) {
 
 function migrateV1toV2(state) {
   // v1 components lacked a canonical summary field. Ensure one exists.
-  if (!state.components) return state;
+  if (!state.components) {return state;}
   Object.keys(state.components).forEach((k) => {
     const c = state.components[k];
-    if (c && typeof c.summary !== 'string') c.summary = '';
+    if (c && typeof c.summary !== 'string') {c.summary = '';}
   });
   return state;
 }
@@ -47,12 +47,12 @@ function migrateV1toV2(state) {
 function migrateV2toV3(state) {
   // v3 adds a lastUpdated timestamp to each code version snapshot
   // (defaults to the version's existing timestamp when missing).
-  if (!state.components) return state;
+  if (!state.components) {return state;}
   Object.keys(state.components).forEach((k) => {
     const c = state.components[k];
-    if (!c || !Array.isArray(c.codeVersions)) return;
+    if (!c || !Array.isArray(c.codeVersions)) {return;}
     c.codeVersions = c.codeVersions.map((v) => {
-      if (!v || typeof v !== 'object') return null;
+      if (!v || typeof v !== 'object') {return null;}
       const next = { ...v };
       if (typeof next.lastUpdated !== 'number' || !Number.isFinite(next.lastUpdated)) {
         next.lastUpdated = typeof next.timestamp === 'number' ? next.timestamp : Date.now();
@@ -69,7 +69,7 @@ const MIGRATIONS = {
 };
 
 export function migrateState(parsed) {
-  if (!parsed || typeof parsed !== 'object') return freshState();
+  if (!parsed || typeof parsed !== 'object') {return freshState();}
   // Normalize each component defensively; drop malformed entries.
   const components = {};
   if (parsed.components && typeof parsed.components === 'object') {
@@ -82,7 +82,7 @@ export function migrateState(parsed) {
   }
   let state = { schemaVersion: parsed.schemaVersion, components };
   let from = Number(state.schemaVersion);
-  if (!Number.isFinite(from) || from < 1) from = 1;
+  if (!Number.isFinite(from) || from < 1) {from = 1;}
   if (from > AI_SCHEMA_VERSION) {
     // Unknown future version: preserve data, don't wipe. Bump to current.
     state.schemaVersion = AI_SCHEMA_VERSION;
@@ -93,9 +93,9 @@ export function migrateState(parsed) {
     if (typeof migrate === 'function') {
       try {
         state = migrate(state);
-        if (!state || typeof state !== 'object') return freshState();
+        if (!state || typeof state !== 'object') {return freshState();}
       } catch (err) {
-        console.warn('[ziiui] migration v' + v + ' failed, preserving data', err);
+        console.warn(`[ziiui] migration v${  v  } failed, preserving data`, err);
         state.schemaVersion = AI_SCHEMA_VERSION;
         return state;
       }
@@ -113,7 +113,7 @@ const PERSIST_DEBOUNCE_MS = 300;
 export const AI_STATE_QUOTA_WARN_BYTES = 4 * 1024 * 1024;
 
 onStorageError((err) => {
-  if (storageWarned) return;
+  if (storageWarned) {return;}
   storageWarned = true;
   console.warn('[ziiui] storage error', err);
   say('Local AI history could not be saved.');
@@ -124,10 +124,10 @@ export const getAISettings = () => aiSettings;
 
 export function loadAIState() {
   const raw = safeGet(AI_STATE_KEY);
-  if (!raw) return aiState;
+  if (!raw) {return aiState;}
   try {
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') throw new Error('bad shape');
+    if (!parsed || typeof parsed !== 'object') {throw new Error('bad shape');}
     aiState = migrateState(parsed);
   } catch (err) {
     console.warn('[ziiui] corrupted AI state, resetting', err);
@@ -149,7 +149,7 @@ function _doPersist() {
       console.warn('[ziiui] AI state approaching localStorage quota', { bytes: payload.length });
     }
     let ok = safeSet(AI_STATE_KEY, payload);
-    if (ok) return true;
+    if (ok) {return true;}
 
     // Quota recovery: safely prune oldest versions of inactive components
     const activeId = getActiveComponentId();
@@ -184,7 +184,7 @@ export function persistAIState() {
 }
 
 export function schedulePersist() {
-  if (persistTimer) clearTimeout(persistTimer);
+  if (persistTimer) {clearTimeout(persistTimer);}
   persistTimer = setTimeout(() => {
     persistTimer = null;
     _doPersist();
@@ -202,10 +202,10 @@ export function flushPersist() {
 /* ---------- settings ---------- */
 export function loadAISettings() {
   const raw = safeGet(AI_SETTINGS_KEY);
-  if (!raw) return aiSettings;
+  if (!raw) {return aiSettings;}
   try {
     const s = JSON.parse(raw);
-    if (s && typeof s === 'object') aiSettings = { autoPreview: !!s.autoPreview };
+    if (s && typeof s === 'object') {aiSettings = { autoPreview: !!s.autoPreview };}
   } catch (err) {
     console.warn('[ziiui] invalid AI settings; using defaults', err);
     aiSettings = { autoPreview: false };
@@ -219,7 +219,7 @@ export function setAutoPreview(on) {
 
 /* ---------- active component ---------- */
 export const getActiveComponentId = () => safeGet(AI_ACTIVE_KEY);
-export function saveActiveComponentId(id) { if (id) safeSet(AI_ACTIVE_KEY, id); }
+export function saveActiveComponentId(id) { if (id) {safeSet(AI_ACTIVE_KEY, id);} }
 
 /* ---------- components ---------- */
 export const getComponentState = (id) => aiState.components[id] || null;
@@ -241,16 +241,16 @@ export function getOrCreateComponentState(componentId, name, category, originalC
     });
   }
   const s = normalizeComponentState(componentId, aiState.components[componentId]);
-  if (name) s.componentName = name;
-  if (category) s.category = category;
-  if (typeof originalCode === 'string') s.originalCode = originalCode;
+  if (name) {s.componentName = name;}
+  if (category) {s.category = category;}
+  if (typeof originalCode === 'string') {s.originalCode = originalCode;}
   aiState.components[componentId] = s;
   return s;
 }
 
 export function clearComponentHistory(componentId) {
   const s = aiState.components[componentId];
-  if (!s) return;
+  if (!s) {return;}
   s.chatHistory = [];
   s.codeVersions = [];
   s.currentCode = '';
@@ -269,11 +269,11 @@ export function clearAllAIHistory() {
 
 /** Record the code the user is currently editing ('' when identical to the original). */
 export function setCurrentCode(compState, code) {
-  if (!compState) return;
+  if (!compState) {return;}
   const next = typeof code === 'string' ? code : '';
   const previous = typeof compState.currentCode === 'string' ? compState.currentCode : '';
   compState.currentCode = next && next !== compState.originalCode ? next : '';
-  if (previous !== compState.currentCode) compState.revision = (Number(compState.revision) || 0) + 1;
+  if (previous !== compState.currentCode) {compState.revision = (Number(compState.revision) || 0) + 1;}
   compState.lastUpdated = Date.now();
   schedulePersist();
 }
@@ -281,12 +281,12 @@ export function setCurrentCode(compState, code) {
 /* ---------- chat + versions ---------- */
 function summarizeHistory(history) {
   const lines = Array.isArray(history) ? history.slice(-12).map((m) => m && typeof m.text === 'string' ? m.text.trim() : '').filter(Boolean) : [];
-  if (!lines.length) return '';
+  if (!lines.length) {return '';}
   return lines.join(' ').replace(/\s+/g, ' ').slice(0, 800);
 }
 
 export function pushChatMessage(compState, role, text) {
-  if (!compState) return null;
+  if (!compState) {return null;}
   const msg = {
     id: uid(),
     role: role === 'ai' ? 'assistant' : role,
@@ -304,7 +304,7 @@ export function pushChatMessage(compState, role, text) {
 }
 
 export function addCodeVersion(compState, code, prompt) {
-  if (!compState) return null;
+  if (!compState) {return null;}
   const cleanCode = typeof code === 'string' ? code : '';
   // Content deduplication: avoid pushing identical code snapshot if it matches current latest version
   if (compState.codeVersions.length > 0) {
@@ -332,15 +332,15 @@ export function addCodeVersion(compState, code, prompt) {
 }
 
 export function getConversationSummary(compState) {
-  if (!compState) return '';
-  if (typeof compState.summary === 'string' && compState.summary.trim()) return compState.summary.trim();
+  if (!compState) {return '';}
+  if (typeof compState.summary === 'string' && compState.summary.trim()) {return compState.summary.trim();}
   const relevant = (compState.chatHistory || []).slice(-8).map((m) => m && typeof m.text === 'string' ? m.text : '').filter(Boolean);
-  if (!relevant.length) return '';
+  if (!relevant.length) {return '';}
   return relevant.join(' ').slice(0, 280);
 }
 
 export function setConversationSummary(compState, summary) {
-  if (!compState) return '';
+  if (!compState) {return '';}
   const text = String(summary || '').trim();
   compState.summary = text.slice(0, 800);
   compState.lastUpdated = Date.now();
@@ -350,24 +350,24 @@ export function setConversationSummary(compState, summary) {
 
 /** Recent chat turns (oldest first) that fit the context budget. */
 export function buildContextMessages(compState, currentUserText) {
-  if (!compState || !Array.isArray(compState.chatHistory)) return [];
+  if (!compState || !Array.isArray(compState.chatHistory)) {return [];}
   const history = compState.chatHistory.slice();
   const last = history[history.length - 1];
   const isPendingUserMessage = !!(last && last.role === 'user' && last.text === currentUserText);
-  if (isPendingUserMessage) history.pop();
+  if (isPendingUserMessage) {history.pop();}
 
   const result = [];
   let total = 0;
 
   for (let i = history.length - 1; i >= 0; i--) {
     const m = history[i];
-    if (!m || (m.role !== 'user' && m.role !== 'assistant')) continue;
+    if (!m || (m.role !== 'user' && m.role !== 'assistant')) {continue;}
     const text = String(m.text || '');
-    if (!text) continue;
+    if (!text) {continue;}
     const remaining = AI_MAX_CONTEXT_CHARS - total;
-    if (remaining <= 0) break;
+    if (remaining <= 0) {break;}
     if (text.length > remaining) {
-      if (!result.length) result.push({ role: m.role, content: text.slice(-remaining) });
+      if (!result.length) {result.push({ role: m.role, content: text.slice(-remaining) });}
       break;
     }
     result.push({ role: m.role, content: text });
@@ -379,9 +379,9 @@ export function buildContextMessages(compState, currentUserText) {
 
 /** One-line summary used by the chat context indicator. */
 export function describeContext(compState, name) {
-  if (!compState) return 'New AI session';
+  if (!compState) {return 'New AI session';}
   const msgs = compState.chatHistory.length;
   const versions = compState.codeVersions.length;
-  if (msgs === 0) return 'New AI session · ' + name;
+  if (msgs === 0) {return `New AI session · ${  name}`;}
   return `${name} · ${msgs} msg · ${versions} version${versions === 1 ? '' : 's'} · Saved locally`;
 }

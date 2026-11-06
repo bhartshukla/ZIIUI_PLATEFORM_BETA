@@ -1,8 +1,8 @@
 function initBlockReveal() {
-  const menu = document.querySelector(".menuContent");
-  const menuBtn = document.getElementById("menuBtn");
-  const squareContainer = document.querySelector("#squareContainer");
-  if (!menu || !menuBtn || !squareContainer) return;
+  const menu = document.querySelector('.menuContent');
+  const menuBtn = document.getElementById('menuBtn');
+  const squareContainer = document.querySelector('#squareContainer');
+  if (!menu || !menuBtn || !squareContainer) {return;}
 
   const squareSize = 100;
   let squares = [];
@@ -17,12 +17,12 @@ function initBlockReveal() {
 
     squareContainer.style.width = `${numCols * squareSize}px`;
     squareContainer.style.height = `${numRows * squareSize}px`;
-    squareContainer.innerHTML = "";
+    squareContainer.innerHTML = '';
     squares = [];
 
     for (let i = 0; i < numSquares; i++) {
-      const square = document.createElement("div");
-      square.classList.add("square");
+      const square = document.createElement('div');
+      square.classList.add('square');
       squareContainer.appendChild(square);
       squares.push(square);
     }
@@ -37,7 +37,7 @@ function initBlockReveal() {
         duration: 0.05,
         stagger: {
           each: 0.004,
-          from: "random"
+          from: 'random'
         }
       }
     );
@@ -48,21 +48,21 @@ function initBlockReveal() {
       duration: 0.05,
       stagger: {
         each: 0.004,
-        from: "random"
+        from: 'random'
       }
     });
   }
 
-  gsap.set(menu, { opacity: 0, visibility: "hidden" });
+  gsap.set(menu, { opacity: 0, visibility: 'hidden' });
 
-  menuBtn.addEventListener("click", () => {
+  menuBtn.addEventListener('click', () => {
     createSquares();
     animateSquares();
 
     gsap.to(menu, {
       duration: 0.025,
       opacity: overlayVisible ? 0 : 1,
-      visibility: overlayVisible ? "hidden" : "visible",
+      visibility: overlayVisible ? 'hidden' : 'visible',
       delay: 1.15
     });
 

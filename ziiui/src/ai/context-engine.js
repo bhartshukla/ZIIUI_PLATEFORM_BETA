@@ -19,7 +19,7 @@ import { AI_MAX_CONTEXT_CHARS } from './config.js';
 
 /** Conservative token estimation (~3.8 characters per token). */
 export function estimateTokens(text) {
-  if (!text) return 0;
+  if (!text) {return 0;}
   return Math.ceil(String(text).length / 3.8);
 }
 
@@ -74,7 +74,7 @@ const STOP_WORDS = new Set([
 
 /** Extract meaningful keyword tokens from text. */
 export function extractKeywords(text) {
-  if (!text) return [];
+  if (!text) {return [];}
   const words = String(text)
     .toLowerCase()
     .replace(/[^\w\s-]/g, ' ')
@@ -116,7 +116,7 @@ export function classifyTaskIntent(prompt) {
  * Looks for patterns like "always keep...", "never use...", "color must be...", "use font...".
  */
 export function extractComponentConstraints(chatHistory) {
-  if (!Array.isArray(chatHistory) || !chatHistory.length) return [];
+  if (!Array.isArray(chatHistory) || !chatHistory.length) {return [];}
   const constraints = [];
   const patterns = [
     /(?:always|never|must|don't|do not|keep|preserve)\s+[^.!?\n]{5,60}/gi,
@@ -124,13 +124,13 @@ export function extractComponentConstraints(chatHistory) {
   ];
 
   chatHistory.forEach((msg) => {
-    if (msg.role !== 'user' || !msg.text) return;
+    if (msg.role !== 'user' || !msg.text) {return;}
     patterns.forEach((re) => {
       const matches = msg.text.match(re);
       if (matches) {
         matches.forEach((m) => {
           const clean = m.trim();
-          if (clean && !constraints.includes(clean)) constraints.push(clean);
+          if (clean && !constraints.includes(clean)) {constraints.push(clean);}
         });
       }
     });
@@ -144,14 +144,14 @@ export function extractComponentConstraints(chatHistory) {
  * Preserves key decisions and user directions without redundant re-summarization.
  */
 export function generateStructuredSummary(chatHistory) {
-  if (!Array.isArray(chatHistory) || !chatHistory.length) return '';
+  if (!Array.isArray(chatHistory) || !chatHistory.length) {return '';}
   const userInstructions = [];
   const appliedActions = [];
 
   chatHistory.slice(-12).forEach((m) => {
-    if (!m || typeof m.text !== 'string') return;
+    if (!m || typeof m.text !== 'string') {return;}
     const txt = m.text.trim();
-    if (!txt) return;
+    if (!txt) {return;}
     if (m.role === 'user') {
       userInstructions.push(txt.slice(0, 100));
     } else if (m.role === 'assistant') {
@@ -189,7 +189,7 @@ export function retrieveRelevantMessages(compState, currentPrompt, budgetChars =
     history.pop();
   }
 
-  if (!history.length) return [];
+  if (!history.length) {return [];}
 
   // Score each message based on:
   // 1. Keyword overlap with current prompt (relevance)
@@ -201,7 +201,7 @@ export function retrieveRelevantMessages(compState, currentPrompt, budgetChars =
 
     // Keyword relevance
     promptKeywords.forEach((kw) => {
-      if (text.includes(kw)) score += 3.0;
+      if (text.includes(kw)) {score += 3.0;}
     });
 
     // Correction or refinement boost
@@ -265,8 +265,8 @@ export function buildSmartSystemPrompt(c = {}) {
   const lines = [PROJECT_RULES, ''];
 
   // Layer B: Component Memory & Constraints
-  lines.push('Component name: ' + (c.name || '(none)'));
-  lines.push('Category: ' + (c.category || '(none)'));
+  lines.push(`Component name: ${  c.name || '(none)'}`);
+  lines.push(`Category: ${  c.category || '(none)'}`);
 
   if (constraints.length) {
     lines.push('');
@@ -276,13 +276,13 @@ export function buildSmartSystemPrompt(c = {}) {
 
   if (c.summary) {
     lines.push('');
-    lines.push('Prior session summary: ' + c.summary);
+    lines.push(`Prior session summary: ${  c.summary}`);
   }
 
   // Layer C: Task Intent Guidance
   if (c.taskIntent && c.taskIntent.length) {
     lines.push('');
-    lines.push('Active focus areas: ' + c.taskIntent.join(', '));
+    lines.push(`Active focus areas: ${  c.taskIntent.join(', ')}`);
   }
 
   lines.push('');

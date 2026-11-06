@@ -13,14 +13,14 @@ import {
 import { initAIPanel, announceInterruptedRequest, resetToOriginal, exportDraftFile } from './library/ai-panel.js';
 
 function wire() {
-  const on = (id, evt, fn) => { const n = $(id); if (n) n.addEventListener(evt, fn); };
+  const on = (id, evt, fn) => { const n = $(id); if (n) {n.addEventListener(evt, fn);} };
 
   const searchBox = $('componentSearch');
   const placeSearch = () => {
     const target = window.matchMedia('(max-width: 700px)').matches
       ? $('searchDrawerSlot')
       : $('searchNavbarSlot');
-    if (!searchBox || !target) return;
+    if (!searchBox || !target) {return;}
     target.append(searchBox);
     searchBox.classList.toggle('sidebar-search', target.id === 'searchDrawerSlot');
   };
@@ -57,7 +57,7 @@ function wire() {
   const searchKbd = $('searchKbd');
 
   const clearAndResetSearch = (resetCategory = false) => {
-    if (!search) return;
+    if (!search) {return;}
     search.value = '';
     applySearch({ currentTarget: search });
     if (resetCategory) {
@@ -124,12 +124,12 @@ function wire() {
         return;
       }
       const side = $('sidePanel');
-      if (side && side.classList.contains('open')) closeSidebar();
+      if (side && side.classList.contains('open')) {closeSidebar();}
     }
     if ((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() === 'k') {
       e.preventDefault();
       if (search && !search.disabled) {
-        if (window.matchMedia('(max-width: 700px)').matches) openSidebar();
+        if (window.matchMedia('(max-width: 700px)').matches) {openSidebar();}
         const catalog = $('catalogSection');
         if (catalog && catalog.hidden) {
           showDiscovery('All', { updateURL: true, scroll: false });
@@ -141,7 +141,7 @@ function wire() {
   });
   window.addEventListener('resize', () => {
     placeSearch();
-    if (window.innerWidth > 900) closeSidebar();
+    if (window.innerWidth > 900) {closeSidebar();}
   });
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement && isFullscreen()) {
@@ -186,5 +186,5 @@ function boot() {
   try { announceInterruptedRequest(consumePendingMarker()); } catch (err) { report(err, 'interruptedRequest'); }
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-else boot();
+if (document.readyState === 'loading') {document.addEventListener('DOMContentLoaded', boot);}
+else {boot();}

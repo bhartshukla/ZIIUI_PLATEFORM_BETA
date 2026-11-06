@@ -98,9 +98,9 @@ const EFFECT_ID_TO_NAME = {
  * Returns null if empty.
  */
 export function resolveVideoSourceUrl(rawPath) {
-  if (!rawPath || typeof rawPath !== 'string') return null;
+  if (!rawPath || typeof rawPath !== 'string') {return null;}
   const trimmed = rawPath.trim();
-  if (!trimmed) return null;
+  if (!trimmed) {return null;}
 
   // External video detail URLs (e.g. Pexels page) -> direct stream
   const pexelsMatch = trimmed.match(/pexels\.com\/video\/(?:[a-zA-Z0-9_-]+-)?(\d+)\/?/i);
@@ -127,7 +127,7 @@ export function resolveVideoSourceUrl(rawPath) {
  * @returns {string|null} Direct video URL, or null if none
  */
 export function getComponentVideoSource(effect) {
-  if (!effect) return null;
+  if (!effect) {return null;}
 
   const str = typeof effect === 'string' ? effect : '';
   const rawId = typeof effect === 'string' ? effect : (effect.id || '');

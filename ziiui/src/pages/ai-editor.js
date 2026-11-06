@@ -32,7 +32,7 @@ function renderChat() {
     chat.render([], 'Open a component in the library and use the AI panel, then come back here.');
     return;
   }
-  chat.render(compState.chatHistory, 'No messages yet for "' + displayName() + '". Ask for a change below.');
+  chat.render(compState.chatHistory, `No messages yet for "${  displayName()  }". Ask for a change below.`);
 }
 
 function updateIndicator() {
@@ -56,7 +56,7 @@ function populatePicker() {
     el.select.append(o);
   });
   el.select.hidden = comps.length < 2;
-  if (activeId) el.select.value = activeId;
+  if (activeId) {el.select.value = activeId;}
 }
 
 /* ---------- component selection ---------- */
@@ -74,7 +74,7 @@ function setActive(id) {
   }
   saveActiveComponentId(id);
   el.send.disabled = false;
-  el.headSub.textContent = 'Editing: ' + displayName();
+  el.headSub.textContent = `Editing: ${  displayName()}`;
   el.code.value = compState.currentCode || compState.originalCode || '';
   runPreview();
   renderChat();
@@ -83,7 +83,7 @@ function setActive(id) {
 
 /* ---------- generate ---------- */
 async function generate() {
-  if (isBusy()) return;
+  if (isBusy()) {return;}
   if (!compState) { chat.add('err', 'No component selected. Open index.html first.'); return; }
   const request = (el.prompt.value || '').trim();
   if (!request) { chat.add('err', 'Please describe what you want to change.'); return; }
@@ -118,7 +118,7 @@ async function generate() {
       request,
       signal: req.signal
     });
-    if (!isCurrent(req) || comp !== compState) return;
+    if (!isCurrent(req) || comp !== compState) {return;}
     if ((comp.revision || 0) !== Number(req.baseRevision || 0)) {
       el.prompt.value = request;
       chat.add('err', 'This AI result was generated from an older version and was ignored.');
@@ -126,14 +126,14 @@ async function generate() {
     }
     chat.hideLoading();
     addCodeVersion(comp, code, request);
-    pushChatMessage(comp, 'assistant', 'Applied: ' + request);
+    pushChatMessage(comp, 'assistant', `Applied: ${  request}`);
     chat.add('ai', 'Updated. The new version is in the editor and preview.');
     el.code.value = code;
     runPreview();
     updateIndicator();
     say('AI version generated.');
   } catch (err) {
-    if (!isActiveRequest(req)) return;
+    if (!isActiveRequest(req)) {return;}
     chat.hideLoading();
     el.prompt.value = request;
     const aborted = err && err.name === 'AbortError';
@@ -142,13 +142,13 @@ async function generate() {
   } finally {
     const wasActive = isActiveRequest(req);
     endRequest(req);
-    if (wasActive) setLocked(false);
+    if (wasActive) {setLocked(false);}
   }
 }
 
 /* ---------- actions ---------- */
 function resetToOriginal() {
-  if (!compState) return;
+  if (!compState) {return;}
   setCurrentCode(compState, '');
   el.code.value = compState.originalCode || '';
   runPreview();
@@ -164,7 +164,7 @@ async function copyCode() {
       ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
       : '<i class="ri-close-line" aria-hidden="true"></i> Copy failed';
     setTimeout(() => {
-      if (btn) btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy';
+      if (btn) {btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy';}
     }, 1800);
   }
   say(ok ? 'Code copied to clipboard' : 'Copy failed.');
@@ -216,11 +216,11 @@ function boot() {
   }
 
   const ids = Object.keys(getAIState().components);
-  if (!startId) startId = ids[0] || null;
+  if (!startId) {startId = ids[0] || null;}
 
   populatePicker();
   setActive(startId);
-  if (startId) el.select.value = startId;
+  if (startId) {el.select.value = startId;}
 
   const marker = consumePendingMarker();
   if (marker && compState && marker.componentId === activeId) {
@@ -233,13 +233,13 @@ function boot() {
   $('aiResetBtn').addEventListener('click', guard(resetToOriginal, 'reset'));
   $('aiCopyBtn').addEventListener('click', guard(copyCode, 'copy'));
   const exportBtn = $('aiExportBtn');
-  if (exportBtn) exportBtn.addEventListener('click', guard(exportCode, 'export'));
+  if (exportBtn) {exportBtn.addEventListener('click', guard(exportCode, 'export'));}
   el.select.addEventListener('change', () => setActive(el.select.value));
   el.prompt.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) generate(); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) {generate();} }
   });
   el.code.addEventListener('input', () => {
-    if (!compState) return;
+    if (!compState) {return;}
     setCurrentCode(compState, el.code.value);
     if (el.auto.checked) {
       clearTimeout(autoTimer);
@@ -248,9 +248,9 @@ function boot() {
   });
   el.auto.addEventListener('change', () => {
     setAutoPreview(el.auto.checked);
-    if (el.auto.checked) runPreview();
+    if (el.auto.checked) {runPreview();}
   });
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-else boot();
+if (document.readyState === 'loading') {document.addEventListener('DOMContentLoaded', boot);}
+else {boot();}

@@ -20,7 +20,7 @@ class Lenis {
   _onWheel(e) {}
   _onScroll() { this.target = window.scrollY; }
   raf(time) {
-    if (!this._lt) this._lt = time;
+    if (!this._lt) {this._lt = time;}
     const rawDt = (time - this._lt) / 1000;
     this._lt = time;
     const dt = Math.min(rawDt, 0.05);
@@ -139,7 +139,7 @@ function buildAtlas(chars, cellPx = 96) {
   ctx.fillStyle    = '#fff';
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold ' + Math.round(cellPx * 0.70) + 'px "Courier New", monospace';
+  ctx.font = `bold ${  Math.round(cellPx * 0.70)  }px "Courier New", monospace`;
   chars.forEach((ch, i) => {
     ctx.fillText(ch, cellPx / 2, cellPx * i + cellPx / 2);
   });
@@ -163,7 +163,7 @@ img.style.opacity = '0';
 
 function waitImg(el) {
   return new Promise(res => {
-    if (el.complete && el.naturalWidth) return res(el);
+    if (el.complete && el.naturalWidth) {return res(el);}
     el.onload = el.onerror = () => res(el);
   });
 }
@@ -264,7 +264,7 @@ async function boot() {
     coverMat.uniforms.uRawProgress.value = rawProgress;
     coverMat.uniforms.uTime.value        = time * 0.001;
     const pct = Math.round(smoothProgress * 100);
-    display.textContent = pct + '%';
+    display.textContent = `${pct  }%`;
     display.style.color = smoothProgress > 0.5
       ? 'rgba(255,255,255,0.12)'
       : 'rgba(255,255,255,0.25)';

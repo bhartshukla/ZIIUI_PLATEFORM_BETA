@@ -41,7 +41,7 @@ describe('Netlify AI proxy', () => {
       expect(res.statusCode).toBe(500);
       expect(JSON.parse(res.body).error).toContain('not configured');
     } finally {
-      if (originalKey !== undefined) process.env.OPENROUTER_API_KEY = originalKey;
+      if (originalKey !== undefined) {process.env.OPENROUTER_API_KEY = originalKey;}
     }
   });
 

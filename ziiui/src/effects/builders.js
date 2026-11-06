@@ -25,11 +25,11 @@ export function buildDoc(opts = {}) {
     '<head>',
     '<meta charset="UTF-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    '<title>' + esc(opts.title || 'ziiui — Effect') + '</title>'
+    `<title>${  esc(opts.title || 'ziiui — Effect')  }</title>`
   ];
-  if (opts.head && opts.head.length) parts.push(...opts.head);
+  if (opts.head && opts.head.length) {parts.push(...opts.head);}
   parts.push('<style>', indent(opts.css || ''), '</style>', '</head>', '<body>', '', opts.body || '');
-  if (opts.js) parts.push('', '<script>', indent(opts.js), '</script>');
+  if (opts.js) {parts.push('', '<script>', indent(opts.js), '</script>');}
   parts.push('', '</body>', '</html>');
   return parts.join('\n');
 }
@@ -38,7 +38,7 @@ export function buildDoc(opts = {}) {
 export function textPage(css, js) {
   return buildDoc({
     title: 'ziiui — Text Effect',
-    css: tpl('base.css') + '\n' + css,
+    css: `${tpl('base.css')  }\n${  css}`,
     body: '<p id="t">__TEXT__</p>',
     js: js === null ? null : fill(tpl('wrap.js'), { BODY: indent(js) })
   });
@@ -50,12 +50,12 @@ export function fullPage(css, bodyHtml, js, head) {
 
 /** A full page whose css/html/js live in templates/<name>.{css,html,js}. */
 export function templatePage(name, head) {
-  return fullPage(tpl(name + '.css'), tpl(name + '.html'), tpl(name + '.js'), head);
+  return fullPage(tpl(`${name  }.css`), tpl(`${name  }.html`), tpl(`${name  }.js`), head);
 }
 
 /* ---------- text-effect building blocks ---------- */
 export const graphemesJs = () => tpl('graphemes.js');
-export const buildJs = () => graphemesJs() + '\n\n' + tpl('build.js');
+export const buildJs = () => `${graphemesJs()  }\n\n${  tpl('build.js')}`;
 
 export const STAGGER = { char: 0.03, word: 0.05, line: 0.1 };
 
@@ -68,34 +68,34 @@ export const PRESETS = {
 };
 
 function splitJs(per) {
-  if (per === 'char') return buildJs() + '\n\n' + tpl('split-char.js');
-  if (per === 'word') return tpl('split-word.js');
+  if (per === 'char') {return `${buildJs()  }\n\n${  tpl('split-char.js')}`;}
+  if (per === 'word') {return tpl('split-word.js');}
   return tpl('split-line.js');
 }
 
 export function splitEffectPage(per, preset) {
   const p = PRESETS[preset] || PRESETS.fade;
   const css = fill(tpl('effect.css'), {
-    WCSS: per === 'char' ? tpl('wcss.css') + '\n' : '',
+    WCSS: per === 'char' ? `${tpl('wcss.css')  }\n` : '',
     DISPLAY: per === 'line' ? 'block' : 'inline-block',
     MINH: per === 'line' ? ' min-height: 1.2em;' : '',
     HIDDEN: p.h, TRANS: p.t, STAG: STAGGER[per] || STAGGER.char, SHOWN: p.s
   });
-  return textPage(css, splitJs(per) + '\n' + tpl('tail.js'));
+  return textPage(css, `${splitJs(per)  }\n${  tpl('tail.js')}`);
 }
 
 export function rollPage(o) {
   const css = fill(tpl('roll.css'), { WCSS: tpl('wcss.css'), DUR: o.dur, EASE: o.ease, FROM: o.from, TO: o.to });
-  const js = buildJs() + '\n\n' + fill(tpl('roll.js'), { A: o.a, B: o.b });
+  const js = `${buildJs()  }\n\n${  fill(tpl('roll.js'), { A: o.a, B: o.b })}`;
   return textPage(css, js);
 }
 
 export function wavePage(o) {
   const css = fill(tpl('wave.css'), { WCSS: tpl('wcss.css'), BASE: o.base });
-  const js = buildJs() + '\n\n' + fill(tpl('wave.js'), { BASE: o.base, GRAD: o.grad, Z: o.z, S: o.s, R: o.r });
+  const js = `${buildJs()  }\n\n${  fill(tpl('wave.js'), { BASE: o.base, GRAD: o.grad, Z: o.z, S: o.s, R: o.r })}`;
   return textPage(css, js);
 }
 
 export function scramblePage() {
-  return textPage(tpl('scramble.css'), graphemesJs() + '\n\n' + tpl('scramble.js'));
+  return textPage(tpl('scramble.css'), `${graphemesJs()  }\n\n${  tpl('scramble.js')}`);
 }

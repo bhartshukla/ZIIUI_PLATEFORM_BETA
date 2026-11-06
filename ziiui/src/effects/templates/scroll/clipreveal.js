@@ -12,11 +12,11 @@ nav.innerHTML = panels.map((_, i) => `<div class="nav__dot${i ? '' : ' active'}"
 const dots = nav.querySelectorAll('.nav__dot');
 
 panels.forEach((panel, i) => {
-  if (i) tl.fromTo(
+  if (i) {tl.fromTo(
     panel.querySelectorAll('.panel__header, .panel__body, .panel__title'),
     { opacity: 0, y: 20 },
     { opacity: 1, y: 0, stagger: 0.08, duration: 0.6, ease: 'ease-in-out' }
-  );
+  );}
   if (i < panels.length - 1) {
     tl.fromTo(
       panel.querySelector('.panel__image'),

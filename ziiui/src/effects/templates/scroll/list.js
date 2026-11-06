@@ -1,4 +1,4 @@
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   const lenis = new Lenis();
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => { lenis.raf(time * 1000); });
@@ -13,9 +13,9 @@ window.addEventListener("load", () => {
   const totalScroll = itemHeight * (listItems.length - 1);
 
   gsap.to(listWrapper, {
-    y: -totalScroll, ease: "none",
+    y: -totalScroll, ease: 'none',
     scrollTrigger: {
-      trigger: container, start: "top top", end: "+=" + totalScroll,
+      trigger: container, start: 'top top', end: `+=${  totalScroll}`,
       pin: true, scrub: 0.8,
       onUpdate: (self) => {
         const activeIndex = Math.round(self.progress * (listItems.length - 1));

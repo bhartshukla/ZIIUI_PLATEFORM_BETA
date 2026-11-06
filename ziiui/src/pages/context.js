@@ -11,7 +11,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
   function toast(msg) {
     const t = $('toast');
-    if (!t) return;
+    if (!t) {return;}
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toast._t);
@@ -19,29 +19,29 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   }
 
   function fmtDateTime(ts) {
-    if (!ts) return '';
+    if (!ts) {return '';}
     try {
       const d = new Date(ts);
-      return d.toLocaleDateString(undefined, {
+      return `${d.toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
-      }) + ' · ' + d.toLocaleTimeString(undefined, {
+      })  } · ${  d.toLocaleTimeString(undefined, {
         hour: '2-digit',
         minute: '2-digit'
-      });
+      })}`;
     } catch (_) {
       return String(ts);
     }
   }
 
   function fmtAgo(ts) {
-    if (!ts) return '';
+    if (!ts) {return '';}
     const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
-    if (s < 60) return 'Just now';
-    if (s < 3600) return Math.floor(s / 60) + 'm ago';
-    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-    return Math.floor(s / 86400) + 'd ago';
+    if (s < 60) {return 'Just now';}
+    if (s < 3600) {return `${Math.floor(s / 60)  }m ago`;}
+    if (s < 86400) {return `${Math.floor(s / 3600)  }h ago`;}
+    return `${Math.floor(s / 86400)  }d ago`;
   }
 
   function esc(s) {
@@ -98,20 +98,18 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   function getFilteredList() {
     const all = getComponentList();
     const q = (searchQuery || '').trim().toLowerCase();
-    if (!q) return all;
+    if (!q) {return all;}
 
     return all.filter((c) => {
       const name = (c.componentName || '').toLowerCase();
       const id = (c.componentId || '').toLowerCase();
       const cat = (c.category || '').toLowerCase();
-      if (name.includes(q) || id.includes(q) || cat.includes(q)) return true;
+      if (name.includes(q) || id.includes(q) || cat.includes(q)) {return true;}
 
       // Match conversation message text
       if (Array.isArray(c.chatHistory)) {
-        const matchesMsg = c.chatHistory.some((m) => {
-          return m && typeof m.text === 'string' && m.text.toLowerCase().includes(q);
-        });
-        if (matchesMsg) return true;
+        const matchesMsg = c.chatHistory.some((m) => m && typeof m.text === 'string' && m.text.toLowerCase().includes(q));
+        if (matchesMsg) {return true;}
       }
 
       // Match summary
@@ -130,18 +128,18 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const versionCount = all.reduce((sum, c) => sum + (Array.isArray(c.codeVersions) ? c.codeVersions.length : 0), 0);
     const totalMsgs = all.reduce((sum, c) => sum + (Array.isArray(c.chatHistory) ? c.chatHistory.length : 0), 0);
 
-    if ($('statComponents')) $('statComponents').textContent = compCount.toLocaleString();
-    if ($('statComponentsSub')) $('statComponentsSub').textContent = compCount === 1 ? '1 tracked component' : `${compCount} in memory`;
+    if ($('statComponents')) {$('statComponents').textContent = compCount.toLocaleString();}
+    if ($('statComponentsSub')) {$('statComponentsSub').textContent = compCount === 1 ? '1 tracked component' : `${compCount} in memory`;}
 
-    if ($('statConversations')) $('statConversations').textContent = convCount.toLocaleString();
-    if ($('statConversationsSub')) $('statConversationsSub').textContent = totalMsgs ? `${totalMsgs.toLocaleString()} messages` : '0 messages';
+    if ($('statConversations')) {$('statConversations').textContent = convCount.toLocaleString();}
+    if ($('statConversationsSub')) {$('statConversationsSub').textContent = totalMsgs ? `${totalMsgs.toLocaleString()} messages` : '0 messages';}
 
-    if ($('statVersions')) $('statVersions').textContent = versionCount.toLocaleString();
-    if ($('statVersionsSub')) $('statVersionsSub').textContent = versionCount === 1 ? '1 code snapshot' : `${versionCount} code snapshots`;
+    if ($('statVersions')) {$('statVersions').textContent = versionCount.toLocaleString();}
+    if ($('statVersionsSub')) {$('statVersionsSub').textContent = versionCount === 1 ? '1 code snapshot' : `${versionCount} code snapshots`;}
   }
 
   function openInEditor(componentId) {
-    if (!componentId) return;
+    if (!componentId) {return;}
     safeSet(AI_ACTIVE_KEY, componentId);
     window.location.href = `ai.html?component=${encodeURIComponent(componentId)}`;
   }
@@ -150,7 +148,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const all = getComponentList();
     const filtered = getFilteredList();
     const ul = $('compList');
-    if (!ul) return;
+    if (!ul) {return;}
     ul.innerHTML = '';
 
     const hasAnyComps = all.length > 0;
@@ -159,31 +157,31 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const searchNoResults = $('searchNoResults');
     const detailCard = $('detailCard');
 
-    if (emptyNotice) emptyNotice.hidden = hasAnyComps;
-    if (layout) layout.hidden = !hasAnyComps;
+    if (emptyNotice) {emptyNotice.hidden = hasAnyComps;}
+    if (layout) {layout.hidden = !hasAnyComps;}
 
     updateSummaryCards();
 
     if (!hasAnyComps) {
-      if (detailCard) detailCard.hidden = true;
+      if (detailCard) {detailCard.hidden = true;}
       return;
     }
 
     const countBadge = $('compListCount');
-    if (countBadge) countBadge.textContent = String(filtered.length);
+    if (countBadge) {countBadge.textContent = String(filtered.length);}
 
     const q = (searchQuery || '').trim();
     if (filtered.length === 0) {
       if (searchNoResults) {
         searchNoResults.hidden = false;
         const qText = $('searchQueryText');
-        if (qText) qText.textContent = q;
+        if (qText) {qText.textContent = q;}
       }
-      if (detailCard) detailCard.hidden = true;
+      if (detailCard) {detailCard.hidden = true;}
       return;
     }
 
-    if (searchNoResults) searchNoResults.hidden = true;
+    if (searchNoResults) {searchNoResults.hidden = true;}
 
     // Ensure activeId is pointing to one of the filtered items
     if (!activeId || !filtered.some((c) => c.componentId === activeId)) {
@@ -195,7 +193,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       const id = c.componentId;
       const isActive = id === activeId;
       const li = document.createElement('li');
-      li.className = 'comp-item' + (isActive ? ' active' : '');
+      li.className = `comp-item${  isActive ? ' active' : ''}`;
 
       const button = document.createElement('button');
       button.type = 'button';
@@ -246,7 +244,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         renderDetail();
         if (window.innerWidth <= 820) {
           const detail = $('detailCard');
-          if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (detail) {detail.scrollIntoView({ behavior: 'smooth', block: 'start' });}
         }
       });
 
@@ -257,7 +255,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
   function renderDetail() {
     const card = $('detailCard');
-    if (!card) return;
+    if (!card) {return;}
     const c = activeId ? state.components[activeId] : null;
 
     if (!c) {
@@ -267,7 +265,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
     card.hidden = false;
     const nameEl = $('detailCompName');
-    if (nameEl) nameEl.textContent = c.componentName || activeId;
+    if (nameEl) {nameEl.textContent = c.componentName || activeId;}
 
     const catEl = $('detailCategory');
     if (catEl) {
@@ -280,7 +278,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     }
 
     const timeEl = $('detailTime');
-    if (timeEl) timeEl.textContent = fmtDateTime(c.lastUpdated);
+    if (timeEl) {timeEl.textContent = fmtDateTime(c.lastUpdated);}
 
     const msgCount = Array.isArray(c.chatHistory) ? c.chatHistory.length : 0;
     const msgEl = $('detailMsgCount');
@@ -288,7 +286,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     if (msgEl) {
       msgEl.textContent = msgCount === 1 ? '1 message' : `${msgCount} messages`;
     }
-    if (dotEl) dotEl.hidden = false;
+    if (dotEl) {dotEl.hidden = false;}
 
     const editorBtn = $('openInEditorBtn');
     if (editorBtn) {
@@ -300,17 +298,17 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     }
 
     const wrap = $('chatMsgs');
-    if (!wrap) return;
+    if (!wrap) {return;}
     wrap.innerHTML = '';
     const msgs = Array.isArray(c.chatHistory) ? c.chatHistory : [];
 
     const chatEmpty = $('chatEmpty');
     if (!msgs.length) {
-      if (chatEmpty) chatEmpty.hidden = false;
+      if (chatEmpty) {chatEmpty.hidden = false;}
       return;
     }
 
-    if (chatEmpty) chatEmpty.hidden = true;
+    if (chatEmpty) {chatEmpty.hidden = true;}
 
     msgs.forEach((m) => {
       const isUser = m.role === 'user';
@@ -354,33 +352,33 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       toast('There is no saved AI conversation to clear.');
       return;
     }
-    if (!confirm('Clear all saved conversations? Original components will remain intact.')) return;
+    if (!confirm('Clear all saved conversations? Original components will remain intact.')) {return;}
     state = { components: {} };
     safeRemove(AI_STATE_KEY);
     safeRemove(AI_ACTIVE_KEY);
     activeId = null;
     searchQuery = '';
     const searchInput = $('contextSearch');
-    if (searchInput) searchInput.value = '';
+    if (searchInput) {searchInput.value = '';}
     renderList();
-    if ($('detailCard')) $('detailCard').hidden = true;
+    if ($('detailCard')) {$('detailCard').hidden = true;}
     toast('All conversations cleared.');
   }
 
   function initTheme() {
     const t = safeGet('ziiui-theme');
-    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    if (t === 'light' || t === 'dark') {document.documentElement.setAttribute('data-theme', t);}
     else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
-      document.documentElement.setAttribute('data-theme', 'light');
+    {document.documentElement.setAttribute('data-theme', 'light');}
     updateThemeControl();
   }
 
   function updateThemeControl() {
     const button = $('themeBtn');
-    if (!button) return;
+    if (!button) {return;}
     const icon = button.querySelector('i');
     const light = document.documentElement.getAttribute('data-theme') === 'light';
-    if (icon) icon.className = light ? 'ri-moon-line' : 'ri-sun-line';
+    if (icon) {icon.className = light ? 'ri-moon-line' : 'ri-sun-line';}
     button.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
   }
 
@@ -407,7 +405,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     if (input) {
       input.addEventListener('input', () => {
         searchQuery = input.value;
-        if (clearBtn) clearBtn.hidden = !searchQuery;
+        if (clearBtn) {clearBtn.hidden = !searchQuery;}
         renderList();
         renderDetail();
       });
@@ -416,14 +414,14 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         if (e.key === 'Escape') {
           input.value = '';
           searchQuery = '';
-          if (clearBtn) clearBtn.hidden = true;
+          if (clearBtn) {clearBtn.hidden = true;}
           renderList();
           renderDetail();
           input.blur();
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
           const firstBtn = document.querySelector('.comp-list .comp-btn');
-          if (firstBtn) firstBtn.focus();
+          if (firstBtn) {firstBtn.focus();}
         }
       });
     }
@@ -448,7 +446,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
           input.focus();
         }
         searchQuery = '';
-        if (clearBtn) clearBtn.hidden = true;
+        if (clearBtn) {clearBtn.hidden = true;}
         renderList();
         renderDetail();
       });
@@ -476,8 +474,8 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     });
   }
 
-  if ($('themeBtn')) $('themeBtn').addEventListener('click', toggleTheme);
-  if ($('clearAllBtn')) $('clearAllBtn').addEventListener('click', clearAll);
+  if ($('themeBtn')) {$('themeBtn').addEventListener('click', toggleTheme);}
+  if ($('clearAllBtn')) {$('clearAllBtn').addEventListener('click', clearAll);}
 
   window.addEventListener('storage', (e) => {
     if (e.key === AI_STATE_KEY) {
@@ -492,5 +490,5 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   setupSearch();
   load();
   renderList();
-  if (activeId && state.components[activeId]) renderDetail();
+  if (activeId && state.components[activeId]) {renderDetail();}
 })();

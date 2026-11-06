@@ -5,12 +5,12 @@
  * @returns {{add:Function, clear:Function, showLoading:Function, hideLoading:Function}}
  */
 export function createChatView(container) {
-  function scroll() { if (container) container.scrollTop = container.scrollHeight; }
+  function scroll() { if (container) {container.scrollTop = container.scrollHeight;} }
 
   function add(role, text) {
-    if (!container) return null;
+    if (!container) {return null;}
     const d = document.createElement('div');
-    d.className = 'ai-msg ' + role;
+    d.className = `ai-msg ${  role}`;
     d.textContent = text;
     container.append(d);
     scroll();
@@ -19,11 +19,11 @@ export function createChatView(container) {
 
   function hideLoading() {
     const l = container && container.querySelector('#aiLoading');
-    if (l) l.remove();
+    if (l) {l.remove();}
   }
 
   function showLoading() {
-    if (!container) return;
+    if (!container) {return;}
     hideLoading();
     const d = document.createElement('div');
     d.className = 'ai-msg ai';
@@ -33,7 +33,7 @@ export function createChatView(container) {
     scroll();
   }
 
-  function clear() { if (container) container.innerHTML = ''; }
+  function clear() { if (container) {container.innerHTML = '';} }
 
   /** Replace the log with stored history (or `emptyText` when there is none). */
   function render(history, emptyText) {

@@ -36,7 +36,7 @@ describe('effects registry', () => {
   });
 
   it('puts every effect in a known category', () => {
-    for (const e of EFFECTS) expect(CATEGORIES).toContain(e.cat);
+    for (const e of EFFECTS) {expect(CATEGORIES).toContain(e.cat);}
   });
 
   it('never reports a missing template', () => {

@@ -48,13 +48,13 @@ const proxy = { gap: 0 };
 
 function applyGap(gapPx) {
   // Set flex gap on stage
-  stage.style.gap = gapPx + 'px';
+  stage.style.gap = `${gapPx  }px`;
 
   // Each wrap is (stageW - gapPx * 2) / 3 wide — but since we use
   // flex:1, each wrap naturally accounts for gap via flex layout.
   // We compute clip inset as % of wrap's current rendered width.
   const wrapW = wraps[0].offsetWidth;
-  if (!wrapW) return;
+  if (!wrapW) {return;}
 
   const half = gapPx / 2;
   const pct  = (half / wrapW * 100).toFixed(6); // % of wrap width
