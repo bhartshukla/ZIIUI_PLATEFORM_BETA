@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 — Page Not Found | ZiiUI</title>
+  <meta name="description" content="The page you're looking for doesn't exist. Return to the ZiiUI documentation or component library.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+  <style>
+    html { overflow-x: hidden; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; min-height: 100dvh; display: flex; align-items: center; justify-content: center; line-height: 1.6; }
+    :root {
+      --bg: #000000;
+      --fg: #ffffff;
+      --fg-2: #a3a3a3;
+      --acc: #2196FF;
+      --border: #222222;
+      --surface: #0d0d0d;
+      --surface-2: #171717;
+      --radius-lg: 16px;
+    }
+    a { color: var(--acc); text-decoration: none; }
+    a:hover { color: #31B8FF; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem 3rem; max-width: 480px; width: 90vw; text-align: center; box-shadow: 0 8px 26px rgba(0,0,0,0.4); }
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; background: var(--surface-2); color: var(--acc); padding: 0.15em 0.4em; border-radius: 4px; border: 1px solid var(--border); }
+    .emoji { font-size: 2.5rem; line-height: 1; margin-bottom: 1rem; display: block; }
+    h1 { font-size: 1.75rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+    p { color: var(--fg-2); margin: 0 0 1.5rem; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: var(--acc); color: #fff; border-radius: 8px; font-weight: 600; font-size: 0.9rem; }
+    .btn:hover { background: #31B8FF; }
+    .secondary { margin-left: 0.75rem; background: transparent; color: var(--fg-2); border: 1px solid var(--border); }
+    .secondary:hover { color: var(--fg); border-color: var(--fg); }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <span class="emoji" aria-hidden="true">&#128682;</span>
+    <h1>404 — Page Not Found</h1>
+    <p>The documentation page you requested doesn't exist. It may have been moved or removed.</p>
+    <a class="btn" href="index.html"><i class="ri-home-line" aria-hidden="true"></i> Go to Components Library</a>
+    <a class="btn secondary" href="docs.html"><i class="ri-book-open-line" aria-hidden="true"></i> View Documentation</a>
+    <p style="margin-top:1.5rem; font-size:0.8rem; color:var(--fg-3);">
+      Source: <a href="https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" target="_blank" rel="noopener noreferrer" style="color:var(--fg-2)">GitHub</a>
+    </p>
+  </div>
+</body>
+
+</html>

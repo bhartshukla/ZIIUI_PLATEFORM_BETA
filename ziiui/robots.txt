@@ -1,0 +1,5 @@
+# ZiiUI robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://bhartshukla.github.io/ZIIUI_PLATEFORM_BETA/ziiui/sitemap.xml

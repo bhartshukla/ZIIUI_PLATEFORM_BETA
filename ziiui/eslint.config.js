@@ -1,0 +1,87 @@
+import eslint from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+
+export default [
+  eslint.configs.recommended,
+  prettier,
+  {
+    files: ['**/*.{js,mjs,cjs,jsx}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        // Browser / DOM
+        document: 'readonly',
+        window: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        location: 'readonly',
+        IntersectionObserver: 'readonly',
+        MatchMedia: 'readonly',
+        history: 'readonly',
+        console: 'readonly',
+        PerformanceObserver: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        MutationObserver: 'readonly',
+        Event: 'readonly',
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
+        CustomEvent: 'readonly',
+        Node: 'readonly',
+        Element: 'readonly',
+        HTMLElement: 'readonly',
+        // Node / test
+        process: 'readonly',
+        __dirname: 'readonly',
+        // Vitest
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        vi: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-constant-condition': 'off',
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      'curly': ['error', 'all'],
+      'quotes': ['error', 'single', { avoidEscape: true }],
+      'semi': ['error', 'always'],
+      'indent': ['error', 2],
+      'arrow-body-style': ['error', 'as-needed'],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'object-shorthand': ['error', 'always'],
+      'prefer-template': 'error',
+      'dot-notation': 'error'
+    }
+  },
+  {
+    files: ['tests/**/*.test.js'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        vi: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        Event: 'readonly',
+        KeyboardEvent: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off'
+    }
+  }
+];
