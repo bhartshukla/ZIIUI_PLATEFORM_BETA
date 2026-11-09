@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-  <title>ZiiUI — Documentation | Animated UI Components &amp; Text Effects</title>
-  <meta name="description" content="ZiiUI documentation: learn how to build interactive websites with animated UI components. Explore components, customize with AI, copy code, and add it to your site.">
-  <meta name="theme-color" content="#000000">
+  <title>ZiiUI — Documentation | Motion &amp; Animated UI Components</title>
+  <meta name="description" content="ZiiUI documentation: learn how to build interactive websites with motion UI components. Explore animations, customize with AI, preview live, and copy production-ready code.">
+  <meta name="theme-color" content="#050608">
   <link rel="canonical" href="https://bhartshukla.github.io/ZIIUI_PLATEFORM_BETA/ziiui/docs.html">
 
   <meta property="og:type" content="website">
@@ -19,7 +19,7 @@
   <meta property="og:image:alt" content="ZiiUI logo">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ZiiUI — Documentation">
-  <meta name="twitter:description" content="ZiiUI documentation: animated UI components and text effects.">
+  <meta name="twitter:description" content="ZiiUI documentation: animated UI components and motion effects.">
 
   <link rel="icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,22 +42,11 @@
       "author": { "@type": "Person", "name": "Bhart Shukla" },
       "publisher": { "@type": "Organization", "name": "ZiiUI", "url": "https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" },
       "datePublished": "2026-01-01",
-      "dateModified": "2026-11-06",
+      "dateModified": "2026-11-09",
       "inLanguage": "en-US",
       "isPartOf": { "@type": "WebSite", "name": "ZiiUI", "url": "https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" },
       "about": { "@type": "Thing", "name": "animated UI components" },
       "audience": { "@type": "Audience", "audienceType": "web creators" }
-    }
-  </script>
-
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://bhartshukla.github.io/ZIIUI_PLATEFORM_BETA/ziiui/index.html" },
-        { "@type": "ListItem", "position": 2, "name": "Documentation", "item": "https://bhartshukla.github.io/ZIIUI_PLATEFORM_BETA/ziiui/docs.html" }
-      ]
     }
   </script>
 
@@ -76,14 +65,10 @@
     html { overflow-x: hidden; }
     body { margin: 0; background: var(--bg); color: var(--fg); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; min-height: 100dvh; overflow-x: clip; line-height: 1.6; }
     [hidden] { display: none !important }
-    [class^="ri-"], [class*=" ri-"] { font-family: 'remixicon' !important; font-style: normal; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h, 56px); z-index: 100; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.25rem; gap: 1rem; }
-    .logo { display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--fg); border-radius: 8px; padding: .25rem .4rem; height: 44px; }
-    .logo-mark { height: 30px; width: auto; max-width: 150px; aspect-ratio: 895 / 348; object-fit: contain; border-radius: 6px; }
-    .beta-badge { font-size: .58rem; font-weight: 350; text-transform: uppercase; letter-spacing: .1em; color: var(--mute); background: var(--raise); border: 1px solid var(--line); border-radius: 999px; padding: .12rem .5rem; line-height: 1; margin-left: .1rem; }
-    .menu-toggle { display: none; position: fixed; top: 10px; left: 10px; z-index: 120; width: 42px; height: 42px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--fg); cursor: pointer; }
-    .side-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 140; opacity: 0; visibility: hidden; pointer-events: none; }
-    .side-close { display: none; position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 8px; background: transparent; border: 1px solid var(--line); color: var(--fg); cursor: pointer; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h, 60px); z-index: 100; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.25rem; }
+    .logo { display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--fg); border-radius: 8px; padding: .2rem .4rem; height: 40px; }
+    .logo-mark { height: 28px; width: auto; max-width: 140px; aspect-ratio: 895 / 348; object-fit: contain; border-radius: 6px; }
+    .beta-badge { font-size: .58rem; font-weight: 500; text-transform: uppercase; letter-spacing: .1em; color: var(--fg-2); background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 999px; padding: .15rem .5rem; line-height: 1; margin-left: .15rem; }
     .skip { position: absolute; left: -9999px; top: 0; background: var(--acc); color: #fff; padding: .5rem 1rem; border-radius: 0 0 8px 0; z-index: 999; font-weight: 600; font-size: .85rem; }
     .skip:focus { left: 0; }
   </style>
@@ -97,7 +82,7 @@
   <div class="side-overlay" id="sideOverlay" aria-hidden="true"></div>
 
   <!-- ============================================================
-       TOP BAR
+       TOP BAR (Clean, Production-Ready, No Underlines)
        ============================================================ -->
   <header class="topbar">
     <div class="topbar-inner">
@@ -105,12 +90,14 @@
         <img class="logo-mark" src="/ziiui-logo.jpg" alt="ZiiUI" width="895" height="348" fetchpriority="high" decoding="async" onerror="this.style.display='none'">
         <span class="beta-badge" title="This platform is in beta">beta</span>
       </a>
+
       <nav class="topnav" aria-label="Primary">
         <a href="index.html">Components</a>
         <a href="ai.html">AI Editor</a>
         <a href="context.html">Context</a>
         <a href="docs.html" class="active" aria-current="page">Docs</a>
       </nav>
+
       <div class="topbar-actions">
         <button class="icon-btn" type="button" id="docsMenuToggle" aria-label="Open documentation menu" title="Menu">
           <i class="ri-menu-line" aria-hidden="true"></i>
@@ -126,12 +113,12 @@
   </header>
 
   <!-- ============================================================
-       SHELL
+       SHELL (DOUBLE SIDEBAR: LEFT NAV + CENTER CONTENT + RIGHT TOC)
        ============================================================ -->
   <div class="shell" id="top">
 
     <!-- --------------------------------------------------------
-         SIDEBAR
+         LEFT SIDEBAR (Documentation Navigation & Search)
          -------------------------------------------------------- -->
     <aside class="sidebar" id="sidePanel" aria-label="Documentation navigation">
 
@@ -139,9 +126,9 @@
         <i class="ri-close-line" aria-hidden="true"></i>
       </button>
 
-      <!-- DOCUMENTATION -->
+      <!-- SEARCH BAR -->
       <div class="sidebar__group">
-        <p class="sidebar__label">Documentation</p>
+        <p class="sidebar__label">Search</p>
         <div class="sidebar__search">
           <i class="ri-search-line" aria-hidden="true"></i>
           <input type="search" id="docsSearch" placeholder="Search documentation…" aria-label="Search documentation" autocomplete="off" spellcheck="false">
@@ -153,21 +140,20 @@
       <div class="sidebar__group">
         <p class="sidebar__label">Getting Started</p>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#hero">Introduction</a></li>
-          <li><a class="sidebar__link" href="#what-is-ziiui">What is ZiiUI?</a></li>
-          <li><a class="sidebar__link" href="#getting-started">Quick Start</a></li>
+          <li><a class="sidebar__link" href="#hero"><i class="ri-sparkling-line" aria-hidden="true"></i> Overview</a></li>
+          <li><a class="sidebar__link" href="#what-is-ziiui"><i class="ri-information-line" aria-hidden="true"></i> What is ZiiUI?</a></li>
+          <li><a class="sidebar__link" href="#how-ziiui-works"><i class="ri-flow-chart" aria-hidden="true"></i> How ZiiUI Works</a></li>
+          <li><a class="sidebar__link" href="#getting-started"><i class="ri-play-circle-line" aria-hidden="true"></i> Quick Start</a></li>
         </ul>
       </div>
 
       <!-- EDIT WITH AI -->
       <div class="sidebar__group">
-        <p class="sidebar__label">Edit with AI</p>
+        <p class="sidebar__label">AI Customization</p>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#ai-editing-guide">AI Editing Guide</a></li>
-          <li><a class="sidebar__link" href="#ai-editing-guide">Writing Prompts</a></li>
-          <li><a class="sidebar__link" href="#using-the-code-editor">Using the Code Editor</a></li>
-          <li><a class="sidebar__link" href="#preview-components">Preview and Refine</a></li>
-          <li><a class="sidebar__link" href="#using-the-code-editor">Copy and Export</a></li>
+          <li><a class="sidebar__link" href="#ai-editing-guide"><i class="ri-robot-line" aria-hidden="true"></i> Edit with AI</a></li>
+          <li><a class="sidebar__link" href="#writing-prompts"><i class="ri-chat-1-line" aria-hidden="true"></i> Writing Prompts</a></li>
+          <li><a class="sidebar__link" href="#using-the-code-editor"><i class="ri-code-box-line" aria-hidden="true"></i> Code Editor &amp; Controls</a></li>
         </ul>
       </div>
 
@@ -175,10 +161,10 @@
       <div class="sidebar__group">
         <p class="sidebar__label">Component Library</p>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#explore-components">Explore Components</a></li>
-          <li><a class="sidebar__link" href="#explore-components">Component Categories</a></li>
-          <li><a class="sidebar__link" href="#preview-components">Preview Components</a></li>
-          <li><a class="sidebar__link" href="#copy-component-code">Copy Component Code</a></li>
+          <li><a class="sidebar__link" href="#explore-components"><i class="ri-compass-3-line" aria-hidden="true"></i> Browse Library</a></li>
+          <li><a class="sidebar__link" href="#component-categories"><i class="ri-layout-grid-line" aria-hidden="true"></i> Categories</a></li>
+          <li><a class="sidebar__link" href="#preview-components"><i class="ri-eye-line" aria-hidden="true"></i> Live Preview</a></li>
+          <li><a class="sidebar__link" href="#copy-component-code"><i class="ri-file-copy-line" aria-hidden="true"></i> Code &amp; Export</a></li>
         </ul>
       </div>
 
@@ -186,83 +172,68 @@
       <div class="sidebar__group">
         <p class="sidebar__label">Integration</p>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#getting-started">Getting Started</a></li>
-          <li><a class="sidebar__link" href="#getting-started">Copy and Paste</a></li>
-          <li><a class="sidebar__link" href="#getting-started">Understanding Dependencies</a></li>
-          <li><a class="sidebar__link" href="#customize-your-component">Customize Your Component</a></li>
+          <li><a class="sidebar__link" href="#integration-guide"><i class="ri-terminal-box-line" aria-hidden="true"></i> Adding to Your Site</a></li>
+          <li><a class="sidebar__link" href="#dependencies-guide"><i class="ri-puzzle-line" aria-hidden="true"></i> Dependencies</a></li>
+          <li><a class="sidebar__link" href="#customize-your-component"><i class="ri-tools-line" aria-hidden="true"></i> Customizing Code</a></li>
+          <li><a class="sidebar__link" href="#workflow-comparison"><i class="ri-git-merge-line" aria-hidden="true"></i> Choosing Workflow</a></li>
         </ul>
       </div>
 
-      <!-- HELP & SUPPORT -->
+      <!-- SUPPORT & TECHNICAL -->
       <div class="sidebar__group">
-        <p class="sidebar__label">Help & Support</p>
+        <p class="sidebar__label">Support &amp; Reference</p>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#faq">Frequently Asked Questions</a></li>
-          <li><a class="sidebar__link" href="#troubleshooting">Troubleshooting</a></li>
-        </ul>
-      </div>
-
-      <!-- ADVANCED -->
-      <div class="sidebar__group">
-        <p class="sidebar__label">Advanced</p>
-        <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#developer-reference">Developer Reference</a></li>
+          <li><a class="sidebar__link" href="#faq"><i class="ri-questionnaire-line" aria-hidden="true"></i> FAQ</a></li>
+          <li><a class="sidebar__link" href="#troubleshooting"><i class="ri-error-warning-line" aria-hidden="true"></i> Troubleshooting</a></li>
+          <li><a class="sidebar__link" href="#component-reference"><i class="ri-list-check" aria-hidden="true"></i> Component Catalog</a></li>
+          <li><a class="sidebar__link" href="#developer-reference"><i class="ri-cpu-line" aria-hidden="true"></i> Developer Reference</a></li>
         </ul>
       </div>
 
     </aside>
 
     <!-- --------------------------------------------------------
-         MAIN
+         CENTER MAIN CONTENT
          -------------------------------------------------------- -->
     <main class="main" id="main">
 
       <!-- ====================================================
-           SECTION 01: HERO
+           HERO
            ==================================================== -->
       <section id="hero">
-        <p class="eyebrow">Welcome to ZiiUI</p>
-        <h1>Build Better Websites. Your Way.</h1>
-        <p class="lead" style="margin-top:1rem">
-          ZiiUI helps you create beautiful, interactive websites faster. Customize components with AI or explore
-          ready-to-use animated UI components and add them to your own website.
+        <p class="eyebrow"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Documentation · Motion Library</p>
+        <h1>ZiiUI — Motion, Made Interactive</h1>
+        <p class="lead">
+          A high-performance animation and interactive UI component library. Explore ready-to-use motion components,
+          customize them with AI, preview live in real time, and copy production-ready code straight to your project.
         </p>
-        <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.5rem">
-          <a class="topbar__cta" href="index.html" style="background:var(--acc); color:#fff; border-color:var(--acc)">Explore Components</a>
-          <a class="topbar__cta" href="ai.html">Try Edit with AI</a>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="index.html"><i class="ri-compass-3-line" aria-hidden="true"></i> Explore Components</a>
+          <a class="btn btn-secondary" href="ai.html"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Open AI Editor</a>
+          <a class="btn btn-ghost" href="#getting-started"><i class="ri-play-line" aria-hidden="true"></i> Quick Start</a>
         </div>
 
-        <div class="comp-grid" style="margin-top:2rem">
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-robot-line" aria-hidden="true"></i> AI-Powered Customization</div>
-            <p class="comp__note">Describe a design in plain language and AI updates your component.</p>
+        <div class="steps cols-4">
+          <div class="step">
+            <span class="step__num"><i class="ri-flashlight-line" aria-hidden="true"></i> Motion</span>
+            <h3 class="step__title">Animation-First</h3>
+            <p class="step__desc">Engineered with GSAP, ScrollTrigger, Lenis, and Three.js shader effects.</p>
           </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-file-edit-line" aria-hidden="true"></i> Integrated Code Editor</div>
-            <p class="comp__note">Inspect the original and AI-edited code side by side.</p>
+          <div class="step">
+            <span class="step__num"><i class="ri-robot-line" aria-hidden="true"></i> Smart</span>
+            <h3 class="step__title">AI Customization</h3>
+            <p class="step__desc">Describe changes in natural language while keeping source designs intact.</p>
           </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-monitor-line" aria-hidden="true"></i> Live Component Preview</div>
-            <p class="comp__note">See exactly how a component looks and behaves before you copy it.</p>
+          <div class="step">
+            <span class="step__num"><i class="ri-code-s-slash-line" aria-hidden="true"></i> Zero Setup</span>
+            <h3 class="step__title">Copy &amp; Paste</h3>
+            <p class="step__desc">Copy standalone HTML, CSS, and JS or download self-contained files.</p>
           </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-copy-line" aria-hidden="true"></i> Ready-to-use Code</div>
-            <p class="comp__note">Copy HTML, CSS, and JavaScript and paste them into your site.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-flashlight-line" aria-hidden="true"></i> Animation-first Designs</div>
-            <p class="comp__note">Every component is built around motion and interaction.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-code-s-sun-line" aria-hidden="true"></i> No Installation Required</div>
-            <p class="comp__note">Copy standalone code — no npm setup needed for your site.</p>
-          </div>
-        </div>
-
-        <div class="preview" style="margin-top:2rem">
-          <div class="preview__bar"><span class="preview__dots"><span></span><span></span><span></span></span> ziiui component preview</div>
-          <div class="preview__body">
-            <div class="preview__text">Open a component to preview it live</div>
+          <div class="step">
+            <span class="step__num"><i class="ri-eye-line" aria-hidden="true"></i> Interactive</span>
+            <h3 class="step__title">Live Preview Lab</h3>
+            <p class="step__desc">Test scroll triggers, pointer tracking, and responsive behavior in real time.</p>
           </div>
         </div>
       </section>
@@ -270,36 +241,57 @@
       <hr>
 
       <!-- ====================================================
-           SECTION 02: WHAT IS ZIIUI?
+           SECTION: WHAT IS ZIIUI?
            ==================================================== -->
       <section id="what-is-ziiui">
         <h2>What is ZiiUI?</h2>
         <p>
-          ZiiUI is an animated UI component library that helps you create modern, interactive websites without
-          building every animation and interface element from scratch.
+          ZiiUI is a curated component platform designed to bring high-end motion, micro-interactions, and visual polish
+          to web creators and developers without the overhead of starting every complex animation from scratch.
         </p>
         <p>
-          Instead of starting from zero, you can explore existing components, preview how they look and behave,
-          copy their code, or customize them using AI. ZiiUI gives you two ways to work:
+          Instead of wrestling with mathematical easing functions, shader uniforms, or scroll-pinning calculations,
+          you can browse pre-built components, inspect their live behavior, make AI-assisted adjustments, and copy clean,
+          production-ready code into any tech stack.
         </p>
 
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">01</span>
-            <h3 class="step__title">Edit with AI</h3>
-            <p class="step__desc">Personalize a component according to your ideas. Describe what you want to change and AI generates an edited version.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">02</span>
-            <h3 class="step__title">Ready-to-use Components</h3>
-            <p class="step__desc">Select an existing animated component, preview it, copy its code, and add it to your website.</p>
-          </div>
-        </div>
-
-        <div class="callout callout--tip" style="margin-top:1.5rem">
+        <div class="callout callout--tip">
           <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
           <div>
-            <strong>No coding experience required to explore.</strong> You can browse and preview every component without writing code. Basic HTML knowledge helps when you paste the code into your own site.
+            <strong>Zero configuration needed.</strong> You can explore and preview every component without writing a line of code. All copied components include standalone CDN dependencies so you can run them immediately in any browser.
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION: HOW ZIIUI WORKS
+           ==================================================== -->
+      <section id="how-ziiui-works">
+        <h2>How ZiiUI Works</h2>
+        <p>
+          ZiiUI provides a streamlined 4-step workflow from discovery to deployment:
+        </p>
+
+        <div class="steps cols-4">
+          <div class="step">
+            <span class="step__num">01 Explore</span>
+            <h3 class="step__title">Browse Library</h3>
+            <p class="step__desc">Search through seven categories: Web, Menus, Interactive, Scroll, Shader, Footer, and Text.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">02 Preview</span>
+            <h3 class="step__title">Test Interactivity</h3>
+            <p class="step__desc">Interact with live physics, scroll listeners, cursor trails, and responsive breakpoints.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">03 Customize</span>
+            <h3 class="step__title">Personalize Design</h3>
+            <p class="step__desc">Prompt the AI Editor with your design requirements or edit HTML, CSS, and JS directly.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">04 Copy &amp; Build</span>
+            <h3 class="step__title">Export Code</h3>
+            <p class="step__desc">Copy the full standalone bundle or specific sections into your website or web application.</p>
           </div>
         </div>
       </section>
@@ -307,121 +299,128 @@
       <hr>
 
       <!-- ====================================================
-           SECTION 03: EDIT WITH AI
+           SECTION: QUICK START
            ==================================================== -->
-      <section id="ai-editing-guide">
-        <p class="eyebrow">Feature 01</p>
-        <h1>Your Idea. Your Design. Customized with AI.</h1>
-        <p style="margin-top:1rem">
-          Have a design in mind? Describe what you want to change in normal language, and ZiiUI's AI editing
-          workflow personalizes a selected component for you.
+      <section id="getting-started">
+        <h2>Quick Start</h2>
+        <p>
+          Get any animated component running in your project in less than two minutes:
         </p>
 
-        <h2 style="margin-top:2rem">How Edit with AI Works</h2>
-        <div class="steps" style="margin-top:1rem">
+        <ol class="list list--num">
+          <li><strong>Select a Component:</strong> Open the <a href="index.html">Components Library</a> and pick any component card.</li>
+          <li><strong>Inspect Live Preview:</strong> Interact with the preview canvas to verify animation speed, hover states, and gestures.</li>
+          <li><strong>Switch to Code:</strong> Click the <strong>Code</strong> tab to inspect the clean markup, CSS styling, and JavaScript logic.</li>
+          <li><strong>Copy Full Component:</strong> Click <strong>Copy Full Component</strong> to copy the self-contained bundle with required CDNs.</li>
+          <li><strong>Paste &amp; Run:</strong> Paste into an <code>index.html</code> file in your project and serve via any local dev server or static host.</li>
+        </ol>
+
+        <div class="code">
+          <div class="code__head">
+            <span class="code__lang">HTML · Standalone Example</span>
+            <button class="code__copy" type="button" data-copy="#exampleCode" aria-label="Copy code snippet">
+              <i class="ri-file-copy-line" aria-hidden="true"></i> Copy
+            </button>
+          </div>
+          <pre id="exampleCode"><code><span class="tok-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tok-tag">&lt;html lang=</span><span class="tok-str">"en"</span><span class="tok-tag">&gt;</span>
+<span class="tok-tag">&lt;head&gt;</span>
+  <span class="tok-tag">&lt;meta charset=</span><span class="tok-str">"UTF-8"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;title&gt;</span>ZiiUI Animated Component<span class="tok-tag">&lt;/title&gt;</span>
+  <span class="tok-com">&lt;!-- GSAP CDN dependency --&gt;</span>
+  <span class="tok-tag">&lt;script src=</span><span class="tok-str">"https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"</span><span class="tok-tag">&gt;&lt;/script&gt;</span>
+<span class="tok-tag">&lt;/head&gt;</span>
+<span class="tok-tag">&lt;body&gt;</span>
+  <span class="tok-com">&lt;!-- Paste component markup and styles here --&gt;</span>
+<span class="tok-tag">&lt;/body&gt;</span>
+<span class="tok-tag">&lt;/html&gt;</span></code></pre>
+        </div>
+
+        <div class="callout callout--note">
+          <i class="ri-information-line" aria-hidden="true"></i>
+          <div>
+            <strong>Do I need npm or a build step?</strong> No npm packages are required for copied components. All external animation engines (GSAP, Three.js, Lenis) are loaded via standard lightweight CDNs.
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           SECTION: EDIT WITH AI
+           ==================================================== -->
+      <section id="ai-editing-guide">
+        <p class="eyebrow"><i class="ri-robot-line" aria-hidden="true"></i> Feature</p>
+        <h2>Edit with AI</h2>
+        <p>
+          Have a specific color scheme, typography style, or layout shift in mind? Describe what you want to change in plain English, and ZiiUI's integrated AI engine adapts the component for you.
+        </p>
+
+        <div class="steps cols-3">
           <div class="step">
             <span class="step__num">Step 1</span>
-            <h3 class="step__title">Choose a Component</h3>
-            <p class="step__desc">Browse the component library and select the component you want to edit.</p>
+            <h3 class="step__title">Select &amp; Open</h3>
+            <p class="step__desc">Click "Edit with AI" on any component card or navigate to the AI Editor.</p>
           </div>
           <div class="step">
             <span class="step__num">Step 2</span>
-            <h3 class="step__title">Open Edit with AI</h3>
-            <p class="step__desc">Open the AI editing experience from the AI controls on the component library or AI Editor page.</p>
+            <h3 class="step__title">Prompt Your Vision</h3>
+            <p class="step__desc">Describe exact color palettes, fonts, speeds, or layout rules you need.</p>
           </div>
           <div class="step">
             <span class="step__num">Step 3</span>
-            <h3 class="step__title">Describe Your Idea</h3>
-            <p class="step__desc">Write what you want to change in plain language, such as "Change the background to black and use blue buttons."</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Step 4</span>
-            <h3 class="step__title">Generate Changes</h3>
-            <p class="step__desc">AI uses the selected component's existing code and your instructions to generate an edited version.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Step 5</span>
-            <h3 class="step__title">Review Your Design</h3>
-            <p class="step__desc">Check the updated result in the available preview.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Step 6</span>
-            <h3 class="step__title">Refine Your Design</h3>
-            <p class="step__desc">Ask AI for further changes or manually edit the code yourself.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Step 7</span>
-            <h3 class="step__title">Copy or Export</h3>
-            <p class="step__desc">Copy the edited code or export it as a standalone HTML file.</p>
+            <h3 class="step__title">Review &amp; Refine</h3>
+            <p class="step__desc">Compare Original vs AI Edited versions side by side in the live canvas.</p>
           </div>
         </div>
 
-        <h2 style="margin-top:2rem">What Can I Ask AI to Change?</h2>
-        <p>Where supported by the component, you can request changes to:</p>
-        <ul class="list" style="margin-top:1rem; columns:2">
-          <li>Background colors</li>
-          <li>Text colors</li>
-          <li>Font size and typography</li>
-          <li>Layout and alignment</li>
-          <li>Spacing</li>
-          <li>Borders and buttons</li>
-          <li>Hover effects</li>
-          <li>Animation speed and timing</li>
-          <li>Responsive appearance</li>
-        </ul>
-
-        <h3 style="margin-top:1.5rem">Example Prompts</h3>
-        <p>You can copy and paste these examples:</p>
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">1</span>
-            <h3 class="step__title">Visual changes</h3>
-            <p class="step__desc"><em>"Change the background to black and use blue buttons."</em></p>
-          </div>
-          <div class="step">
-            <span class="step__num">2</span>
-            <h3 class="step__title">Typography</h3>
-            <p class="step__desc"><em>"Make the heading larger and improve the spacing."</em></p>
-          </div>
-          <div class="step">
-            <span class="step__num">3</span>
-            <h3 class="step__title">Animation</h3>
-            <p class="step__desc"><em>"Make the animation slower and smoother."</em></p>
-          </div>
-          <div class="step">
-            <span class="step__num">4</span>
-            <h3 class="step__title">Responsive</h3>
-            <p class="step__desc"><em>"Make this section responsive for mobile."</em></p>
-          </div>
-          <div class="step">
-            <span class="step__num">5</span>
-            <h3 class="step__title">Layout</h3>
-            <p class="step__desc"><em>"Change the layout to two columns."</em></p>
-          </div>
-          <div class="step">
-            <span class="step__num">6</span>
-            <h3 class="step__title">Images</h3>
-            <p class="step__desc"><em>"Replace the images with my own image URLs."</em></p>
-          </div>
-        </div>
-
-        <div class="callout callout--tip" style="margin-top:1.5rem">
-          <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
+        <div class="callout callout--tip">
+          <i class="ri-shield-check-line" aria-hidden="true"></i>
           <div>
-            <strong>Be specific.</strong> Mention the element, its appearance, and the exact change you want. The more detail you give, the better the result.
+            <strong>Non-destructive draft protection.</strong> AI modifications are saved as an editable draft. The original component code is always preserved, and you can click <strong>Reset to Original</strong> at any point to restore the defaults.
           </div>
         </div>
+      </section>
 
-        <h3 style="margin-top:1.5rem">Original Design Protection</h3>
+      <!-- ====================================================
+           SECTION: WRITING PROMPTS
+           ==================================================== -->
+      <section id="writing-prompts">
+        <h3>Writing Effective Prompts</h3>
         <p>
-          AI editing creates an edited draft. It does <strong>not</strong> overwrite the original component in the
-          source library. Use <strong>Reset to Original</strong> when you want to discard your changes and start over.
+          Here are tested prompt examples you can copy and adapt when customizing components:
         </p>
 
-        <div class="callout callout--warn" style="margin-top:1.5rem">
-          <i class="ri-error-warning-line" aria-hidden="true"></i>
-          <div>
-            <strong>AI configuration.</strong> AI editing requires the AI service to be configured. If AI is not configured, the component library and ready-to-use features remain fully usable — AI generation simply won't work.
+        <div class="steps cols-3">
+          <div class="step">
+            <span class="step__num">Visual Theme</span>
+            <h3 class="step__title">Palette &amp; Contrast</h3>
+            <p class="step__desc"><em>"Change background to #0d1117, make cards #161b22 with subtle 1px border #30363d, and use electric blue accents."</em></p>
+          </div>
+          <div class="step">
+            <span class="step__num">Typography</span>
+            <h3 class="step__title">Font &amp; Hierarchy</h3>
+            <p class="step__desc"><em>"Use Inter font, increase the heading size to 2.5rem with tight letter-spacing, and make body text softer gray."</em></p>
+          </div>
+          <div class="step">
+            <span class="step__num">Animation</span>
+            <h3 class="step__title">Timing &amp; Ease</h3>
+            <p class="step__desc"><em>"Make the reveal animation 30% slower with an exponential ease-out curve and increase stagger delay between items."</em></p>
+          </div>
+          <div class="step">
+            <span class="step__num">Layout</span>
+            <h3 class="step__title">Grid &amp; Spacing</h3>
+            <p class="step__desc"><em>"Convert the card layout into a 3-column grid on desktop and single column with swipe support on mobile."</em></p>
+          </div>
+          <div class="step">
+            <span class="step__num">Buttons</span>
+            <h3 class="step__title">Controls &amp; Badges</h3>
+            <p class="step__desc"><em>"Add a primary blue action button with an arrow icon and smooth hover lift effect to each card."</em></p>
+          </div>
+          <div class="step">
+            <span class="step__num">Interactivity</span>
+            <h3 class="step__title">Pointer &amp; Focus</h3>
+            <p class="step__desc"><em>"Add a subtle glow effect around the cursor follower and increase the magnetic pull distance."</em></p>
           </div>
         </div>
       </section>
@@ -429,330 +428,36 @@
       <hr>
 
       <!-- ====================================================
-           SECTION 04: INTEGRATED CODE EDITOR
+           SECTION: INTEGRATED CODE EDITOR
            ==================================================== -->
       <section id="using-the-code-editor">
-        <h1>Your Design, Your Code, Your Control.</h1>
-        <p style="margin-top:1rem">
-          After AI generates a design, you can inspect the original code, review the AI-edited version, make manual
-          changes, and preview the result.
+        <h2>Integrated Code Editor &amp; Controls</h2>
+        <p>
+          Every component provides a built-in code view with split tabs, live preview sync, and direct code export:
         </p>
 
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">Original</span>
-            <h3 class="step__title">View the original</h3>
-            <p class="step__desc">See the component's original code before any AI changes.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">AI Version</span>
-            <h3 class="step__title">Review the AI version</h3>
-            <p class="step__desc">See the code generated by AI based on your instructions.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Live Preview</span>
-            <h3 class="step__title">Preview the result</h3>
-            <p class="step__desc">See how the code looks when rendered, so you know exactly what you're copying.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Manual Editing</span>
-            <h3 class="step__title">Edit the code yourself</h3>
-            <p class="step__desc">Change the code directly when you want more control over the details.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Auto Preview</span>
-            <h3 class="step__title">Toggle automatic preview</h3>
-            <p class="step__desc">Turn live preview updates on or off as you edit.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Copy and Export</span>
-            <h3 class="step__title">Save your work</h3>
-            <p class="step__desc">Copy the edited code to your clipboard or download a standalone HTML file.</p>
-          </div>
-        </div>
-
-        <div class="callout callout--note" style="margin-top:1.5rem">
-          <i class="ri-information-line" aria-hidden="true"></i>
-          <div>
-            <strong>What the editor is.</strong> The current editor is a simple text-based editor. It does not include advanced features such as autocomplete, debugging, syntax highlighting, or multi-file editing.
-          </div>
-        </div>
-      </section>
-
-      <hr>
-
-      <!-- ====================================================
-           SECTION 05: READY-TO-USE COMPONENTS
-           ==================================================== -->
-      <section id="explore-components">
-        <p class="eyebrow">Feature 02</p>
-        <h1>Explore. Preview. Copy. Build.</h1>
-        <p style="margin-top:1rem">
-          Not every design needs to start from scratch. ZiiUI provides ready-to-use animated components that you can
-          preview, inspect, and add to your own website.
-        </p>
-
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">01</span>
-            <h3 class="step__title">Open Components</h3>
-            <p class="step__desc">Open the Components Library from the top navigation.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">02</span>
-            <h3 class="step__title">Browse Categories</h3>
-            <p class="step__desc">Look through Web, Menus, Interactive, Scroll, Shader, Footer, and Text.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">03</span>
-            <h3 class="step__title">Select a Component</h3>
-            <p class="step__desc">Click a component card to open its detail page.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">04</span>
-            <h3 class="step__title">Check the Live Preview</h3>
-            <p class="step__desc">See how the component looks and behaves before you copy it.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">05</span>
-            <h3 class="step__title">Switch to Code</h3>
-            <p class="step__desc">View the HTML, CSS, and JavaScript that make up the component.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">06</span>
-            <h3 class="step__title">Copy the Code</h3>
-            <p class="step__desc">Copy the complete component or individual sections.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">07</span>
-            <h3 class="step__title">Export HTML</h3>
-            <p class="step__desc">Download a standalone HTML file where available.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">08</span>
-            <h3 class="step__title">Add to Your Website</h3>
-            <p class="step__desc">Paste the code into your project and customize it.</p>
-          </div>
-        </div>
-
-        <h2 style="margin-top:2rem">What Are the Component Categories?</h2>
-        <p>ZiiUI organizes components into seven categories:</p>
-        <div class="comp-grid" style="margin-top:1rem">
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-layout-2-line" aria-hidden="true"></i> Web</div>
-            <p class="comp__note">Website sections and layouts.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-menu-line" aria-hidden="true"></i> Menus</div>
-            <p class="comp__note">Creative navigation menus and menu reveal effects.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-touchpad-line" aria-hidden="true"></i> Interactive</div>
-            <p class="comp__note">Components that respond to hover, pointer movement, or dragging.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-arrow-down-line" aria-hidden="true"></i> Scroll</div>
-            <p class="comp__note">Animations and effects that respond to scrolling.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-shader-line" aria-hidden="true"></i> Shader</div>
-            <p class="comp__note">Advanced visual effects and image transitions.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-file-text-line" aria-hidden="true"></i> Footer</div>
-            <p class="comp__note">Creative footer layouts and footer animations.</p>
-          </div>
-          <div class="comp" style="pointer-events:none">
-            <div class="comp__name"><i class="ri-text-rotate-left-line" aria-hidden="true"></i> Text</div>
-            <p class="comp__note">Animated typography and text effects.</p>
-          </div>
-        </div>
-      </section>
-
-      <hr>
-
-      <!-- ====================================================
-           SECTION 06: PREVIEW COMPONENTS
-           ==================================================== -->
-      <section id="preview-components">
-        <h1>See Before You Use.</h1>
-        <p style="margin-top:1rem">
-          Every component has a live preview so you can test it before copying any code.
-        </p>
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">1</span>
-            <h3 class="step__title">Select a Component</h3>
-            <p class="step__desc">Open the component's detail page from the library.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">2</span>
-            <h3 class="step__title">Check the Live Preview</h3>
-            <p class="step__desc">See the component rendered and animated in real time.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">3</span>
-            <h3 class="step__title">Interact With It</h3>
-            <p class="step__desc">Hover over interactive elements, scroll inside the preview for scroll-based effects, or drag elements where the component supports dragging.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">4</span>
-            <h3 class="step__title">Switch to Code</h3>
-            <p class="step__desc">Whenever you're ready, switch to the Code tab to inspect how it's built.</p>
-          </div>
-        </div>
-        <div class="callout callout--tip" style="margin-top:1.5rem">
-          <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
-          <div>
-            <strong>Test on your devices.</strong> Preview behavior on desktop, tablet, and mobile before integrating a component into your site.
-          </div>
-        </div>
-      </section>
-
-      <hr>
-
-      <!-- ====================================================
-           SECTION 07: CODE BUTTONS
-           ==================================================== -->
-      <section id="copy-component-code">
-        <h1>What Do the Code Options Mean?</h1>
-        <p style="margin-top:1rem">
-          Each component's Code view offers several options, depending on the component:
-        </p>
-
-        <div class="steps" style="margin-top:1rem">
+        <div class="steps cols-3">
           <div class="step">
             <span class="step__num">HTML</span>
-            <h3 class="step__title">Structure and content</h3>
-            <p class="step__desc">The HTML markup and text of the component.</p>
+            <h3 class="step__title">Structure Tab</h3>
+            <p class="step__desc">Inspect clean semantic markup, custom data attributes, and SVG definitions.</p>
           </div>
           <div class="step">
             <span class="step__num">CSS</span>
-            <h3 class="step__title">Visual styling</h3>
-            <p class="step__desc">Layout, colors, fonts, and appearance.</p>
+            <h3 class="step__title">Style Tab</h3>
+            <p class="step__desc">Review CSS variables, responsive media queries, keyframes, and layout rules.</p>
           </div>
           <div class="step">
             <span class="step__num">JavaScript</span>
-            <h3 class="step__title">Behavior and interaction</h3>
-            <p class="step__desc">The logic that makes the component animate and respond.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Copy HTML</span>
-            <h3 class="step__title">Copy HTML section</h3>
-            <p class="step__desc">Copies only the HTML markup.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Copy CSS</span>
-            <h3 class="step__title">Copy CSS section</h3>
-            <p class="step__desc">Copies only the CSS styles.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Copy JavaScript</span>
-            <h3 class="step__title">Copy JavaScript section</h3>
-            <p class="step__desc">Copies only the JavaScript logic.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Copy Full Component</span>
-            <h3 class="step__title">Copy everything</h3>
-            <p class="step__desc">Copies the complete standalone component code, including its required setup.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Export HTML</span>
-            <h3 class="step__title">Download file</h3>
-            <p class="step__desc">Downloads a standalone HTML file that can be opened or hosted separately.</p>
-          </div>
-        </div>
-      </section>
-
-      <hr>
-
-      <!-- ====================================================
-           SECTION 08: USE IN YOUR WEBSITE
-           ==================================================== -->
-      <section id="getting-started">
-        <h1>From ZiiUI to Your Website.</h1>
-        <p style="margin-top:1rem">
-          Once you find a component you like, you can copy its code and add it to your own project.
-        </p>
-
-        <h2 style="margin-top:2rem">Simple Steps</h2>
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">1</span>
-            <h3 class="step__title">Select a component</h3>
-            <p class="step__desc">Open the Components Library and pick a component card.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">2</span>
-            <h3 class="step__title">Open the Code tab</h3>
-            <p class="step__desc">Review the HTML, CSS, and JavaScript sections.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">3</span>
-            <h3 class="step__title">Review its dependencies</h3>
-            <p class="step__desc">Check which external libraries the component needs.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">4</span>
-            <h3 class="step__title">Copy Full Component</h3>
-            <p class="step__desc">Click Copy Full Component to get the complete standalone code.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">5</span>
-            <h3 class="step__title">Create or open an HTML file</h3>
-            <p class="step__desc">Open an HTML file in your own project.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">6</span>
-            <h3 class="step__title">Paste the code</h3>
-            <p class="step__desc">Paste the copied standalone HTML into your file.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">7</span>
-            <h3 class="step__title">Save the file</h3>
-            <p class="step__desc">Save your HTML file.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">8</span>
-            <h3 class="step__title">Open it through a web server</h3>
-            <p class="step__desc">Open the file through a local web server, or host it online.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">9</span>
-            <h3 class="step__title">Replace demo content</h3>
-            <p class="step__desc">Swap in your own text, images, and links.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">10</span>
-            <h3 class="step__title">Test the result</h3>
-            <p class="step__desc">Make sure the component looks and works as expected on your site.</p>
+            <h3 class="step__title">Logic Tab</h3>
+            <p class="step__desc">Fine-tune GSAP timelines, ScrollTrigger pinners, shader loops, and event listeners.</p>
           </div>
         </div>
 
-        <h2 style="margin-top:2rem">What Are Dependencies?</h2>
-        <p>
-          Some components need additional libraries to create their animations or visual effects. A dependency is
-          simply an external tool that helps a component work.
-        </p>
-        <p>
-          Examples of dependencies you may see include:
-        </p>
-        <ul class="list" style="margin-top:1rem">
-          <li><strong>GSAP</strong> — for animations.</li>
-          <li><strong>ScrollTrigger</strong> — for scroll-based effects.</li>
-          <li><strong>Lenis</strong> — for smooth scrolling.</li>
-          <li><strong>Three.js</strong> — for shader visuals.</li>
-          <li><strong>Google Fonts</strong> — for typography.</li>
-        </ul>
-        <p style="margin-top:1rem">
-          Check the selected component's dependency list and keep the included CDN references when you copy the full
-          component. You don't need to install every library for every component — only the ones that component lists.
-        </p>
-
-        <div class="callout callout--note" style="margin-top:1.5rem">
-          <i class="ri-question-mark-line" aria-hidden="true"></i>
+        <div class="callout callout--note">
+          <i class="ri-keyboard-line" aria-hidden="true"></i>
           <div>
-            <strong>Do I need npm?</strong> No. For the copied standalone component code, a separate npm installation is not required when the provided CDN setup is retained. ZiiUI itself does not currently provide a package-based npm installation method. Running the ZiiUI application locally is different from using copied component code on your site.
+            <strong>Live Sync &amp; Auto Preview.</strong> Toggle the live preview to immediately see your code edits rendered in real time. If needed, click <strong>Reset</strong> to instantly restore default code.
           </div>
         </div>
       </section>
@@ -760,99 +465,228 @@
       <hr>
 
       <!-- ====================================================
-           SECTION 09: CUSTOMIZE WITHOUT AI
+           SECTION: COMPONENT LIBRARY & CATEGORIES
+           ==================================================== -->
+      <section id="explore-components">
+        <p class="eyebrow"><i class="ri-compass-3-line" aria-hidden="true"></i> Catalog</p>
+        <h2>Component Library</h2>
+        <p>
+          Browse ZiiUI's collection of animated UI components organized into focused motion domains:
+        </p>
+      </section>
+
+      <section id="component-categories">
+        <h3>Component Categories</h3>
+        <div class="comp-grid">
+          <div class="comp">
+            <div class="comp__name"><i class="ri-layout-2-line" aria-hidden="true"></i> Web Components</div>
+            <p class="comp__note">Hero sections, split scrolling cards, and engaging landing page layouts.</p>
+            <span class="comp__tag">Web · GSAP, ScrollTrigger, Lenis</span>
+          </div>
+
+          <div class="comp">
+            <div class="comp__name"><i class="ri-menu-line" aria-hidden="true"></i> Menus &amp; Navigation</div>
+            <p class="comp__note">Grid ripple reveals, morphing curved SVG sheets, and fullscreen overlay navigation.</p>
+            <span class="comp__tag">Menus · GSAP, SVG Morph</span>
+          </div>
+
+          <div class="comp">
+            <div class="comp__name"><i class="ri-touchpad-line" aria-hidden="true"></i> Interactive &amp; Pointer</div>
+            <p class="comp__note">Draggable masks, magnetic hover thumbnails, image trails, and ink cursor snakes.</p>
+            <span class="comp__tag">Interactive · Pointer Events, GSAP</span>
+          </div>
+
+          <div class="comp">
+            <div class="comp__name"><i class="ri-arrow-down-line" aria-hidden="true"></i> Scroll Animations</div>
+            <p class="comp__note">3D card stands, sequential clip-path panels, image flows, and pin-rotate sections.</p>
+            <span class="comp__tag">Scroll · ScrollTrigger, Lenis</span>
+          </div>
+
+          <div class="comp">
+            <div class="comp__name"><i class="ri-shader-line" aria-hidden="true"></i> Shader &amp; WebGL</div>
+            <p class="comp__note">Noisy pixel character glitch, mirror dissolve, and WebGL image transitions.</p>
+            <span class="comp__tag">Shader · Three.js, Custom Shaders</span>
+          </div>
+
+          <div class="comp">
+            <div class="comp__name"><i class="ri-file-text-line" aria-hidden="true"></i> Creative Footers</div>
+            <p class="comp__note">Sticky reveal footers, interactive photo-burst folders, and magnetic split-text footers.</p>
+            <span class="comp__tag">Footer · Lenis, GSAP</span>
+          </div>
+
+          <div class="comp">
+            <div class="comp__name"><i class="ri-text-rotate-left-line" aria-hidden="true"></i> Text &amp; Typography</div>
+            <p class="comp__note">Staggered character rolls, glyph scramblers, light sweeps, and 3D wave motion.</p>
+            <span class="comp__tag">Text · CSS Only &amp; Vanilla JS</span>
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           SECTION: PREVIEW COMPONENTS
+           ==================================================== -->
+      <section id="preview-components">
+        <h2>Live Preview &amp; Testing</h2>
+        <p>
+          Before copying code, test components interactively inside the built-in preview sandbox:
+        </p>
+
+        <ul class="list">
+          <li><strong>Hover &amp; Magnetic Tracking:</strong> Move your pointer over cards, thumbnails, or buttons to observe physics and cursor velocity.</li>
+          <li><strong>Scroll Simulation:</strong> Scroll vertically within the preview container to verify ScrollTrigger pinning and scrubbed animations.</li>
+          <li><strong>Pointer &amp; Drag:</strong> Click and drag draggable mask windows or interactive nodes to inspect gesture response.</li>
+          <li><strong>Responsive Scaling:</strong> Resize your browser viewport to verify that fluid typography and flexbox/grid containers adapt cleanly.</li>
+        </ul>
+      </section>
+
+      <!-- ====================================================
+           SECTION: COPY COMPONENT CODE
+           ==================================================== -->
+      <section id="copy-component-code">
+        <h2>Code Options &amp; Export</h2>
+        <p>
+          Each component provides flexible export options tailored to your project workflow:
+        </p>
+
+        <div class="steps cols-3">
+          <div class="step">
+            <span class="step__num">Standalone</span>
+            <h3 class="step__title">Copy Full Component</h3>
+            <p class="step__desc">Copies a self-contained HTML file including required CDNs, CSS, and JS ready to paste and open.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">Granular</span>
+            <h3 class="step__title">Copy HTML / CSS / JS</h3>
+            <p class="step__desc">Copies individual code tabs to paste into existing CSS sheets, markup templates, or script modules.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">Download</span>
+            <h3 class="step__title">Export HTML File</h3>
+            <p class="step__desc">Downloads a standalone <code>.html</code> file directly to your disk for local offline testing.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           SECTION: ADDING TO YOUR WEBSITE
+           ==================================================== -->
+      <section id="integration-guide">
+        <h2>Adding to Your Website</h2>
+        <p>
+          Integrating a ZiiUI component into your site takes only a few lines:
+        </p>
+
+        <div class="steps cols-2">
+          <div class="step">
+            <span class="step__num">Method A</span>
+            <h3 class="step__title">Vanilla HTML &amp; Static Sites</h3>
+            <p class="step__desc">Paste the copied HTML directly into your template. Ensure the external library CDNs are placed in the <code>&lt;head&gt;</code> or before the closing <code>&lt;/body&gt;</code> tag.</p>
+          </div>
+          <div class="step">
+            <span class="step__num">Method B</span>
+            <h3 class="step__title">React, Next.js, Vue, Svelte</h3>
+            <p class="step__desc">Mount the HTML structure inside your component JSX/template, import GSAP via npm (<code>import gsap from 'gsap'</code>), and run the animation logic inside <code>useEffect</code> or <code>onMounted</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION: DEPENDENCIES
+           ==================================================== -->
+      <section id="dependencies-guide">
+        <h3>Dependencies Guide</h3>
+        <p>
+          Components indicate which external libraries they utilize. Here is the dependency matrix:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Library</th>
+                <th>Version</th>
+                <th>Purpose</th>
+                <th>CDN Resource</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>GSAP</strong></td>
+                <td>3.12.5</td>
+                <td>Core timeline animation engine</td>
+                <td><code>cdnjs.cloudflare.com/.../gsap.min.js</code></td>
+              </tr>
+              <tr>
+                <td><strong>ScrollTrigger</strong></td>
+                <td>3.12.5</td>
+                <td>Scroll position binding &amp; pinning</td>
+                <td><code>cdnjs.cloudflare.com/.../ScrollTrigger.min.js</code></td>
+              </tr>
+              <tr>
+                <td><strong>Lenis</strong></td>
+                <td>1.1.14</td>
+                <td>Smooth scroll momentum physics</td>
+                <td><code>cdn.jsdelivr.net/.../lenis.min.js</code></td>
+              </tr>
+              <tr>
+                <td><strong>Three.js</strong></td>
+                <td>r128</td>
+                <td>WebGL renderer &amp; shader pass</td>
+                <td><code>cdnjs.cloudflare.com/.../three.min.js</code></td>
+              </tr>
+              <tr>
+                <td><strong>Remix Icon</strong></td>
+                <td>4.9.0</td>
+                <td>Vector UI iconography</td>
+                <td><code>cdn.jsdelivr.net/.../remixicon.css</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- ====================================================
+           SECTION: CUSTOMIZING WITHOUT AI
            ==================================================== -->
       <section id="customize-your-component">
-        <h1>Make Small Changes Yourself.</h1>
-        <p style="margin-top:1rem">
-          You don't need AI to customize a component. Once you've copied the code, you can edit it directly in your
-          own project.
+        <h2>Customizing Without AI</h2>
+        <p>
+          You have full control over the copied code. All components are written in standard, clean CSS and JavaScript:
         </p>
 
-        <div class="steps" style="margin-top:1rem">
-          <div class="step">
-            <span class="step__num">1</span>
-            <h3 class="step__title">Change the text</h3>
-            <p class="step__desc">Edit the words and headings inside the HTML.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">2</span>
-            <h3 class="step__title">Replace an image</h3>
-            <p class="step__desc">Swap the image URL with your own image.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">3</span>
-            <h3 class="step__title">Change a background color</h3>
-            <p class="step__desc">Update the color value in the CSS.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">4</span>
-            <h3 class="step__title">Adjust button labels</h3>
-            <p class="step__desc">Change button text in the HTML.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">5</span>
-            <h3 class="step__title">Change font size</h3>
-            <p class="step__desc">Edit the font-size value in the CSS.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">6</span>
-            <h3 class="step__title">Adjust spacing</h3>
-            <p class="step__desc">Change padding or margin values in the CSS.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">7</span>
-            <h3 class="step__title">Modify animation timing</h3>
-            <p class="step__desc">Where available, adjust animation duration or speed in the JavaScript or CSS.</p>
-          </div>
-        </div>
-
-        <div class="callout callout--tip" style="margin-top:1.5rem">
-          <i class="ri-pencil-line" aria-hidden="true"></i>
-          <div>
-            <strong>Start small.</strong> Make one change at a time, save, and refresh your page to see the effect before making more changes.
-          </div>
-        </div>
+        <ul class="list">
+          <li><strong>Content &amp; Assets:</strong> Replace demo text headings, paragraphs, and image URLs (<code>src="..."</code>) directly in the HTML.</li>
+          <li><strong>CSS Variables:</strong> Tweak color variables such as <code>--accent</code>, <code>--bg</code>, and <code>--card-bg</code> in the CSS root.</li>
+          <li><strong>Animation Timing:</strong> Modify GSAP tween parameters (e.g. <code>duration: 1.2</code>, <code>stagger: 0.05</code>, <code>ease: "power3.out"</code>).</li>
+          <li><strong>Scroll Scrubber:</strong> Adjust <code>scrub: 1</code> in ScrollTrigger configurations for tighter or looser scroll momentum.</li>
+        </ul>
       </section>
 
-      <hr>
-
       <!-- ====================================================
-           SECTION 10: CHOOSING THE RIGHT WORKFLOW
+           SECTION: CHOOSING THE RIGHT WORKFLOW
            ==================================================== -->
       <section id="workflow-comparison">
-        <h1>Which Way Should I Use ZiiUI?</h1>
-        <p style="margin-top:1rem">
-          You have two main paths. Choose the one that fits your situation.
+        <h2>Choosing the Right Workflow</h2>
+        <p>
+          Choose the workflow that matches your design and technical requirements:
         </p>
 
-        <div class="steps" style="margin-top:1rem">
+        <div class="steps cols-2">
           <div class="step">
-            <span class="step__num">AI</span>
-            <h3 class="step__title">Use Edit with AI when:</h3>
-            <ul class="list" style="margin-top:0.75rem">
-              <li>You have a specific design in mind.</li>
-              <li>You want to change the appearance.</li>
-              <li>You want to personalize an existing animation.</li>
-              <li>You want AI to help with code modifications.</li>
-            </ul>
+            <span class="step__num"><i class="ri-flashlight-line" aria-hidden="true"></i> Instant</span>
+            <h3 class="step__title">Ready-to-Use Components</h3>
+            <p class="step__desc">Best when you love the pre-built motion, need zero configuration, and want to copy and integrate immediately.</p>
           </div>
           <div class="step">
-            <span class="step__num">Ready-made</span>
-            <h3 class="step__title">Use Ready-to-use Components when:</h3>
-            <ul class="list" style="margin-top:0.75rem">
-              <li>You like an existing design.</li>
-              <li>You want to save development time.</li>
-              <li>You want to copy a working component.</li>
-              <li>You want to explore different effects.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="callout callout--tip" style="margin-top:1.5rem">
-          <i class="ri-arrow-right-line" aria-hidden="true"></i>
-          <div>
-            <strong>You can combine both.</strong> Start with a ready-made component, then use AI to personalize it further.
+            <span class="step__num"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Assisted</span>
+            <h3 class="step__title">Edit with AI</h3>
+            <p class="step__desc">Best when you need custom brand colors, custom typography pairing, modified layouts, or experimental variants.</p>
           </div>
         </div>
       </section>
@@ -860,106 +694,49 @@
       <hr>
 
       <!-- ====================================================
-           SECTION 11: FAQ
+           SECTION: FAQ
            ==================================================== -->
       <section id="faq">
-        <h1>Frequently Asked Questions</h1>
-        <div class="steps" style="margin-top:1rem">
+        <h2>Frequently Asked Questions</h2>
+        <div class="steps cols-2">
           <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">What is ZiiUI?</h3>
-            <p class="step__desc">ZiiUI is an animated UI component library with AI-assisted customization.</p>
+            <span class="step__num">Q1</span>
+            <h3 class="step__title">Is ZiiUI free for commercial use?</h3>
+            <p class="step__desc">Yes. Components and code exported from ZiiUI can be used freely in personal, client, and commercial projects.</p>
           </div>
           <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Do I need coding knowledge?</h3>
-            <p class="step__desc">Basic HTML/CSS/JavaScript knowledge is helpful when integrating and modifying components. You can explore and preview components without understanding their internal implementation.</p>
+            <span class="step__num">Q2</span>
+            <h3 class="step__title">Do I need to install ZiiUI via npm?</h3>
+            <p class="step__desc">No. Copied component code is standalone HTML, CSS, and JS with external CDNs included. No npm package installation is needed.</p>
           </div>
           <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Can I use components without AI?</h3>
-            <p class="step__desc">Yes. The ready-to-use component library works independently of AI configuration.</p>
+            <span class="step__num">Q3</span>
+            <h3 class="step__title">Does AI overwrite my components?</h3>
+            <p class="step__desc">No. AI generates a draft copy in browser session memory. The underlying library component is never altered, and you can reset anytime.</p>
           </div>
           <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Does AI work automatically?</h3>
-            <p class="step__desc">AI editing requires the AI service to be configured. If it is not configured, AI generation will not work.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Can I preview before copying?</h3>
-            <p class="step__desc">Yes. Open the component detail view and use its live preview.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Can I edit the component after copying it?</h3>
-            <p class="step__desc">Yes. You can modify the copied HTML, CSS, and JavaScript in your own project.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Do I need to install ZiiUI?</h3>
-            <p class="step__desc">No package installation is required for copied standalone component code. Keep the dependencies included in the generated HTML.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Can I use components in React or Vue?</h3>
-            <p class="step__desc">The generated output is standalone HTML. Using it in a framework may require adapting its markup, styles, and JavaScript to that framework.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Why is an animation not working?</h3>
-            <p class="step__desc">Check the component's dependencies and ensure its required CDN resources load correctly. Some effects require scrolling, hovering, or dragging inside the preview.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Can I use components on mobile?</h3>
-            <p class="step__desc">Responsive behavior and touch support vary by component. Check its preview and individual notes before integrating it.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">Q</span>
-            <h3 class="step__title">Does AI overwrite the original component?</h3>
-            <p class="step__desc">No. AI editing creates a draft and preserves the original component.</p>
+            <span class="step__num">Q4</span>
+            <h3 class="step__title">Can I adapt components to React or Vue?</h3>
+            <p class="step__desc">Yes. The HTML, CSS, and JavaScript can be placed directly inside React functional components or Vue single-file components.</p>
           </div>
         </div>
       </section>
 
-      <hr>
-
       <!-- ====================================================
-           SECTION 12: TROUBLESHOOTING
+           SECTION: TROUBLESHOOTING
            ==================================================== -->
       <section id="troubleshooting">
-        <h1>Troubleshooting</h1>
-        <div class="steps" style="margin-top:1rem">
+        <h2>Troubleshooting</h2>
+        <div class="steps cols-2">
           <div class="step">
-            <span class="step__num">1</span>
-            <h3 class="step__title">AI is not generating changes</h3>
-            <p class="step__desc">Check whether AI is configured and available.</p>
+            <span class="step__num"><i class="ri-error-warning-line" aria-hidden="true"></i> Issue</span>
+            <h3 class="step__title">Animation is not triggering</h3>
+            <p class="step__desc">Check browser console for CDN loading errors. For scroll effects, ensure the page has sufficient scroll height and call <code>ScrollTrigger.refresh()</code> if content loads dynamically.</p>
           </div>
           <div class="step">
-            <span class="step__num">2</span>
-            <h3 class="step__title">Preview is blank</h3>
-            <p class="step__desc">Check the browser console and whether external resources are loading.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">3</span>
-            <h3 class="step__title">Animation is not starting</h3>
-            <p class="step__desc">Try the correct interaction. Some components require scrolling, hovering, or dragging.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">4</span>
-            <h3 class="step__title">Images are missing</h3>
-            <p class="step__desc">Check image URLs and internet access.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">5</span>
-            <h3 class="step__title">Copied component looks different</h3>
-            <p class="step__desc">Make sure you copied the full component and retained its required styles, scripts, fonts, and dependencies.</p>
-          </div>
-          <div class="step">
-            <span class="step__num">6</span>
-            <h3 class="step__title">Component is not working on mobile</h3>
-            <p class="step__desc">Check its mobile behavior and touch support. Some pointer-based effects are designed primarily for desktop.</p>
+            <span class="step__num"><i class="ri-image-line" aria-hidden="true"></i> Issue</span>
+            <h3 class="step__title">Images or icons not rendering</h3>
+            <p class="step__desc">Verify that the Remix Icon stylesheet link is included in your document <code>&lt;head&gt;</code> and check image URL network status in dev tools.</p>
           </div>
         </div>
       </section>
@@ -967,238 +744,216 @@
       <hr>
 
       <!-- ====================================================
-           COMPONENT REFERENCE (beginner-friendly)
+           SECTION: COMPONENT CATALOG REFERENCE
            ==================================================== -->
       <section id="component-reference">
-        <h1>Component Reference</h1>
-        <p style="margin-top:1rem">
-          A quick overview of every component in ZiiUI. Each entry describes what the component does, where to use it,
-          and how to preview and copy it.
+        <h2>Component Reference</h2>
+        <p>
+          Complete catalog index of all animated components in ZiiUI:
         </p>
 
-        <div class="comp-grid" style="margin-top:1.5rem">
+        <div class="comp-grid">
           <!-- Web -->
-          <div class="comp" href="#comp-split-scroll" style="cursor:pointer">
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-layout-2-line" aria-hidden="true"></i> Split Scroll</div>
-            <p class="comp__note">Cards split apart and flip as you scroll. Great for hero sections.</p>
-            <span class="comp__tag">Web · Large preview · GSAP, ScrollTrigger, Lenis</span>
-          </div>
+            <p class="comp__note">Hero cards split apart and flip as you scroll down.</p>
+            <span class="comp__tag">Web · GSAP, ScrollTrigger, Lenis</span>
+          </a>
 
           <!-- Menus -->
-          <div class="comp" href="#comp-block-reveal" style="cursor:pointer">
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-menu-line" aria-hidden="true"></i> Block Reveal Animation</div>
-            <p class="comp__note">A grid of squares ripples open to reveal a menu.</p>
-            <span class="comp__tag">Menus · Large preview · GSAP</span>
-          </div>
-          <div class="comp" href="#comp-reveal-menu" style="cursor:pointer">
+            <p class="comp__note">A grid of squares ripples open to reveal navigation.</p>
+            <span class="comp__tag">Menus · GSAP</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-arrow-left-s-line" aria-hidden="true"></i> Reveal Menu</div>
-            <p class="comp__note">A fullscreen menu revealed by a morphing curved shape.</p>
-            <span class="comp__tag">Menus · Large preview · GSAP</span>
-          </div>
+            <p class="comp__note">Fullscreen menu revealed by a morphing curved SVG shape.</p>
+            <span class="comp__tag">Menus · GSAP</span>
+          </a>
 
           <!-- Interactive -->
-          <div class="comp" href="#comp-draggable-mask" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-grab-line" aria-hidden="true"></i> Draggable Mask</div>
-            <p class="comp__note">Drag mask windows over a video to reveal clipped regions.</p>
-            <span class="comp__tag">Interactive · Large preview · None</span>
-          </div>
-          <div class="comp" href="#comp-micro-hover" style="cursor:pointer">
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-drag-move-line" aria-hidden="true"></i> Draggable Mask</div>
+            <p class="comp__note">Drag mask windows over video canvas to reveal clipped areas.</p>
+            <span class="comp__tag">Interactive · Pointer Events</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-cursor-line" aria-hidden="true"></i> Micro Hover</div>
-            <p class="comp__note">Hover over keywords to burst scattered photos into view.</p>
-            <span class="comp__tag">Interactive · Large preview · GSAP</span>
-          </div>
-          <div class="comp" href="#comp-hover-section" style="cursor:pointer">
+            <p class="comp__note">Hover over text triggers burst of scattered floating photos.</p>
+            <span class="comp__tag">Interactive · GSAP</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-image-line" aria-hidden="true"></i> Hover Section</div>
-            <p class="comp__note">A floating thumbnail follows your pointer over project items.</p>
-            <span class="comp__tag">Interactive · Large preview · GSAP</span>
-          </div>
-          <div class="comp" href="#comp-snake-hover" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-git-compare-line" aria-hidden="true"></i> Snake Hover</div>
-            <p class="comp__note">An SVG ink snake draws across an image on hover.</p>
-            <span class="comp__tag">Interactive · Large preview · GSAP</span>
-          </div>
-          <div class="comp" href="#comp-image-trail" style="cursor:pointer">
+            <p class="comp__note">Floating thumbnail follows pointer with magnetic inertia.</p>
+            <span class="comp__tag">Interactive · GSAP</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-git-commit-line" aria-hidden="true"></i> Snake Hover</div>
+            <p class="comp__note">An SVG ink snake draws dynamically across cards on hover.</p>
+            <span class="comp__tag">Interactive · GSAP</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-image-add-line" aria-hidden="true"></i> Image Trail</div>
-            <p class="comp__note">Images trail behind your cursor as you move.</p>
-            <span class="comp__tag">Interactive · Large preview · GSAP</span>
-          </div>
+            <p class="comp__note">High-velocity image trail bursts behind moving pointer.</p>
+            <span class="comp__tag">Interactive · GSAP</span>
+          </a>
 
           <!-- Scroll -->
-          <div class="comp" href="#comp-list-reveal" style="cursor:pointer">
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-list-check-line" aria-hidden="true"></i> List Reveal</div>
-            <p class="comp__note">A scrollable list that swaps a preview image as you scroll.</p>
-            <span class="comp__tag">Scroll · Large preview · GSAP, ScrollTrigger, Lenis</span>
-          </div>
-          <div class="comp" href="#comp-scroll-stand" style="cursor:pointer">
+            <p class="comp__note">Scrollable list dynamically swaps background image preview.</p>
+            <span class="comp__tag">Scroll · GSAP, ScrollTrigger, Lenis</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-stack-line" aria-hidden="true"></i> Scroll Stand</div>
-            <p class="comp__note">3D cards rise into place as you scroll down.</p>
-            <span class="comp__tag">Scroll · Large preview · GSAP, ScrollTrigger, SplitText, Lenis</span>
-          </div>
-          <div class="comp" href="#comp-scrolling-mask" style="cursor:pointer">
+            <p class="comp__note">3D cards rise and stack into perspective on scroll.</p>
+            <span class="comp__tag">Scroll · GSAP, ScrollTrigger, Lenis</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-film-line" aria-hidden="true"></i> Scrolling Mask</div>
-            <p class="comp__note">Large text scales up on scroll to reveal a video behind it.</p>
-            <span class="comp__tag">Scroll · Large preview · GSAP, ScrollTrigger</span>
-          </div>
-          <div class="comp" href="#comp-pin-rotate" style="cursor:pointer">
+            <p class="comp__note">Bold display text expands to reveal background video.</p>
+            <span class="comp__tag">Scroll · GSAP, ScrollTrigger</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-refresh-line" aria-hidden="true"></i> Pin Rotate Sections</div>
-            <p class="comp__note">Each section pins and its card rotates into view on scroll.</p>
-            <span class="comp__tag">Scroll · Large preview · GSAP, ScrollTrigger, Lenis</span>
-          </div>
-          <div class="comp" href="#comp-images-flow" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-photograph-line" aria-hidden="true"></i> Images Flow</div>
-            <p class="comp__note">Images fly into a 3D arrangement as you scroll.</p>
-            <span class="comp__tag">Scroll · Large preview · GSAP, ScrollTrigger, Lenis</span>
-          </div>
-          <div class="comp" href="#comp-clip-path-reveal" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-clipboard-line" aria-hidden="true"></i> Clip Path Reveal</div>
-            <p class="comp__note">Fullscreen image panels reveal sequentially with a progress bar.</p>
-            <span class="comp__tag">Scroll · Large preview · GSAP, ScrollTrigger, Lenis</span>
-          </div>
+            <p class="comp__note">Sections pin and rotate into view sequentially on scroll.</p>
+            <span class="comp__tag">Scroll · GSAP, ScrollTrigger, Lenis</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-gallery-line" aria-hidden="true"></i> Images Flow</div>
+            <p class="comp__note">Floating photo tiles converge in 3D parallax arrangement.</p>
+            <span class="comp__tag">Scroll · GSAP, ScrollTrigger, Lenis</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-scissors-cut-line" aria-hidden="true"></i> Clip Path Reveal</div>
+            <p class="comp__note">Fullscreen panels wipe open with coordinated progress bar.</p>
+            <span class="comp__tag">Scroll · GSAP, ScrollTrigger, Lenis</span>
+          </a>
 
           <!-- Shader -->
-          <div class="comp" href="#comp-noisy-pixel" style="cursor:pointer">
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-pixel-line" aria-hidden="true"></i> Noisy Pixel</div>
-            <p class="comp__note">An image dissolves into animated characters as you scroll.</p>
-            <span class="comp__tag">Shader · Large preview · Three.js, GSAP, ScrollTrigger</span>
-          </div>
-          <div class="comp" href="#comp-mirror-effect" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-mirror-icon-line" aria-hidden="true"></i> Mirror Effect</div>
-            <p class="comp__note">One image dissolves into another with edge highlighting on scroll.</p>
-            <span class="comp__tag">Shader · Large preview · Three.js</span>
-          </div>
+            <p class="comp__note">WebGL shader dissolves images into character glitch on scroll.</p>
+            <span class="comp__tag">Shader · Three.js, GSAP</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-contrast-drop-line" aria-hidden="true"></i> Mirror Effect</div>
+            <p class="comp__note">One visual dissolves into another with edge refraction highlights.</p>
+            <span class="comp__tag">Shader · Three.js</span>
+          </a>
 
           <!-- Footer -->
-          <div class="comp" href="#comp-sticky-footer" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-layout-4-line" aria-hidden="true"></i> Sticky Footer</div>
-            <p class="comp__note">A sticky black footer revealed as you scroll down.</p>
-            <span class="comp__tag">Footer · Large preview · Lenis</span>
-          </div>
-          <div class="comp" href="#comp-editorial-footer" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-file-line" aria-hidden="true"></i> Editorial Footer</div>
-            <p class="comp__note">Split-text animation with magnetic links on hover.</p>
-            <span class="comp__tag">Footer · Large preview · GSAP, ScrollTrigger</span>
-          </div>
-          <div class="comp" href="#comp-folder-footer" style="cursor:pointer">
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-layout-bottom-line" aria-hidden="true"></i> Sticky Footer</div>
+            <p class="comp__note">Fixed dark footer gracefully uncurtains as body content scrolls up.</p>
+            <span class="comp__tag">Footer · Lenis</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-text-spacing" aria-hidden="true"></i> Editorial Footer</div>
+            <p class="comp__note">Split typography headline with magnetic interactive links.</p>
+            <span class="comp__tag">Footer · GSAP, ScrollTrigger</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-folder-line" aria-hidden="true"></i> Folder Footer</div>
-            <p class="comp__note">Folder panels burst into photos when you hover them.</p>
-            <span class="comp__tag">Footer · Large preview · GSAP</span>
-          </div>
+            <p class="comp__note">Tabbed folder containers burst into photo cards on hover.</p>
+            <span class="comp__tag">Footer · GSAP</span>
+          </a>
 
           <!-- Text -->
-          <div class="comp" href="#comp-text-effect" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-text-field-line" aria-hidden="true"></i> Text Effect</div>
-            <p class="comp__note">Split text into characters, words, or lines with a staggered reveal.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-custom-variants" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-random-fill" aria-hidden="true"></i> Custom Variants</div>
-            <p class="comp__note">Random spring, rotation, and color per character.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-text-roll" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-vertical-align-bottom" aria-hidden="true"></i> Text Roll</div>
-            <p class="comp__note">Letters roll up into place in sequence.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-text-roll-custom" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-vertical-align-top" aria-hidden="true"></i> Text Roll (custom)</div>
-            <p class="comp__note">Letters roll down with custom easing.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-text-scramble" style="cursor:pointer">
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-text" aria-hidden="true"></i> Text Effect</div>
+            <p class="comp__note">Split text into characters, words, or lines with staggered reveals.</p>
+            <span class="comp__tag">Text · CSS Keyframes</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-sparkling-fill" aria-hidden="true"></i> Custom Variants</div>
+            <p class="comp__note">Randomized character spring rotation and chromatic hue shifts.</p>
+            <span class="comp__tag">Text · CSS Only</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-scroll-to-bottom-line" aria-hidden="true"></i> Text Roll</div>
+            <p class="comp__note">Letters roll up into place with sequential mechanical rhythm.</p>
+            <span class="comp__tag">Text · CSS Only</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-shuffle-line" aria-hidden="true"></i> Text Scramble</div>
-            <p class="comp__note">Random glyphs resolve into the final text.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-text-shimmer" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-brightness-5-line" aria-hidden="true"></i> Text Shimmer</div>
-            <p class="comp__note">A light sweep moves across the text (CSS only).</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-shimmer-wave" style="cursor:pointer">
+            <p class="comp__note">Random matrix glyphs resolve into final typography string.</p>
+            <span class="comp__tag">Text · Vanilla JS</span>
+          </a>
+          <a class="comp" href="index.html">
+            <div class="comp__name"><i class="ri-shining-line" aria-hidden="true"></i> Text Shimmer</div>
+            <p class="comp__note">Subtle light sweep reflections move continuously across text.</p>
+            <span class="comp__tag">Text · Pure CSS</span>
+          </a>
+          <a class="comp" href="index.html">
             <div class="comp__name"><i class="ri-wave-sine-line" aria-hidden="true"></i> Shimmer Wave</div>
-            <p class="comp__note">A 3D wave passes through each letter.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-          <div class="comp" href="#comp-shimmer-wave-colour" style="cursor:pointer">
-            <div class="comp__name"><i class="ri-palette-line" aria-hidden="true"></i> Shimmer Wave (colour)</div>
-            <p class="comp__note">A monochrome blue wave with custom depth.</p>
-            <span class="comp__tag">Text · Compact preview · None</span>
-          </div>
-        </div>
-
-        <div class="callout callout--note" style="margin-top:2rem">
-          <i class="ri-book-open-line" aria-hidden="true"></i>
-          <div>
-            <strong>Want the full technical details?</strong> Visit the <a href="#developer-reference">Developer Reference</a> for implementation internals, library configuration, and source-file references.
-          </div>
+            <p class="comp__note">Sinusoidal 3D wave ripples through each letter in sequence.</p>
+            <span class="comp__tag">Text · CSS 3D Transforms</span>
+          </a>
         </div>
       </section>
-
-      <hr>
 
       <!-- ====================================================
-           DEVELOPER REFERENCE (optional)
+           SECTION: DEVELOPER REFERENCE
            ==================================================== -->
       <section id="developer-reference">
-        <h1>Developer Reference</h1>
-        <p style="margin-top:1rem">
-          This optional section contains advanced technical material for developers who want to understand how ZiiUI
-          works under the hood. It is not required to use ZiiUI.
+        <h2>Developer Reference</h2>
+        <p>
+          Architecture overview for contributors and power users:
         </p>
 
-        <h2 style="margin-top:2rem">What's Inside</h2>
-        <ul class="list" style="margin-top:1rem">
-          <li>HTML, CSS, and JavaScript source explanations per component.</li>
-          <li>Animation implementation details (GSAP timelines, ScrollTrigger, Lenis).</li>
-          <li>Three.js and shader implementation (Noisy Pixel, Mirror Effect).</li>
-          <li>Component registry, builders, and template architecture.</li>
-          <li>Internal AI workflow and environment configuration.</li>
-          <li>Source file references and dependency versions.</li>
-          <li>Performance and accessibility implementation details.</li>
+        <ul class="list">
+          <li><strong>Component Registry:</strong> Located at <code>src/effects/registry.js</code> with template builders at <code>src/effects/builders.js</code>.</li>
+          <li><strong>AI Engine &amp; Storage:</strong> Client request management in <code>src/ai/client.js</code> and resilient session storage deduplication in <code>src/ai/state.js</code>.</li>
+          <li><strong>Performance:</strong> All transforms utilize hardware-accelerated 3D transforms (<code>translate3d</code>, <code>will-change</code>) with RAF-throttled scroll listeners.</li>
+          <li><strong>Accessibility:</strong> Semantic landmarks, ARIA attributes (<code>aria-expanded</code>, <code>aria-label</code>, <code>role="log"</code>), and keyboard navigation support.</li>
         </ul>
-
-        <div class="callout callout--warn" style="margin-top:1.5rem">
-          <i class="ri-error-warning-line" aria-hidden="true"></i>
-          <div>
-            <strong>Do not change this material just to make documentation appear complete.</strong> Preserve existing component behavior, AI logic, localStorage/session architecture, API calls, routing, registry, builders, templates, preview functionality, navbar, and logo asset.
-          </div>
-        </div>
       </section>
 
       <hr>
 
-      <p style="font-size:0.85rem; color: var(--fg-3);">
-        Last updated — v0.1.0. Source: <a href="https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" target="_blank" rel="noopener">GitHub</a>.
-      </p>
-
       <footer class="footer">
-        <span>© <span id="year">2025</span> ZiiUI — docs v0.1.0</span>
-        <span>Built with <a href="https://gsap.com" target="_blank" rel="noopener">GSAP</a> · <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a></span>
+        <span>© <span id="year">2026</span> ZiiUI — Documentation v0.1.0</span>
+        <span>Built with <a href="https://gsap.com" target="_blank" rel="noopener">GSAP</a> &amp; <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a></span>
       </footer>
 
     </main>
 
     <!-- --------------------------------------------------------
-         RIGHT TOC (wide screens)
+         RIGHT TOC (On this page — In-Page Table of Contents)
          -------------------------------------------------------- -->
     <aside class="toc" aria-label="On this page">
-      <p class="toc__label">On this page</p>
+      <div class="toc__header">
+        <span class="toc__label"><i class="ri-list-check-2" aria-hidden="true"></i> On this page</span>
+      </div>
       <ul class="toc__list">
-        <li><a href="#hero">Introduction</a></li>
-        <li><a href="#what-is-ziiui">What is ZiiUI?</a></li>
-        <li><a href="#ai-editing-guide">Edit with AI</a></li>
-        <li><a href="#using-the-code-editor">Using the Code Editor</a></li>
-        <li><a href="#preview-components">Preview Components</a></li>
-        <li><a href="#copy-component-code">Copy Component Code</a></li>
-        <li><a href="#getting-started">Getting Started</a></li>
-        <li><a href="#customize-your-component">Customize Your Component</a></li>
-        <li><a href="#workflow-comparison">Choosing the Right Workflow</a></li>
-        <li><a href="#faq">Frequently Asked Questions</a></li>
-        <li><a href="#troubleshooting">Troubleshooting</a></li>
-        <li><a href="#component-reference">Component Reference</a></li>
-        <li><a href="#developer-reference">Developer Reference</a></li>
+        <li><a class="toc__link" href="#hero">Overview</a></li>
+        <li><a class="toc__link" href="#what-is-ziiui">What is ZiiUI?</a></li>
+        <li><a class="toc__link" href="#how-ziiui-works">How ZiiUI Works</a></li>
+        <li><a class="toc__link" href="#getting-started">Quick Start</a></li>
+        <li><a class="toc__link" href="#ai-editing-guide">Edit with AI</a></li>
+        <li><a class="toc__link" href="#writing-prompts">Writing Prompts</a></li>
+        <li><a class="toc__link" href="#using-the-code-editor">Code Editor &amp; Controls</a></li>
+        <li><a class="toc__link" href="#explore-components">Component Library</a></li>
+        <li><a class="toc__link" href="#component-categories">Categories</a></li>
+        <li><a class="toc__link" href="#preview-components">Live Preview</a></li>
+        <li><a class="toc__link" href="#copy-component-code">Code &amp; Export</a></li>
+        <li><a class="toc__link" href="#integration-guide">Adding to Your Site</a></li>
+        <li><a class="toc__link" href="#dependencies-guide">Dependencies</a></li>
+        <li><a class="toc__link" href="#customize-your-component">Customizing Code</a></li>
+        <li><a class="toc__link" href="#workflow-comparison">Choosing Workflow</a></li>
+        <li><a class="toc__link" href="#faq">FAQ</a></li>
+        <li><a class="toc__link" href="#troubleshooting">Troubleshooting</a></li>
+        <li><a class="toc__link" href="#component-reference">Component Catalog</a></li>
+        <li><a class="toc__link" href="#developer-reference">Developer Reference</a></li>
       </ul>
+      <div class="toc__footer">
+        <a href="#top" class="toc__action" id="tocBackToTop"><i class="ri-arrow-up-line" aria-hidden="true"></i> Back to top</a>
+        <a href="index.html" class="toc__action"><i class="ri-compass-3-line" aria-hidden="true"></i> Browse Components</a>
+        <a href="ai.html" class="toc__action"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Open AI Editor</a>
+        <a href="https://github.com/bhartshukla/ZIIUI_PLATEFORM_BETA" target="_blank" rel="noopener noreferrer" class="toc__action"><i class="ri-github-fill" aria-hidden="true"></i> GitHub Repo</a>
+      </div>
     </aside>
 
   </div>

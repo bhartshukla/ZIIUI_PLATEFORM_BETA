@@ -10,36 +10,47 @@ function scrollBehavior() {
 
 /* ---------- Year ---------- */
 const yearEl = document.getElementById('year');
-if (yearEl) {yearEl.textContent = new Date().getFullYear();}
+if (yearEl) {
+  yearEl.textContent = new Date().getFullYear();
+}
 
 /* ---------- Theme toggle ---------- */
 applyThemeIcon();
 const themeBtn = document.getElementById('themeToggle');
-if (themeBtn) {themeBtn.addEventListener('click', toggleTheme);}
+if (themeBtn) {
+  themeBtn.addEventListener('click', toggleTheme);
+}
 
 /* ---------- Mobile drawer ---------- */
 const docsMenuToggle = document.getElementById('docsMenuToggle');
-if (docsMenuToggle) {docsMenuToggle.addEventListener('click', openDrawer);}
-const menuToggle = docsMenuToggle;
 const sidePanel = document.getElementById('sidePanel');
 const sideOverlay = document.getElementById('sideOverlay');
 const sideClose = document.getElementById('sideClose');
 
 function openDrawer() {
-  sidePanel && sidePanel.classList.add('open');
-  sideOverlay && sideOverlay.classList.add('open');
-  menuToggle && menuToggle.setAttribute('aria-expanded', 'true');
+  if (sidePanel) sidePanel.classList.add('open');
+  if (sideOverlay) sideOverlay.classList.add('open');
+  if (docsMenuToggle) docsMenuToggle.setAttribute('aria-expanded', 'true');
   document.body.style.overflow = 'hidden';
 }
+
 function closeDrawer() {
-  sidePanel && sidePanel.classList.remove('open');
-  sideOverlay && sideOverlay.classList.remove('open');
-  menuToggle && menuToggle.setAttribute('aria-expanded', 'false');
+  if (sidePanel) sidePanel.classList.remove('open');
+  if (sideOverlay) sideOverlay.classList.remove('open');
+  if (docsMenuToggle) docsMenuToggle.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
 }
-if (menuToggle) {menuToggle.addEventListener('click', openDrawer);}
-if (sideClose) {sideClose.addEventListener('click', closeDrawer);}
-if (sideOverlay) {sideOverlay.addEventListener('click', closeDrawer);}
+
+if (docsMenuToggle) { docsMenuToggle.addEventListener('click', openDrawer); }
+if (sideClose) { sideClose.addEventListener('click', closeDrawer); }
+if (sideOverlay) { sideOverlay.addEventListener('click', closeDrawer); }
+
+/* Escape key to close mobile drawer */
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && sidePanel && sidePanel.classList.contains('open')) {
+    closeDrawer();
+  }
+});
 
 /* ---------- Sidebar collapsible categories ---------- */
 document.querySelectorAll('[data-toggle]').forEach(function (btn) {
@@ -48,102 +59,82 @@ document.querySelectorAll('[data-toggle]').forEach(function (btn) {
     const targetId = btn.getAttribute('aria-controls');
     const target = document.getElementById(targetId);
     btn.setAttribute('aria-expanded', String(!expanded));
-    if (target) {target.hidden = expanded;}
+    if (target) { target.hidden = expanded; }
     const icon = btn.querySelector('i');
-    if (icon) {icon.style.transform = !expanded ? 'rotate(0deg)' : 'rotate(-90deg)';}
+    if (icon) { icon.style.transform = !expanded ? 'rotate(0deg)' : 'rotate(-90deg)'; }
   });
 });
 
-/* ---------- Right TOC: generate from actual H2/H3 headings ---------- */
-(function () {
-  const tocList = document.querySelector('.toc__list');
-  const main = document.getElementById('main');
-  if (!tocList || !main) {return;}
-
-  const headings = Array.from(main.querySelectorAll('h2[id], h3[id]'));
-  if (!headings.length) { tocList.style.display = 'none'; return; }
-
-  let html = '';
-  let currentH2 = null;
-  headings.forEach(function (h) {
-    if (h.tagName === 'H2') {
-      currentH2 = h;
-      html += `<li><a class="toc__link" href="#${  h.id  }" data-level="2">${  escText(h.textContent)  }</a></li>`;
-    } else if (h.tagName === 'H3' && currentH2) {
-      html += `<li style="padding-left:0.9rem"><a class="toc__link" href="#${  h.id  }" data-level="3" style="font-size:0.74rem; opacity:.75">${  escText(h.textContent)  }</a></li>`;
-    }
-  });
-  tocList.innerHTML = html;
-})();
-
+/* Helper escape */
 function escText(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/* ---------- Right TOC: Enhance or generate from actual H2 headings ---------- */
+(function () {
+  const tocList = document.querySelector('.toc__list');
+  const main = document.getElementById('main');
+  if (!tocList || !main) { return; }
+
+  // If tocList is empty, dynamically populate from major sections/headings
+  if (tocList.children.length === 0) {
+    const headings = Array.from(main.querySelectorAll('h2[id]'));
+    if (headings.length) {
+      let html = '';
+      headings.forEach(function (h) {
+        html += `<li><a class="toc__link" href="#${h.id}">${escText(h.textContent)}</a></li>`;
+      });
+      tocList.innerHTML = html;
+    }
+  }
+})();
+
 /* ---------- Active link highlighting (scroll spy) ---------- */
 (function () {
-  const links = Array.from(document.querySelectorAll('.sidebar__link, .toc__link'));
-  const sections = links
+  const links = Array.from(document.querySelectorAll('.sidebar__link, .toc__link, .toc__list a'));
+  const targets = links
     .map(function (link) {
       const href = link.getAttribute('href') || '';
-      if (!href.startsWith('#')) {return null;}
+      if (!href.startsWith('#') || href === '#top') { return null; }
       const id = href.slice(1);
       return document.getElementById(id);
     })
     .filter(Boolean);
 
-  if (!('IntersectionObserver' in window) || !sections.length) {return;}
+  if (!('IntersectionObserver' in window) || !targets.length) { return; }
 
   const observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
         const id = entry.target.id;
         links.forEach(function (link) {
-          link.classList.toggle('is-active', link.getAttribute('href') === `#${  id}`);
+          const href = link.getAttribute('href') || '';
+          link.classList.toggle('is-active', href === `#${id}`);
         });
       }
     });
-  }, { rootMargin: '-24% 0px -72% 0px', threshold: 0 });
+  }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
 
-  sections.forEach(function (section) { observer.observe(section); });
+  targets.forEach(function (target) { observer.observe(target); });
 })();
 
 /* ---------- Code copy buttons ---------- */
 document.querySelectorAll('[data-copy]').forEach(function (btn) {
   btn.addEventListener('click', async function () {
     const target = document.querySelector(btn.dataset.copy);
-    if (!target) {return;}
+    if (!target) { return; }
     const original = btn.innerHTML;
     try {
-      const copied = await copyText(target.innerText);
+      const copied = await copyText(target.innerText || target.textContent);
       btn.innerHTML = copied
         ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
-        : '<i class="ri-error-warning-line" aria-hidden="true"></i> Copy failed';
+        : '<i class="ri-error-warning-line" aria-hidden="true"></i> Failed';
     } catch (err) {
       console.error('[ziiui:docs-copy]', err);
-      btn.innerHTML = '<i class="ri-error-warning-line" aria-hidden="true"></i> Copy failed';
+      btn.innerHTML = '<i class="ri-error-warning-line" aria-hidden="true"></i> Failed';
     }
     setTimeout(function () { btn.innerHTML = original; }, 1600);
-  });
-});
-
-/* ---------- Tabs ---------- */
-document.querySelectorAll('.tabs').forEach(function (tabs) {
-  tabs.querySelectorAll('.tab').forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      const name = tab.dataset.tab;
-      tabs.querySelectorAll('.tab').forEach(function (t) {
-        const active = t === tab;
-        t.classList.toggle('is-active', active);
-        t.setAttribute('aria-selected', String(active));
-        t.tabIndex = active ? 0 : -1;
-      });
-      const panel = tabs.parentElement;
-      panel.querySelectorAll('.tabpanel').forEach(function (p) {
-        p.hidden = p.id !== `tab-${  name}`;
-      });
-    });
   });
 });
 
@@ -151,22 +142,21 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
 (function () {
   const docsSearch = document.getElementById('docsSearch');
   const clearBtn = document.getElementById('docsSearchClear');
-  if (!docsSearch) {return;}
+  if (!docsSearch) { return; }
 
   const groups = Array.from(document.querySelectorAll('.sidebar__group'));
   const allLinks = Array.from(document.querySelectorAll('.sidebar__link'));
 
-  // Search index: sidebar links (sections + component names) and the page's own
-  // headings, so results cover actual documentation content.
   const index = allLinks.map(function (link) {
     return { el: link, href: link.getAttribute('href'), text: link.textContent.trim() };
   });
+
   Array.from(document.querySelectorAll('#main h1[id], #main h2[id], #main h3[id]')).forEach(function (h) {
-    index.push({ el: h, href: `#${  h.id}`, text: h.textContent.trim() });
+    index.push({ el: h, href: `#${h.id}`, text: h.textContent.trim() });
   });
 
   function setClearVisibility() {
-    if (clearBtn) {clearBtn.hidden = !(docsSearch.value.trim().length > 0);}
+    if (clearBtn) { clearBtn.hidden = !(docsSearch.value.trim().length > 0); }
   }
 
   docsSearch.addEventListener('input', function () {
@@ -176,16 +166,17 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
       const text = link.textContent.toLowerCase();
       const li = link.closest('li');
       const show = !q || text.indexOf(q) !== -1;
-      if (li) {li.style.display = show ? '' : 'none';}
+      if (li) { li.style.display = show ? '' : 'none'; }
     });
+
     groups.forEach(function (group) {
-      const visible = group.querySelectorAll('.sidebar__link').length >
-        group.querySelectorAll('.sidebar__link[style*="display: none"]').length;
-      const toggle = group.querySelector('[data-toggle]');
-      if (toggle && !q) {toggle.parentElement.style.display = '';}
+      const linksInGroup = group.querySelectorAll('.sidebar__link');
+      if (!linksInGroup.length) return;
+      const visible = Array.from(linksInGroup).some(l => {
+        const li = l.closest('li');
+        return li && li.style.display !== 'none';
+      });
       group.style.display = visible || !q ? '' : 'none';
-      if (toggle) {toggle.hidden = !visible && !!q ? false : toggle.hidden;}
-      if (q && visible) {toggle && toggle.setAttribute('aria-expanded', 'true');}
     });
   });
 
@@ -201,21 +192,19 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
     if (e.key === 'Enter') {
       e.preventDefault();
       const q = docsSearch.value.trim().toLowerCase();
-      if (!q) {return;}
+      if (!q) { return; }
       const match = index.find(function (item) {
         const li = item.el.closest && item.el.closest('li');
         const visible = li ? li.style.display !== 'none' : true;
         return visible && item.text.toLowerCase().indexOf(q) !== -1;
       });
-      if (!match) {return;}
-      const group = match.el.closest('.sidebar__group');
-      const toggle = group && group.querySelector('[data-toggle]');
-      if (toggle) {toggle.setAttribute('aria-expanded', 'true');}
+      if (!match) { return; }
       const id = match.href.slice(1);
       const target = document.getElementById(id);
       if (target) {
-        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 72, behavior: scrollBehavior() });
-        history.replaceState(null, '', `#${  id}`);
+        const top = target.getBoundingClientRect().top + window.scrollY - 72;
+        window.scrollTo({ top, behavior: scrollBehavior() });
+        history.replaceState(null, '', `#${id}`);
       }
       closeDrawer();
     }
@@ -225,9 +214,9 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
 /* ---------- Previous / Next section navigation ---------- */
 (function () {
   const container = document.getElementById('main');
-  if (!container) {return;}
+  if (!container) { return; }
   const h2s = Array.from(container.querySelectorAll('h2[id]'));
-  if (h2s.length < 2) {return;}
+  if (h2s.length < 2) { return; }
 
   const nav = document.createElement('nav');
   nav.className = 'prev-next';
@@ -253,13 +242,13 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
     nextLink.style.display = index >= 0 && index < h2s.length - 1 ? '' : 'none';
     if (index > 0) {
       const p = h2s[index - 1];
-      prevLink.href = `#${  p.id}`;
-      prevLink.innerHTML = `<span class="prev-next__arrow">&#8592;</span><span class="prev-next__title"><span class="prev-next__dir">Previous</span><span class="prev-next__text">${  escText(p.textContent)  }</span></span>`;
+      prevLink.href = `#${p.id}`;
+      prevLink.innerHTML = `<span class="prev-next__arrow">&#8592;</span><span class="prev-next__title"><span class="prev-next__dir">Previous</span><span class="prev-next__text">${escText(p.textContent)}</span></span>`;
     }
     if (index >= 0 && index < h2s.length - 1) {
       const n = h2s[index + 1];
-      nextLink.href = `#${  n.id}`;
-      nextLink.innerHTML = `<span class="prev-next__title"><span class="prev-next__dir">Next</span><span class="prev-next__text">${  escText(n.textContent)  }</span></span><span class="prev-next__arrow">&#8594;</span>`;
+      nextLink.href = `#${n.id}`;
+      nextLink.innerHTML = `<span class="prev-next__title"><span class="prev-next__dir">Next</span><span class="prev-next__text">${escText(n.textContent)}</span></span><span class="prev-next__arrow">&#8594;</span>`;
     }
   }
 
@@ -271,15 +260,16 @@ document.querySelectorAll('.tabs').forEach(function (tabs) {
 
 function jump(href) {
   const id = href.split('#')[1];
-  if (!id) {return;}
+  if (!id) { return; }
   const target = document.getElementById(id);
-  if (!target) {return;}
-  window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 72, behavior: scrollBehavior() });
-  history.replaceState(null, '', `#${  id}`);
+  if (!target) { return; }
+  const top = target.getBoundingClientRect().top + window.scrollY - 72;
+  window.scrollTo({ top, behavior: scrollBehavior() });
+  history.replaceState(null, '', `#${id}`);
   closeDrawer();
 }
 
-/* ---------- Back to top ---------- */
+/* ---------- Back to top button ---------- */
 const backToTop = document.getElementById('backToTop');
 if (backToTop) {
   window.addEventListener('scroll', function () {
@@ -290,16 +280,32 @@ if (backToTop) {
   });
 }
 
+const tocBackToTop = document.getElementById('tocBackToTop');
+if (tocBackToTop) {
+  tocBackToTop.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+    history.replaceState(null, '', '#top');
+  });
+}
+
+/* Smooth anchor clicks offset */
 document.querySelectorAll('a[href^="#"]').forEach(function (a) {
   a.addEventListener('click', function (e) {
     const id = a.getAttribute('href').slice(1);
-    if (!id) {return;}
+    if (!id || id === 'top') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: scrollBehavior() });
+      history.replaceState(null, '', '#top');
+      closeDrawer();
+      return;
+    }
     const target = document.getElementById(id);
-    if (!target) {return;}
+    if (!target) { return; }
     e.preventDefault();
     const top = target.getBoundingClientRect().top + window.scrollY - 72;
     window.scrollTo({ top, behavior: scrollBehavior() });
-    history.replaceState(null, '', `#${  id}`);
+    history.replaceState(null, '', `#${id}`);
     closeDrawer();
   });
 });
