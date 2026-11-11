@@ -95,6 +95,17 @@ function togglePanel(force) {
   }
 }
 
+const CATEGORY_ICONS = {
+  All: 'ri-apps-2-line',
+  Web: 'ri-layout-4-line',
+  Menus: 'ri-menu-line',
+  Interactive: 'ri-cursor-line',
+  Footer: 'ri-layout-bottom-line',
+  Text: 'ri-font-size-2',
+  Scroll: 'ri-scroll-to-bottom-line',
+  Shader: 'ri-contrast-2-line'
+};
+
 function syncAIInputState() {
   const hasSelection = !!store.cur;
   if (el.prompt) {
@@ -104,6 +115,10 @@ function syncAIInputState() {
   if (el.send) {
     el.send.disabled = !hasSelection || isBusy();
   }
+  const clearBtn = $('aiPromptClear');
+  if (clearBtn) {
+    clearBtn.hidden = !el.prompt || !el.prompt.value.trim();
+  }
 }
 
 function renderSelected() {
@@ -111,16 +126,36 @@ function renderSelected() {
   if (!el.sel) {return;}
   if (!cur) {
     if (el.headSub) {el.headSub.textContent = 'No component selected';}
-    el.sel.innerHTML = '<span class="ai-sel-empty">Select a component first to start editing.</span>';
+    el.sel.innerHTML = `
+      <div class="ai-sel-empty-wrap">
+        <i class="ri-compass-3-line" aria-hidden="true"></i>
+        <span>Select a component from the library to start editing.</span>
+      </div>`;
     syncAIInputState();
     return;
   }
-  if (el.headSub) {el.headSub.textContent = `Selected: ${  cur.name}`;}
-  el.sel.innerHTML =
-    `<div class="ai-sel-info"><strong>${  esc(cur.name)  }</strong>` +
-    `<span>Category: ${  esc(cur.cat)  }</span></div>` +
-    '<button class="ai-btn ghost" type="button" id="aiViewCode" aria-label="View component code">' +
-    '<i class="ri-code-s-slash-line" aria-hidden="true"></i> View Code</button>';
+  if (el.headSub) {el.headSub.textContent = `Selected: ${cur.name}`;}
+  const catIcon = CATEGORY_ICONS[cur.cat] || 'ri-shapes-line';
+  const desc = cur.note ? esc(cur.note) : 'Interactive animation component';
+
+  el.sel.innerHTML = `
+    <div class="ai-sel-card-inner">
+      <div class="ai-sel-thumb" aria-hidden="true">
+        <i class="${catIcon}" aria-hidden="true"></i>
+      </div>
+      <div class="ai-sel-main">
+        <div class="ai-sel-header-row">
+          <strong class="ai-sel-title">${esc(cur.name)}</strong>
+          <span class="ai-sel-badge">${esc(cur.cat)}</span>
+        </div>
+        <p class="ai-sel-description">${desc}</p>
+      </div>
+      <button class="ai-btn ghost ai-sel-view-btn" type="button" id="aiViewCode" aria-label="View component code">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span>View Code</span>
+      </button>
+    </div>`;
+
   const v = $('aiViewCode');
   if (v) {
     v.addEventListener('click', () => {
@@ -177,6 +212,7 @@ async function generate() {
   el.prompt.value = '';
   if (el.send) {el.send.disabled = true;}
   if (el.fab) {el.fab.classList.add('is-processing');}
+  if (el.banner) {el.banner.hidden = false;}
   syncAIInputState();
   setNavigationLocked(true);
   pushChatMessage(compState, 'user', request);
@@ -203,6 +239,7 @@ async function generate() {
       return;
     }
     chat.hideLoading();
+    if (el.banner) {el.banner.hidden = true;}
     store.edited = code;
     store.editActive = true;
     addCodeVersion(compState, code, request);
@@ -219,12 +256,14 @@ async function generate() {
   } catch (err) {
     if (!isActiveRequest(req)) {return;}
     chat.hideLoading();
+    if (el.banner) {el.banner.hidden = true;}
     el.prompt.value = request;
     const isCancelled = Boolean(req && req.isUserCancelled);
     chat.add('err', getUserFacingAIMessage(err, isCancelled));
     say(isCancelled ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     if (el.fab) {el.fab.classList.remove('is-processing');}
+    if (el.banner) {el.banner.hidden = true;}
     const wasActive = isActiveRequest(req);
     endRequest(req);
     if (wasActive) {
@@ -425,7 +464,7 @@ export function initAIPanel() {
     prompt: $('aiPrompt'), send: $('aiSend'), sel: $('aiSelCard'), headSub: $('aiHeadSub'),
     modal: $('aiModal'), modalTitle: $('aiModalTitle'), modalStatus: $('aiModalStatus'),
     code: $('aiCodeEditor'), previewFrame: $('aiPreviewFrame'), auto: $('aiAutoPreview'),
-    context: $('aiContextText')
+    context: $('aiContextText'), banner: $('aiLockBanner')
   };
   chat = createChatView(el.msgs);
 
@@ -440,7 +479,45 @@ export function initAIPanel() {
   on('aiSend', 'click', guard(generate, 'aiGenerate'));
   on('aiCancelRequest', 'click', guard(cancelActiveRequest, 'aiCancel'));
   on('aiClearComponent', 'click', guard(clearThisComponent, 'aiClearComponent'));
+  on('aiClearHistory', 'click', guard(clearThisComponent, 'aiClearComponent'));
   on('aiClearAll', 'click', guard(clearEverything, 'aiClearAll'));
+  on('aiNewSession', 'click', () => {
+    if (!store.cur) {
+      say('Select a component first to start a session.');
+      return;
+    }
+    if (window.confirm(`Start a fresh AI session for "${store.cur.name}"? Previous conversation will be reset.`)) {
+      clearComponentHistory(store.cur.id);
+      store.edited = store.html;
+      store.editActive = false;
+      refreshCodeView();
+      updateDraftIndicators();
+      renderChat();
+      updateContextIndicator();
+      say(`Started new AI session for ${store.cur.name}.`);
+    }
+  });
+  on('aiPromptClear', 'click', () => {
+    if (el.prompt) {
+      el.prompt.value = '';
+      el.prompt.style.height = '';
+      el.prompt.focus();
+      syncAIInputState();
+    }
+  });
+
+  document.querySelectorAll('.ai-pill-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (el.prompt && !el.prompt.disabled) {
+        el.prompt.value = btn.dataset.prompt || btn.textContent.trim();
+        el.prompt.style.height = 'auto';
+        el.prompt.style.height = `${Math.min(Math.max(el.prompt.scrollHeight, 48), 140)  }px`;
+        el.prompt.focus();
+        syncAIInputState();
+      }
+    });
+  });
+
   on('aiModalClose', 'click', closeModal);
   on('aiModalClose2', 'click', closeModal);
   on('aiRun', 'click', guard(runPreview, 'aiRun'));
@@ -452,6 +529,11 @@ export function initAIPanel() {
   if (el.modal) {el.modal.addEventListener('click', (e) => { if (e.target === el.modal) {closeModal();} });}
 
   if (el.prompt) {
+    el.prompt.addEventListener('input', () => {
+      syncAIInputState();
+      el.prompt.style.height = 'auto';
+      el.prompt.style.height = `${Math.min(Math.max(el.prompt.scrollHeight, 48), 140)  }px`;
+    });
     el.prompt.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) {generate();} }
     });
