@@ -5,7 +5,7 @@ import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js
 import {
   getOrCreateComponentState, getComponentState, saveActiveComponentId, persistAIState, flushPersist,
   clearComponentHistory, clearAllAIHistory, pushChatMessage, addCodeVersion, setCurrentCode,
-  describeContext, getAISettings, getAIState, setAutoPreview
+  describeContext, getAISettings, getAIState, setAutoPreview, startNewSession, restoreCodeVersion
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
 import { describeAIError, getUserFacingAIMessage } from '../../ai/prompt.js';
@@ -35,7 +35,6 @@ export function updateDraftIndicators() {
 function syncAfterBuild(html) {
   const cur = store.cur;
   const compState = getOrCreateComponentState(cur.id, cur.name, cur.cat, html);
-  compState.originalCode = html;
   const saved = typeof compState.currentCode === 'string' ? compState.currentCode : '';
   if (saved && saved !== html) {
     store.edited = saved;
@@ -225,7 +224,7 @@ async function generate() {
       component: {
         name: cur.name,
         category: cur.cat,
-        original: store.html,
+        original: compState.originalCode,
         current: store.editActive ? store.edited : ''
       },
       compState,
@@ -259,7 +258,12 @@ async function generate() {
     if (el.banner) {el.banner.hidden = true;}
     el.prompt.value = request;
     const isCancelled = Boolean(req && req.isUserCancelled);
-    chat.add('err', getUserFacingAIMessage(err, isCancelled));
+    const msg = getUserFacingAIMessage(err, isCancelled);
+    chat.add('err', msg);
+    if (isCancelled) {
+      pushChatMessage(compState, 'assistant', 'Request cancelled. Your component was preserved.');
+      chat.add('ai', 'Request cancelled. Your component was preserved.');
+    }
     say(isCancelled ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     if (el.fab) {el.fab.classList.remove('is-processing');}
@@ -487,7 +491,7 @@ export function initAIPanel() {
       return;
     }
     if (window.confirm(`Start a fresh AI session for "${store.cur.name}"? Previous conversation will be reset.`)) {
-      clearComponentHistory(store.cur.id);
+      startNewSession(store.cur.id);
       store.edited = store.html;
       store.editActive = false;
       refreshCodeView();

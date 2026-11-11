@@ -137,7 +137,12 @@ async function generate() {
     chat.hideLoading();
     el.prompt.value = request;
     const isCancelled = Boolean(req && req.isUserCancelled);
-    chat.add('err', getUserFacingAIMessage(err, isCancelled));
+    const msg = getUserFacingAIMessage(err, isCancelled);
+    chat.add('err', msg);
+    if (isCancelled) {
+      pushChatMessage(comp, 'assistant', 'Request cancelled. Your component was preserved.');
+      chat.add('ai', 'Request cancelled. Your component was preserved.');
+    }
     say(isCancelled ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     const wasActive = isActiveRequest(req);

@@ -14,6 +14,9 @@ const freshState = () => ({ schemaVersion: AI_SCHEMA_VERSION, components: {} });
 
 function normalizeComponentState(componentId, entry = {}) {
   const safeEntry = entry && typeof entry === 'object' ? entry : {};
+  const existingSessionId = typeof safeEntry.currentSessionId === 'string' && safeEntry.currentSessionId
+    ? safeEntry.currentSessionId
+    : uid();
   const chatHistory = Array.isArray(safeEntry.chatHistory) ? safeEntry.chatHistory : [];
   const codeVersions = Array.isArray(safeEntry.codeVersions) ? safeEntry.codeVersions : [];
   return {
@@ -22,9 +25,14 @@ function normalizeComponentState(componentId, entry = {}) {
     category: safeEntry.category || '',
     originalCode: typeof safeEntry.originalCode === 'string' ? safeEntry.originalCode : '',
     currentCode: typeof safeEntry.currentCode === 'string' ? safeEntry.currentCode : '',
-    chatHistory: chatHistory.filter((m) => m && typeof m === 'object' && typeof m.text === 'string' &&
-      (m.role === 'user' || m.role === 'assistant' || m.role === 'system')),
-    codeVersions: codeVersions.filter((v) => v && typeof v === 'object' && typeof v.code === 'string'),
+    currentSessionId: existingSessionId,
+    chatHistory: chatHistory.map((m) => m && typeof m === 'object' && typeof m.text === 'string' &&
+      (m.role === 'user' || m.role === 'assistant' || m.role === 'system')
+      ? { id: m.id || uid(), role: m.role, text: m.text, timestamp: Number.isFinite(m.timestamp) ? m.timestamp : Date.now(), sessionId: m.sessionId || existingSessionId }
+      : null).filter(Boolean),
+    codeVersions: codeVersions.map((v) => v && typeof v === 'object' && typeof v.code === 'string'
+      ? { id: v.id || uid(), code: v.code, prompt: typeof v.prompt === 'string' ? v.prompt : '', timestamp: Number.isFinite(v.timestamp) ? v.timestamp : Date.now(), sessionId: v.sessionId || existingSessionId, lastUpdated: Number.isFinite(v.lastUpdated) ? v.lastUpdated : (Number.isFinite(v.timestamp) ? v.timestamp : Date.now()) }
+      : null).filter(Boolean),
     activeVersionId: safeEntry.activeVersionId || null,
     summary: typeof safeEntry.summary === 'string' ? safeEntry.summary : '',
     revision: Number.isFinite(Number(safeEntry.revision)) ? Number(safeEntry.revision) : 0,
@@ -243,7 +251,6 @@ export function getOrCreateComponentState(componentId, name, category, originalC
   const s = normalizeComponentState(componentId, aiState.components[componentId]);
   if (name) {s.componentName = name;}
   if (category) {s.category = category;}
-  if (typeof originalCode === 'string') {s.originalCode = originalCode;}
   aiState.components[componentId] = s;
   return s;
 }
@@ -261,8 +268,39 @@ export function clearComponentHistory(componentId) {
   persistAIState();
 }
 
+/** Start a new AI session for a component: clears history and rotates the session id. */
+export function startNewSession(componentId) {
+  const s = aiState.components[componentId];
+  if (!s) {return null;}
+  s.chatHistory = [];
+  s.codeVersions = [];
+  s.currentCode = '';
+  s.activeVersionId = null;
+  s.summary = '';
+  s.currentSessionId = uid();
+  s.revision = (Number(s.revision) || 0) + 1;
+  s.lastUpdated = Date.now();
+  persistAIState();
+  return s;
+}
+
 export function clearAllAIHistory() {
-  aiState = freshState();
+  // Preserve original component data (originalCode, componentName, category, componentId)
+  // while clearing all AI-generated data (chat, versions, current draft, summary).
+  if (aiState.components) {
+    Object.keys(aiState.components).forEach((k) => {
+      const s = aiState.components[k];
+      if (s) {
+        s.chatHistory = [];
+        s.codeVersions = [];
+        s.currentCode = '';
+        s.activeVersionId = null;
+        s.summary = '';
+        s.revision = (Number(s.revision) || 0) + 1;
+        s.lastUpdated = Date.now();
+      }
+    });
+  }
   persistAIState();
   safeRemove(AI_ACTIVE_KEY);
 }
@@ -291,7 +329,8 @@ export function pushChatMessage(compState, role, text) {
     id: uid(),
     role: role === 'ai' ? 'assistant' : role,
     text: String(text || ''),
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    sessionId: compState.currentSessionId
   };
   compState.chatHistory.push(msg);
   if (compState.chatHistory.length > AI_MAX_MESSAGES) {
@@ -306,18 +345,18 @@ export function pushChatMessage(compState, role, text) {
 export function addCodeVersion(compState, code, prompt) {
   if (!compState) {return null;}
   const cleanCode = typeof code === 'string' ? code : '';
-  // Content deduplication: avoid pushing identical code snapshot if it matches current latest version
+  // Content deduplication: avoid pushing identical code snapshot if it matches any existing version
   if (compState.codeVersions.length > 0) {
-    const latest = compState.codeVersions[compState.codeVersions.length - 1];
-    if (latest && latest.code === cleanCode && latest.prompt === prompt) {
+    const existing = compState.codeVersions.find((v) => v && v.code === cleanCode && v.prompt === prompt);
+    if (existing) {
       compState.currentCode = cleanCode;
-      compState.activeVersionId = latest.id;
+      compState.activeVersionId = existing.id;
       persistAIState();
-      return latest;
+      return existing;
     }
   }
 
-  const version = { id: uid(), code: cleanCode, prompt: String(prompt || ''), timestamp: Date.now() };
+  const version = { id: uid(), code: cleanCode, prompt: String(prompt || ''), timestamp: Date.now(), sessionId: compState.currentSessionId };
   compState.currentCode = cleanCode;
   compState.codeVersions.push(version);
   if (compState.codeVersions.length > AI_MAX_VERSIONS) {
@@ -329,6 +368,38 @@ export function addCodeVersion(compState, code, prompt) {
   compState.lastUpdated = Date.now();
   persistAIState();
   return version;
+}
+
+export function restoreCodeVersion(compState, versionId) {
+  if (!compState || !Array.isArray(compState.codeVersions)) {return null;}
+  const version = compState.codeVersions.find((v) => v && v.id === versionId);
+  if (!version) {return null;}
+  compState.currentCode = version.code;
+  compState.activeVersionId = version.id;
+  compState.currentSessionId = version.sessionId || compState.currentSessionId;
+  compState.lastUpdated = Date.now();
+  persistAIState();
+  return version;
+}
+
+/** Delete a version by id. If it was the active version, repoint to the latest remaining version. */
+export function deleteCodeVersion(compState, versionId) {
+  if (!compState || !Array.isArray(compState.codeVersions)) {return false;}
+  const idx = compState.codeVersions.findIndex((v) => v && v.id === versionId);
+  if (idx < 0) {return false;}
+  const wasActive = compState.activeVersionId === versionId;
+  compState.codeVersions.splice(idx, 1);
+  if (wasActive) {
+    compState.activeVersionId = compState.codeVersions.length > 0
+      ? compState.codeVersions[compState.codeVersions.length - 1].id
+      : null;
+    compState.currentCode = compState.activeVersionId
+      ? compState.codeVersions[compState.codeVersions.length - 1].code
+      : '';
+  }
+  compState.lastUpdated = Date.now();
+  persistAIState();
+  return true;
 }
 
 export function getConversationSummary(compState) {

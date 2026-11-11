@@ -3,7 +3,8 @@ import { normalizeCode, looksLikeCode, buildSystemPrompt, describeAIError, getUs
 import {
   loadAIState, getAIState, getOrCreateComponentState, pushChatMessage, addCodeVersion,
   setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
-  flushPersist, PERSIST_DEBOUNCE_MS, migrateState
+  flushPersist, PERSIST_DEBOUNCE_MS, migrateState, restoreCodeVersion, deleteCodeVersion,
+  startNewSession
 } from '../src/ai/state.js';
 import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA, AI_MODEL_TIMEOUT_MS, AI_MAX_TOKENS, getModelMaxTokens } from '../src/ai/config.js';
 import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent, isUserCancelled } from '../src/ai/request.js';
@@ -133,7 +134,8 @@ describe('AI state', () => {
   it('creates and updates component state', () => {
     const s = getOrCreateComponentState('roll', 'Text Roll', 'Text', '<p>orig</p>');
     expect(s.originalCode).toBe('<p>orig</p>');
-    expect(getOrCreateComponentState('roll', 'Text Roll', 'Text', '<p>new</p>').originalCode).toBe('<p>new</p>');
+    // Original code must be preserved on subsequent calls (immutable)
+    expect(getOrCreateComponentState('roll', 'Text Roll', 'Text', '<p>new</p>').originalCode).toBe('<p>orig</p>');
   });
 
   it('caps chat history and versions', () => {
@@ -391,5 +393,153 @@ describe('schema migration', () => {
     const reloaded = JSON.parse(localStorage.getItem(AI_STATE_KEY));
     expect(reloaded.schemaVersion).toBe(AI_SCHEMA_VERSION);
     expect(reloaded.components.comp.codeVersions[0].lastUpdated).toBe(100);
+  });
+
+  describe('P0: Original code immutability', () => {
+    it('clearAllAIHistory preserves originalCode for every component', () => {
+      const s1 = getOrCreateComponentState('c1', 'Comp 1', 'Text', '<div>Original 1</div>');
+      const s2 = getOrCreateComponentState('c2', 'Comp 2', 'Text', '<div>Original 2</div>');
+      pushChatMessage(s1, 'user', 'change it');
+      addCodeVersion(s1, '<div>AI v1</div>', 'change it');
+
+      clearAllAIHistory();
+
+      const reloaded1 = getComponentState('c1');
+      const reloaded2 = getComponentState('c2');
+      expect(reloaded1.originalCode).toBe('<div>Original 1</div>');
+      expect(reloaded2.originalCode).toBe('<div>Original 2</div>');
+      expect(reloaded1.chatHistory).toEqual([]);
+      expect(reloaded1.codeVersions).toEqual([]);
+      expect(reloaded1.currentCode).toBe('');
+    });
+  });
+
+  describe('P1: Version dedup and restore', () => {
+    it('addCodeVersion deduplicates against any existing version, not just the last', () => {
+      const s = getOrCreateComponentState('dedup-all', 'Dedup All', 'Text', '<div>orig</div>');
+      addCodeVersion(s, '<div>v1</div>', 'change 1');
+      addCodeVersion(s, '<div>v2</div>', 'change 2');
+      const v3 = addCodeVersion(s, '<div>v1</div>', 'change 1');
+
+      expect(v3.id).toBe(s.codeVersions[0].id);
+      expect(s.codeVersions).toHaveLength(2);
+      expect(s.activeVersionId).toBe(s.codeVersions[0].id);
+    });
+
+    it('restoreCodeVersion restores exact code and active version id', () => {
+      const s = getOrCreateComponentState('restore-test', 'Restore', 'Text', '<div>orig</div>');
+      addCodeVersion(s, '<div>v1</div>', 'change 1');
+      addCodeVersion(s, '<div>v2</div>', 'change 2');
+
+      const v1 = s.codeVersions[0];
+      const restored = restoreCodeVersion(s, v1.id);
+
+      expect(restored.code).toBe('<div>v1</div>');
+      expect(s.currentCode).toBe('<div>v1</div>');
+      expect(s.activeVersionId).toBe(v1.id);
+    });
+
+    it('restoreCodeVersion returns null for non-existent version id', () => {
+      const s = getOrCreateComponentState('restore-null', 'Restore Null', 'Text', '<div>orig</div>');
+      const result = restoreCodeVersion(s, 'non-existent-id');
+      expect(result).toBeNull();
+      expect(s.currentCode).toBe('');
+    });
+
+    it('deleteCodeVersion removes the version and repoints active if needed', () => {
+      const s = getOrCreateComponentState('delete-test', 'Delete', 'Text', '<div>orig</div>');
+      addCodeVersion(s, '<div>v1</div>', 'change 1');
+      addCodeVersion(s, '<div>v2</div>', 'change 2');
+
+      const deleted = deleteCodeVersion(s, s.codeVersions[0].id);
+
+      expect(deleted).toBe(true);
+      expect(s.codeVersions).toHaveLength(1);
+      expect(s.codeVersions[0].code).toBe('<div>v2</div>');
+      expect(s.activeVersionId).toBe(s.codeVersions[0].id);
+      expect(s.currentCode).toBe('<div>v2</div>');
+    });
+
+    it('deleteCodeVersion on active version clears currentCode when no versions remain', () => {
+      const s = getOrCreateComponentState('delete-last', 'Delete Last', 'Text', '<div>orig</div>');
+      addCodeVersion(s, '<div>v1</div>', 'change 1');
+
+      deleteCodeVersion(s, s.codeVersions[0].id);
+
+      expect(s.codeVersions).toHaveLength(0);
+      expect(s.activeVersionId).toBeNull();
+      expect(s.currentCode).toBe('');
+    });
+
+    it('deleteCodeVersion returns false for non-existent version id', () => {
+      const s = getOrCreateComponentState('delete-false', 'Delete False', 'Text', '<div>orig</div>');
+      const result = deleteCodeVersion(s, 'non-existent-id');
+      expect(result).toBe(false);
+      expect(s.codeVersions).toHaveLength(0);
+    });
+  });
+
+  describe('P2: Session IDs', () => {
+    it('getOrCreateComponentState assigns a session id', () => {
+      const s = getOrCreateComponentState('session-1', 'Session', 'Text', '<div>orig</div>');
+      expect(typeof s.currentSessionId).toBe('string');
+      expect(s.currentSessionId.length).toBeGreaterThan(0);
+    });
+
+    it('pushChatMessage includes sessionId on each message', () => {
+      const s = getOrCreateComponentState('session-msg', 'Session Msg', 'Text', '<div>orig</div>');
+      const sid = s.currentSessionId;
+      pushChatMessage(s, 'user', 'hello');
+      pushChatMessage(s, 'assistant', 'Applied: hello');
+
+      expect(s.chatHistory[0].sessionId).toBe(sid);
+      expect(s.chatHistory[1].sessionId).toBe(sid);
+    });
+
+    it('addCodeVersion includes sessionId on each version', () => {
+      const s = getOrCreateComponentState('session-ver', 'Session Ver', 'Text', '<div>orig</div>');
+      const sid = s.currentSessionId;
+      addCodeVersion(s, '<div>v1</div>', 'change 1');
+
+      expect(s.codeVersions[0].sessionId).toBe(sid);
+    });
+
+    it('startNewSession rotates the session id and clears history', () => {
+      const s = getOrCreateComponentState('session-new', 'Session New', 'Text', '<div>orig</div>');
+      pushChatMessage(s, 'user', 'old message');
+      addCodeVersion(s, '<div>old v1</div>', 'old change');
+      const oldSid = s.currentSessionId;
+
+      const restarted = startNewSession('session-new');
+
+      expect(restarted.currentSessionId).not.toBe(oldSid);
+      expect(restarted.chatHistory).toEqual([]);
+      expect(restarted.codeVersions).toEqual([]);
+      expect(restarted.currentCode).toBe('');
+      expect(restarted.originalCode).toBe('<div>orig</div>');
+    });
+
+    it('restoreCodeVersion syncs currentSessionId to the version session', () => {
+      const s = getOrCreateComponentState('session-rest', 'Session Rest', 'Text', '<div>orig</div>');
+      const oldSid = s.currentSessionId;
+      addCodeVersion(s, '<div>v1</div>', 'change 1');
+      const verSid = s.codeVersions[0].sessionId;
+
+      // Simulate a session change
+      s.currentSessionId = 'different-session';
+      restoreCodeVersion(s, s.codeVersions[0].id);
+
+      expect(s.currentSessionId).toBe(verSid);
+      expect(s.currentSessionId).not.toBe('different-session');
+    });
+  });
+
+  describe('P1: Generation baseline uses originalCode', () => {
+    it('getOrCreateComponentState no longer overwrites originalCode on re-call', () => {
+      const s = getOrCreateComponentState('baseline', 'Baseline', 'Text', '<div>ORIGINAL</div>');
+      // Simulate a rebuild with different html
+      getOrCreateComponentState('baseline', 'Baseline', 'Text', '<div>CHANGED BY REBUILD</div>');
+      expect(s.originalCode).toBe('<div>ORIGINAL</div>');
+    });
   });
 });

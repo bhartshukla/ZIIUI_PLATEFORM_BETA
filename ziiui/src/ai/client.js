@@ -17,14 +17,14 @@ import {
   AI_MAX_TOKENS,
   getModelMaxTokens
 } from './config.js';
-import { buildContextMessages } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
 import {
   classifyTaskIntent,
   extractComponentConstraints,
   validateGeneratedCode,
-  logContextMetrics
+  logContextMetrics,
+  retrieveRelevantMessages
 } from './context-engine.js';
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
@@ -146,7 +146,7 @@ export async function generateCode({ component, compState, request, signal }) {
 
   const systemPrompt = buildSystemPrompt(enrichedComponent);
   const messages = [{ role: 'system', content: systemPrompt }];
-  const context = buildContextMessages(compState, prompt);
+  const context = retrieveRelevantMessages(compState, prompt);
   context.forEach((m) => messages.push(m));
   messages.push({ role: 'user', content: prompt });
 

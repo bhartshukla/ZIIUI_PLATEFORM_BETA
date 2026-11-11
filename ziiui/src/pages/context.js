@@ -353,9 +353,20 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       return;
     }
     if (!confirm('Clear all saved conversations? Original components will remain intact.')) {return;}
-    state = { components: {} };
-    safeRemove(AI_STATE_KEY);
-    safeRemove(AI_ACTIVE_KEY);
+    // Preserve original component data while clearing all AI-generated data.
+    Object.keys(state.components || {}).forEach((k) => {
+      const c = state.components[k];
+      if (c) {
+        c.chatHistory = [];
+        c.codeVersions = [];
+        c.currentCode = '';
+        c.activeVersionId = null;
+        c.summary = '';
+        c.revision = (Number(c.revision) || 0) + 1;
+        c.lastUpdated = Date.now();
+      }
+    });
+    safeSet(AI_STATE_KEY, JSON.stringify(state));
     activeId = null;
     searchQuery = '';
     const searchInput = $('contextSearch');
