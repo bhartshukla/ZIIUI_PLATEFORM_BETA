@@ -6,7 +6,7 @@ import {
   flushPersist, PERSIST_DEBOUNCE_MS, migrateState
 } from '../src/ai/state.js';
 import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA, AI_MODEL_TIMEOUT_MS } from '../src/ai/config.js';
-import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent } from '../src/ai/request.js';
+import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent, isUserCancelled } from '../src/ai/request.js';
 
 describe('normalizeCode', () => {
   it('strips markdown fences', () => {
@@ -59,9 +59,9 @@ describe('User-Facing AI Messaging', () => {
     expect(msg).not.toContain('API');
   });
 
-  it('preserves component notice on abort/timeout', () => {
-    const msg = getUserFacingAIMessage(new DOMException('Aborted', 'AbortError'));
-    expect(msg).toBe('AI request timed out or was cancelled. Your existing component was preserved.');
+  it('returns dedicated cancellation message for user cancellations', () => {
+    const msg = getUserFacingAIMessage(new Error('AbortError'), true);
+    expect(msg).toBe('AI request was cancelled. Your existing component was preserved.');
   });
 });
 
@@ -84,6 +84,11 @@ describe('Model Priority and Configuration', () => {
       expect(MODEL_METADATA[id].context).toBeGreaterThan(0);
     });
   });
+
+  it('configures a sensible per-model timeout', () => {
+    expect(AI_MODEL_TIMEOUT_MS).toBeGreaterThanOrEqual(10000);
+    expect(AI_MODEL_TIMEOUT_MS).toBeLessThanOrEqual(60000);
+  });
 });
 
 describe('config', () => {
@@ -96,12 +101,14 @@ describe('config', () => {
       const request = beginRequest('component', 'change it', 0, 'test');
       expect(isActiveRequest(request)).toBe(true);
       expect(isCurrent(request)).toBe(true);
+      expect(isUserCancelled(request)).toBe(false);
 
       cancelActiveRequest();
 
       expect(request.signal.aborted).toBe(true);
       expect(isActiveRequest(request)).toBe(true);
       expect(isCurrent(request)).toBe(false);
+      expect(isUserCancelled(request)).toBe(true);
 
       endRequest(request);
       expect(isActiveRequest(request)).toBe(false);
