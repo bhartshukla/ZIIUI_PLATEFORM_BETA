@@ -5,7 +5,18 @@
  * Errors thrown (err.message): NOKEY, AUTH, NETWORK, ALLMODELS — plus
  * AbortError when the request is cancelled or times out.
  */
-import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured, MODEL_METADATA, AI_MODEL_TIMEOUT_MS } from './config.js';
+import {
+  AI_API_KEY,
+  AI_ENDPOINT,
+  AI_MODELS,
+  AI_USES_PROXY,
+  aiIsConfigured,
+  MODEL_METADATA,
+  AI_MODEL_TIMEOUT_MS,
+  AI_REQUEST_TIMEOUT_MS,
+  AI_MAX_TOKENS,
+  getModelMaxTokens
+} from './config.js';
 import { buildContextMessages } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
@@ -160,21 +171,39 @@ export async function generateCode({ component, compState, request, signal }) {
 
   let lastError = null;
   let attempt = 0;
+  const cascadeStartTime = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
 
   for (const model of AI_MODELS) {
     if (signal && signal.aborted) {throw abortError();}
+
+    // Verify remaining overall cascade time
+    const nowCascade = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+    const elapsedCascadeMs = nowCascade - cascadeStartTime;
+    const remainingCascadeMs = AI_REQUEST_TIMEOUT_MS - elapsedCascadeMs;
+
+    // Avoid starting a new attempt when insufficient global time remains (<3s)
+    if (remainingCascadeMs < 3000) {
+      logModelAttempt({ attempt: attempt + 1, modelId: model, modelName: MODEL_METADATA?.[model]?.name || model, status: 408, ok: false, reason: 'TIMEOUT', durationMs: 0 });
+      lastError = new AIError('TIMEOUT', { status: 408, model });
+      break;
+    }
+
     attempt++;
     const meta = MODEL_METADATA?.[model] || {};
     const modelName = meta.name || model;
+    const maxTokens = getModelMaxTokens(model);
     const startTime = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
 
-    // Per-model AbortController: enforces AI_MODEL_TIMEOUT_MS on this specific model attempt
+    // Per-model timeout: cannot exceed the remaining overall cascade budget
+    const effectiveModelTimeoutMs = Math.min(AI_MODEL_TIMEOUT_MS, remainingCascadeMs);
+
+    // Per-model AbortController
     const modelController = new AbortController();
     let timedOut = false;
     const modelTimer = setTimeout(() => {
       timedOut = true;
       try { modelController.abort(); } catch (_) { /* ignore */ }
-    }, AI_MODEL_TIMEOUT_MS);
+    }, effectiveModelTimeoutMs);
 
     // If parent signal aborts (user clicked Cancel), abort this attempt immediately
     const onParentAbort = () => {
@@ -188,7 +217,7 @@ export async function generateCode({ component, compState, request, signal }) {
       const response = await fetch(AI_ENDPOINT, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 5000 }),
+        body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: maxTokens }),
         signal: modelController.signal
       });
 
@@ -262,6 +291,20 @@ export async function generateCode({ component, compState, request, signal }) {
       } catch (_) {
         logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'BADJSON', durationMs });
         lastError = new Error('BADJSON');
+        continue;
+      }
+
+      // Detect truncated responses: finish_reason === 'length'
+      const choice = data?.choices?.[0];
+      if (choice?.finish_reason === 'length') {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'TOKEN_LIMIT_EXCEEDED', durationMs });
+        logAIError({
+          phase: 'truncated',
+          status: response.status,
+          model,
+          body: { error: { message: `Model output truncated at token limit (${maxTokens} tokens).` } }
+        });
+        lastError = new AIError('TOKEN_LIMIT_EXCEEDED', { status: response.status, model });
         continue;
       }
 

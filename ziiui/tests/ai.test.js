@@ -5,7 +5,7 @@ import {
   setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
   flushPersist, PERSIST_DEBOUNCE_MS, migrateState
 } from '../src/ai/state.js';
-import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA, AI_MODEL_TIMEOUT_MS } from '../src/ai/config.js';
+import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA, AI_MODEL_TIMEOUT_MS, AI_MAX_TOKENS, getModelMaxTokens } from '../src/ai/config.js';
 import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent, isUserCancelled } from '../src/ai/request.js';
 
 describe('normalizeCode', () => {
@@ -88,6 +88,16 @@ describe('Model Priority and Configuration', () => {
   it('configures a sensible per-model timeout', () => {
     expect(AI_MODEL_TIMEOUT_MS).toBeGreaterThanOrEqual(10000);
     expect(AI_MODEL_TIMEOUT_MS).toBeLessThanOrEqual(60000);
+  });
+
+  it('configures output token limit of at least 16384', () => {
+    expect(AI_MAX_TOKENS).toBeGreaterThanOrEqual(16384);
+  });
+
+  it('caps model output token limit to verified provider maximum', () => {
+    const cohereBudget = getModelMaxTokens('cohere/north-mini-code:free');
+    expect(cohereBudget).toBeLessThanOrEqual(64000);
+    expect(cohereBudget).toBe(Math.min(AI_MAX_TOKENS, 64000));
   });
 });
 

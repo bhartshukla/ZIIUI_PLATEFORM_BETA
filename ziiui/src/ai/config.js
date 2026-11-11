@@ -12,11 +12,18 @@ export const AI_SCHEMA_VERSION = 3;
 
 const env = (typeof import.meta !== 'undefined' && import.meta.env) || {};
 
+function positiveInt(val, fallback) {
+  const n = parseInt(val, 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
 export const AI_MAX_CONTEXT_CHARS = 8000;
-/** Per-model timeout (default 25 seconds). If a model hangs or takes too long, fallback proceeds to next model. */
-export const AI_MODEL_TIMEOUT_MS = Number(env.VITE_AI_MODEL_TIMEOUT_MS) || 25000;
+/** Output completion token limit (default 16,384). Configurable via VITE_AI_MAX_TOKENS. */
+export const AI_MAX_TOKENS = positiveInt(env.VITE_AI_MAX_TOKENS, 16384);
+/** Per-model timeout (default 45 seconds). Configurable via VITE_AI_MODEL_TIMEOUT_MS. */
+export const AI_MODEL_TIMEOUT_MS = positiveInt(env.VITE_AI_MODEL_TIMEOUT_MS, 45000);
 /** Overall request timeout (default 120 seconds) for the entire fallback cascade. */
-export const AI_REQUEST_TIMEOUT_MS = Number(env.VITE_AI_REQUEST_TIMEOUT_MS) || 120000;
+export const AI_REQUEST_TIMEOUT_MS = positiveInt(env.VITE_AI_REQUEST_TIMEOUT_MS, 120000);
 export const AI_MAX_VERSIONS = 30;
 export const AI_MAX_MESSAGES = 60;
 
@@ -47,29 +54,47 @@ export const DEFAULT_MODELS = [
 export const MODEL_METADATA = {
   'cohere/north-mini-code:free': {
     name: 'Cohere — North Mini Code (Free)',
-    context: 256000
+    context: 256000,
+    maxTokens: 64000
   },
   'recursive/flint-v1.0:free': {
     name: 'Recursive — Flint (Free)',
-    context: 262144
+    context: 262144,
+    maxTokens: 235929
   },
   'nvidia/nemotron-3.5-lightning:free': {
     name: 'NVIDIA — Nemotron 3.5 Lightning (Free)',
-    context: 1000000
+    context: 1000000,
+    maxTokens: 65536
   },
   'dots-studio/dots-3-note-preview:free': {
     name: 'Dots — Dots3-Note Preview (Free)',
-    context: 512000
+    context: 512000,
+    maxTokens: 460800
   },
   'nvidia/nemotron-3-ultra-550b-a55b:free': {
     name: 'NVIDIA — Nemotron 3 Ultra (Free)',
-    context: 1000000
+    context: 1000000,
+    maxTokens: 65536
   },
   'thinkingmachines/inkling-2-small:free': {
     name: 'Inkling 2 Small (Free)',
-    context: 1048576
+    context: 1048576,
+    maxTokens: 131072
   }
 };
+
+/**
+ * Calculates the output token limit for a specific model without exceeding
+ * its verified provider maximum or the configured global budget.
+ */
+export function getModelMaxTokens(modelId) {
+  const meta = MODEL_METADATA[modelId];
+  if (meta && Number.isFinite(meta.maxTokens) && meta.maxTokens > 0) {
+    return Math.min(AI_MAX_TOKENS, meta.maxTokens);
+  }
+  return AI_MAX_TOKENS;
+}
 
 export const AI_ENDPOINT = (env.VITE_AI_ENDPOINT || '').trim() || DEFAULT_ENDPOINT;
 export const AI_USES_PROXY = AI_ENDPOINT !== OPENROUTER_URL;
