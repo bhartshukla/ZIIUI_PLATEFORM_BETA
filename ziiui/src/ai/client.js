@@ -19,6 +19,50 @@ import {
 const abortError = () => new DOMException('Aborted', 'AbortError');
 const MAX_CODE_CHARS = 200000;
 
+/**
+ * Structured AI request error. Carries HTTP status, model id, Retry-After and
+ * a sanitized response body so the UI can show a helpful message without ever
+ * exposing the API key.
+ */
+class AIError extends Error {
+  constructor(message, { status, model, retryAfter, body } = {}) {
+    super(message);
+    this.name = 'AIError';
+    this.status = Number.isInteger(status) ? status : undefined;
+    this.model = model || undefined;
+    this.retryAfter = retryAfter || undefined;
+    this.body = body;
+  }
+}
+
+/** Read a response body once (a Response body stream can only be read once). */
+async function readResponseBody(response) {
+  try {
+    const text = await response.text();
+    try { return JSON.parse(text); } catch (_) { /* ignore */ return text; }
+  } catch (_) { /* ignore */ return undefined; }
+}
+
+/**
+ * Dev-only diagnostic logging of an AI error. Never logs the API key or
+ * authorization headers.
+ */
+function logAIError({ phase, status, model, body, retryAfter }) {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) {
+    const info = { phase, status, model, retryAfter };
+    if (body) {
+      const e = body && body.error ? body.error : body;
+      if (e && typeof e === 'object') {
+        info.error = {};
+        if (typeof e.message === 'string') { info.error.message = e.message; }
+        if (e.code !== undefined) { info.error.code = e.code; }
+        if (e.metadata !== undefined) { info.error.metadata = e.metadata; }
+      }
+    }
+    console.debug('[ziiui:ai]', info);
+  }
+}
+
 function extractResponseText(payload) {
   if (!payload) {return '';}
   const choice = payload?.choices?.[0];
@@ -98,18 +142,34 @@ export async function generateCode({ component, compState, request, signal }) {
         body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 5000 }),
         signal
       });
-      if (response.status === 401 || response.status === 403) {throw new Error('AUTH');}
-      if (response.status === 408 || response.status === 504) {throw new Error('TIMEOUT');}
-      if (response.status === 429) { lastError = new Error('RATE'); continue; }
+      if (response.status === 401 || response.status === 403) {
+        throw new AIError('AUTH', { status: response.status, model });
+      }
+      if (response.status === 404) {
+        const body = await readResponseBody(response);
+        logAIError({ phase: 'not-found', status: 404, model, body });
+        // 404 means the model/endpoint is not available: do not retry.
+        throw new AIError('The selected AI model is not available.', { status: 404, model, body });
+      }
+      if (response.status === 408 || response.status === 504) {
+        throw new AIError('TIMEOUT', { status: response.status, model });
+      }
+      if (response.status === 429) {
+        const body = await readResponseBody(response);
+        const retryAfter = response.headers.get('Retry-After') || undefined;
+        logAIError({ phase: 'rate-limited', status: 429, model, body, retryAfter });
+        lastError = new AIError('RATE', { status: 429, model, retryAfter, body });
+        continue;
+      }
       if (!response.ok) {
-        let detail = '';
-        try { detail = await response.text(); } catch (_) { /* ignore */ }
-        lastError = new Error(`API:${  response.status  }${detail ? ` - ${  detail.slice(0, 140)}` : ''}`);
+        const body = await readResponseBody(response);
+        logAIError({ phase: 'error', status: response.status, model, body });
+        lastError = new AIError(`API:${response.status}`, { status: response.status, model, body });
         continue;
       }
 
       let data;
-      try { data = await response.json(); } catch (_) { lastError = new Error('BADJSON'); continue; }
+      try { data = await response.json(); } catch (_) { /* ignore */ lastError = new Error('BADJSON'); continue; }
       const output = extractResponseText(data);
       if (!output) { lastError = new Error('EMPTY'); continue; }
       if (output.length > MAX_CODE_CHARS) { lastError = new Error('INVALID'); continue; }
@@ -119,14 +179,15 @@ export async function generateCode({ component, compState, request, signal }) {
       if (!looksLikeCode(code)) { lastError = new Error('INVALID'); continue; }
 
       const validation = validateGeneratedCode(code);
-      if (!validation.ok) { lastError = new Error('INVALID'); continue; }
+      if (!validation.ok) { lastError = new Error('INVALID', { model }); continue; }
 
       return code;
     } catch (err) {
       if (err && err.name === 'AbortError') {throw err;}
+      if (err && err.name === 'AIError') {throw err;}
       if (err && err.message === 'AUTH') {throw err;}
       if (err && err.message === 'TIMEOUT') {throw err;}
-      lastError = err instanceof TypeError ? new Error('NETWORK') : err;
+      lastError = err instanceof TypeError ? new AIError('NETWORK', { model }) : err;
     }
   }
   if (lastError && lastError.message === 'NETWORK') {throw lastError;}

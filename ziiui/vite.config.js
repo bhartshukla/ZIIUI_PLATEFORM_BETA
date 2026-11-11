@@ -18,6 +18,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['tests/**/*.test.js'],
-    css: true
+    css: true,
+    env: {
+      VITE_OPENROUTER_API_KEY: ''
+    }
   }
 });
