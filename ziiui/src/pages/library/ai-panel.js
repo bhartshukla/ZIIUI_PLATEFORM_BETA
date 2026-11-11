@@ -5,7 +5,7 @@ import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js
 import {
   getOrCreateComponentState, getComponentState, saveActiveComponentId, persistAIState, flushPersist,
   clearComponentHistory, clearAllAIHistory, pushChatMessage, addCodeVersion, setCurrentCode,
-  describeContext, getAISettings, getAIState, setAutoPreview, startNewSession, restoreCodeVersion
+  describeContext, getAISettings, getAIState, setAutoPreview, startNewSession
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
 import { describeAIError, getUserFacingAIMessage } from '../../ai/prompt.js';

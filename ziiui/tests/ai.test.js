@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { normalizeCode, looksLikeCode, buildSystemPrompt, describeAIError, getUserFacingAIMessage, AI_TRAINING_PHASE_TITLE, AI_TRAINING_PHASE_MESSAGE } from '../src/ai/prompt.js';
 import {
-  loadAIState, getAIState, getOrCreateComponentState, pushChatMessage, addCodeVersion,
-  setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
+  loadAIState, getAIState, getOrCreateComponentState, getComponentState, pushChatMessage, addCodeVersion,
+  setCurrentCode, buildContextMessages, clearComponentHistory, clearAllAIHistory, persistAIState,
   flushPersist, PERSIST_DEBOUNCE_MS, migrateState, restoreCodeVersion, deleteCodeVersion,
   startNewSession
 } from '../src/ai/state.js';
@@ -396,22 +396,23 @@ describe('schema migration', () => {
   });
 
   describe('P0: Original code immutability', () => {
-    it('clearAllAIHistory preserves originalCode for every component', () => {
-      const s1 = getOrCreateComponentState('c1', 'Comp 1', 'Text', '<div>Original 1</div>');
-      const s2 = getOrCreateComponentState('c2', 'Comp 2', 'Text', '<div>Original 2</div>');
-      pushChatMessage(s1, 'user', 'change it');
-      addCodeVersion(s1, '<div>AI v1</div>', 'change it');
+  it('clearAllAIHistory preserves originalCode for every component', () => {
+    getOrCreateComponentState('c1', 'Comp 1', 'Text', '<div>Original 1</div>');
+    const s2 = getOrCreateComponentState('c2', 'Comp 2', 'Text', '<div>Original 2</div>');
+    const s1 = getComponentState('c1');
+    pushChatMessage(s1, 'user', 'change it');
+    addCodeVersion(s1, '<div>AI v1</div>', 'change it');
 
-      clearAllAIHistory();
+    clearAllAIHistory();
 
-      const reloaded1 = getComponentState('c1');
-      const reloaded2 = getComponentState('c2');
-      expect(reloaded1.originalCode).toBe('<div>Original 1</div>');
-      expect(reloaded2.originalCode).toBe('<div>Original 2</div>');
-      expect(reloaded1.chatHistory).toEqual([]);
-      expect(reloaded1.codeVersions).toEqual([]);
-      expect(reloaded1.currentCode).toBe('');
-    });
+    const reloaded1 = getComponentState('c1');
+    const reloaded2 = getComponentState('c2');
+    expect(reloaded1.originalCode).toBe('<div>Original 1</div>');
+    expect(reloaded2.originalCode).toBe('<div>Original 2</div>');
+    expect(reloaded1.chatHistory).toEqual([]);
+    expect(reloaded1.codeVersions).toEqual([]);
+    expect(reloaded1.currentCode).toBe('');
+  });
   });
 
   describe('P1: Version dedup and restore', () => {
@@ -504,20 +505,20 @@ describe('schema migration', () => {
       expect(s.codeVersions[0].sessionId).toBe(sid);
     });
 
-    it('startNewSession rotates the session id and clears history', () => {
-      const s = getOrCreateComponentState('session-new', 'Session New', 'Text', '<div>orig</div>');
-      pushChatMessage(s, 'user', 'old message');
-      addCodeVersion(s, '<div>old v1</div>', 'old change');
-      const oldSid = s.currentSessionId;
+  it('startNewSession rotates the session id and clears history', () => {
+    const s = getOrCreateComponentState('session-new', 'Session New', 'Text', '<div>orig</div>');
+    pushChatMessage(s, 'user', 'old message');
+    addCodeVersion(s, '<div>old v1</div>', 'old change');
+    const oldSid = s.currentSessionId;
 
-      const restarted = startNewSession('session-new');
+    const restarted = startNewSession('session-new');
 
-      expect(restarted.currentSessionId).not.toBe(oldSid);
-      expect(restarted.chatHistory).toEqual([]);
-      expect(restarted.codeVersions).toEqual([]);
-      expect(restarted.currentCode).toBe('');
-      expect(restarted.originalCode).toBe('<div>orig</div>');
-    });
+    expect(restarted.currentSessionId).not.toBe(oldSid);
+    expect(restarted.chatHistory).toEqual([]);
+    expect(restarted.codeVersions).toEqual([]);
+    expect(restarted.currentCode).toBe('');
+    expect(restarted.originalCode).toBe('<div>orig</div>');
+  });
 
     it('restoreCodeVersion syncs currentSessionId to the version session', () => {
       const s = getOrCreateComponentState('session-rest', 'Session Rest', 'Text', '<div>orig</div>');
