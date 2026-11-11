@@ -44,6 +44,7 @@ export function beginRequest(componentId, prompt = '', baseRevision = 0, model =
     prompt: String(prompt || '').trim(),
     controller,
     signal: controller.signal,
+    isUserCancelled: false,
     timeoutId: setTimeout(() => { try { controller.abort(); } catch (_) { /* ignore */ } }, AI_REQUEST_TIMEOUT_MS)
   };
   active = req;
@@ -65,8 +66,11 @@ export function endRequest(req) {
 
 export function cancelActiveRequest() {
   if (!active) {return;}
+  active.isUserCancelled = true;
   try { active.controller.abort(); } catch (_) { /* ignore */ }
 }
+
+export const isUserCancelled = (req) => Boolean(req && req.isUserCancelled);
 
 /** Read and clear the marker left by an interrupted request (or null). */
 export function consumePendingMarker() {

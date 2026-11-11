@@ -45,15 +45,16 @@ export function looksLikeCode(code) {
 }
 
 export const AI_TRAINING_PHASE_TITLE = 'Model in Training Phase';
-export const AI_TRAINING_PHASE_MESSAGE = 'Our AI model is currently in its training and improvement phase. AI generation is temporarily unavailable. Please try again later.';
+export const AI_TRAINING_PHASE_MESSAGE = 'Our AI model is temporarily unavailable. Please try again later.';
+export const AI_CANCELLED_MESSAGE = 'AI request was cancelled. Your existing component was preserved.';
 
 /**
  * Standard user-facing message strictly adhering to ZiiUI branding.
  * Hides all technical error details and provider references from users.
  */
-export function getUserFacingAIMessage(err) {
-  if (err && err.name === 'AbortError') {
-    return 'AI request timed out or was cancelled. Your existing component was preserved.';
+export function getUserFacingAIMessage(err, isCancelled = false) {
+  if (isCancelled || (err && (err.isUserCancelled || err.message === 'CANCELLED'))) {
+    return AI_CANCELLED_MESSAGE;
   }
   return `${AI_TRAINING_PHASE_TITLE}\n${AI_TRAINING_PHASE_MESSAGE}`;
 }

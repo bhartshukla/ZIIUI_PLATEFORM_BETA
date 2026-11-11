@@ -5,7 +5,7 @@ import {
   setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
   flushPersist, PERSIST_DEBOUNCE_MS, migrateState
 } from '../src/ai/state.js';
-import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA } from '../src/ai/config.js';
+import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA, AI_MODEL_TIMEOUT_MS } from '../src/ai/config.js';
 import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent } from '../src/ai/request.js';
 
 describe('normalizeCode', () => {

@@ -136,9 +136,9 @@ async function generate() {
     if (!isActiveRequest(req)) {return;}
     chat.hideLoading();
     el.prompt.value = request;
-    const aborted = err && err.name === 'AbortError';
-    chat.add('err', aborted ? 'Request cancelled or timed out. Existing code preserved.' : getUserFacingAIMessage(err));
-    say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
+    const isCancelled = Boolean(req && req.isUserCancelled);
+    chat.add('err', getUserFacingAIMessage(err, isCancelled));
+    say(isCancelled ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     const wasActive = isActiveRequest(req);
     endRequest(req);

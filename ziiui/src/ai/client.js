@@ -5,7 +5,7 @@
  * Errors thrown (err.message): NOKEY, AUTH, NETWORK, ALLMODELS — plus
  * AbortError when the request is cancelled or times out.
  */
-import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured, MODEL_METADATA } from './config.js';
+import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured, MODEL_METADATA, AI_MODEL_TIMEOUT_MS } from './config.js';
 import { buildContextMessages } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
@@ -168,12 +168,28 @@ export async function generateCode({ component, compState, request, signal }) {
     const modelName = meta.name || model;
     const startTime = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
 
+    // Per-model AbortController: enforces AI_MODEL_TIMEOUT_MS on this specific model attempt
+    const modelController = new AbortController();
+    let timedOut = false;
+    const modelTimer = setTimeout(() => {
+      timedOut = true;
+      try { modelController.abort(); } catch (_) { /* ignore */ }
+    }, AI_MODEL_TIMEOUT_MS);
+
+    // If parent signal aborts (user clicked Cancel), abort this attempt immediately
+    const onParentAbort = () => {
+      try { modelController.abort(); } catch (_) { /* ignore */ }
+    };
+    if (signal) {
+      signal.addEventListener('abort', onParentAbort, { once: true });
+    }
+
     try {
       const response = await fetch(AI_ENDPOINT, {
         method: 'POST',
         headers,
         body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 5000 }),
-        signal
+        signal: modelController.signal
       });
 
       const now = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
@@ -296,7 +312,17 @@ export async function generateCode({ component, compState, request, signal }) {
       const now = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
       const durationMs = Math.round(now - startTime);
 
-      if (err && err.name === 'AbortError') {throw err;}
+      // If user explicitly cancelled via parent signal, stop immediately
+      if (signal && signal.aborted) {throw abortError();}
+
+      // If this model attempt timed out, log and advance to next model!
+      if (timedOut || (err && (err.name === 'AbortError' || err.name === 'TimeoutError') && !signal?.aborted)) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: 408, ok: false, reason: 'TIMEOUT', durationMs });
+        logAIError({ phase: 'timeout', status: 408, model });
+        lastError = new AIError('TIMEOUT', { status: 408, model });
+        continue;
+      }
+
       if (err && (err.message === 'AUTH' || err.status === 401)) {throw err;}
 
       if (err instanceof TypeError) {
@@ -307,6 +333,11 @@ export async function generateCode({ component, compState, request, signal }) {
 
       logModelAttempt({ attempt, modelId: model, modelName, status: err?.status || 0, ok: false, reason: err?.message || 'ERROR', durationMs });
       lastError = err;
+    } finally {
+      clearTimeout(modelTimer);
+      if (signal) {
+        signal.removeEventListener('abort', onParentAbort);
+      }
     }
   }
 

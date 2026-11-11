@@ -10,12 +10,15 @@ export const AI_SETTINGS_KEY = 'ziiui-ai-settings';
 export const AI_PENDING_KEY = 'ziiui-ai-pending-request';
 export const AI_SCHEMA_VERSION = 3;
 
+const env = (typeof import.meta !== 'undefined' && import.meta.env) || {};
+
 export const AI_MAX_CONTEXT_CHARS = 8000;
-export const AI_REQUEST_TIMEOUT_MS = 90000;
+/** Per-model timeout (default 25 seconds). If a model hangs or takes too long, fallback proceeds to next model. */
+export const AI_MODEL_TIMEOUT_MS = Number(env.VITE_AI_MODEL_TIMEOUT_MS) || 25000;
+/** Overall request timeout (default 120 seconds) for the entire fallback cascade. */
+export const AI_REQUEST_TIMEOUT_MS = Number(env.VITE_AI_REQUEST_TIMEOUT_MS) || 120000;
 export const AI_MAX_VERSIONS = 30;
 export const AI_MAX_MESSAGES = 60;
-
-const env = (typeof import.meta !== 'undefined' && import.meta.env) || {};
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 // Netlify Function that forwards to API using a server-side key.
