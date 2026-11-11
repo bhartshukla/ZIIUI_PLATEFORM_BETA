@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { normalizeCode, looksLikeCode, buildSystemPrompt, describeAIError } from '../src/ai/prompt.js';
+import { normalizeCode, looksLikeCode, buildSystemPrompt, describeAIError, getUserFacingAIMessage, AI_TRAINING_PHASE_TITLE, AI_TRAINING_PHASE_MESSAGE } from '../src/ai/prompt.js';
 import {
   loadAIState, getAIState, getOrCreateComponentState, pushChatMessage, addCodeVersion,
   setCurrentCode, buildContextMessages, clearComponentHistory, persistAIState,
   flushPersist, PERSIST_DEBOUNCE_MS, migrateState
 } from '../src/ai/state.js';
-import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured } from '../src/ai/config.js';
+import { AI_STATE_KEY, AI_MAX_MESSAGES, AI_MAX_VERSIONS, AI_SCHEMA_VERSION, aiIsConfigured, DEFAULT_MODELS, MODEL_METADATA } from '../src/ai/config.js';
 import { beginRequest, cancelActiveRequest, endRequest, isActiveRequest, isCurrent } from '../src/ai/request.js';
 
 describe('normalizeCode', () => {
@@ -47,6 +47,42 @@ describe('describeAIError', () => {
     expect(describeAIError(new Error('NOKEY'))).toContain('VITE_OPENROUTER_API_KEY');
     expect(describeAIError(new DOMException('x', 'AbortError'))).toContain('timed out');
     expect(describeAIError(new Error('API:500 - boom'))).toBe('OpenRouter error 500 - boom.');
+  });
+});
+
+describe('User-Facing AI Messaging', () => {
+  it('returns clean training phase message for general errors hiding provider details', () => {
+    const msg = getUserFacingAIMessage(new Error('ALLMODELS'));
+    expect(msg).toContain(AI_TRAINING_PHASE_TITLE);
+    expect(msg).toContain(AI_TRAINING_PHASE_MESSAGE);
+    expect(msg).not.toContain('OpenRouter');
+    expect(msg).not.toContain('API');
+  });
+
+  it('preserves component notice on abort/timeout', () => {
+    const msg = getUserFacingAIMessage(new DOMException('Aborted', 'AbortError'));
+    expect(msg).toBe('AI request timed out or was cancelled. Your existing component was preserved.');
+  });
+});
+
+describe('Model Priority and Configuration', () => {
+  it('defines the 6 free coding models in exact priority order', () => {
+    expect(DEFAULT_MODELS).toEqual([
+      'cohere/north-mini-code:free',
+      'recursive/flint-v1.0:free',
+      'nvidia/nemotron-3.5-lightning:free',
+      'dots-studio/dots-3-note-preview:free',
+      'nvidia/nemotron-3-ultra-550b-a55b:free',
+      'thinkingmachines/inkling-2-small:free'
+    ]);
+  });
+
+  it('contains metadata for all 6 models', () => {
+    DEFAULT_MODELS.forEach((id) => {
+      expect(MODEL_METADATA[id]).toBeDefined();
+      expect(MODEL_METADATA[id].name).toBeTruthy();
+      expect(MODEL_METADATA[id].context).toBeGreaterThan(0);
+    });
   });
 });
 
