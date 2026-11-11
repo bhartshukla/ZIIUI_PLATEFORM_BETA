@@ -28,7 +28,7 @@ export function createChatView(container) {
     const d = document.createElement('div');
     d.className = 'ai-msg ai';
     d.id = 'aiLoading';
-    d.innerHTML = '<i class="ri-loader-4-line ai-spin" aria-hidden="true"></i> AI is editing your component…';
+    d.innerHTML = '<i class="ri-loader-4-line ai-spin" aria-hidden="true"></i> Generating your personalized component…';
     container.append(d);
     scroll();
   }
