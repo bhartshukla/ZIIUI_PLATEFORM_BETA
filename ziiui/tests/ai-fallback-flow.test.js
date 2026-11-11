@@ -270,4 +270,172 @@ describe('AI Fallback & Timeout Flow', () => {
     // Should stop immediately after 1 attempt
     expect(attempts.length).toBe(1);
   });
+
+  it('falls back to the next model when a model response is truncated with finish_reason: "length"', async () => {
+    let sentMaxTokens = [];
+    globalThis.fetch = vi.fn(async (url, opts) => {
+      const payload = JSON.parse(opts.body);
+      attempts.push(payload.model);
+      sentMaxTokens.push(payload.max_tokens);
+
+      if (payload.model === DEFAULT_MODELS[0]) {
+        // Model 1 truncated at completion token limit
+        return {
+          status: 200,
+          ok: true,
+          json: async () => ({
+            choices: [{
+              finish_reason: 'length',
+              message: { content: '<div class="btn">Truncated mid-way...' }
+            }]
+          })
+        };
+      }
+
+      if (payload.model === DEFAULT_MODELS[1]) {
+        // Model 2 completes successfully with finish_reason: "stop"
+        return {
+          status: 200,
+          ok: true,
+          json: async () => ({
+            choices: [{
+              finish_reason: 'stop',
+              message: { content: validHtml }
+            }]
+          })
+        };
+      }
+
+      return { status: 500, ok: false, text: async () => 'Error' };
+    });
+
+    const code = await generateCode({
+      component: sampleComponent,
+      compState: sampleCompState,
+      request: 'make it red'
+    });
+
+    expect(code).toBe(validHtml);
+    expect(attempts).toEqual([DEFAULT_MODELS[0], DEFAULT_MODELS[1]]);
+    expect(getLastSuccessfulModel().modelId).toBe(DEFAULT_MODELS[1]);
+    expect(sentMaxTokens[0]).toBeGreaterThanOrEqual(16384);
+  });
+
+  it('throws ALLMODELS when all models truncate with finish_reason: "length"', async () => {
+    globalThis.fetch = vi.fn(async (url, opts) => {
+      const payload = JSON.parse(opts.body);
+      attempts.push(payload.model);
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [{
+            finish_reason: 'length',
+            message: { content: '<div class="card">Incomplete markup...' }
+          }]
+        })
+      };
+    });
+
+    await expect(generateCode({
+      component: sampleComponent,
+      compState: sampleCompState,
+      request: 'make it red'
+    })).rejects.toThrow('ALLMODELS');
+
+    expect(attempts.length).toBe(DEFAULT_MODELS.length);
+
+    // Verifies clean training phase user-facing message
+    const errorMsg = getUserFacingAIMessage(new Error('ALLMODELS'), false);
+    expect(errorMsg).toContain(AI_TRAINING_PHASE_TITLE);
+    expect(errorMsg).toContain(AI_TRAINING_PHASE_MESSAGE);
+    expect(errorMsg).not.toContain('OpenRouter');
+    expect(errorMsg).not.toContain('length');
+  });
+
+  it('successfully generates and returns code when finish_reason is "stop"', async () => {
+    globalThis.fetch = vi.fn(async (url, opts) => {
+      const payload = JSON.parse(opts.body);
+      attempts.push(payload.model);
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [{
+            finish_reason: 'stop',
+            message: { content: validHtml }
+          }]
+        })
+      };
+    });
+
+    const code = await generateCode({
+      component: sampleComponent,
+      compState: sampleCompState,
+      request: 'make it red'
+    });
+
+    expect(code).toBe(validHtml);
+    expect(attempts).toEqual([DEFAULT_MODELS[0]]);
+    expect(getLastSuccessfulModel().modelId).toBe(DEFAULT_MODELS[0]);
+  });
+
+  it('respects verified model-specific output token limits in the request payload', async () => {
+    let capturedPayloads = [];
+    globalThis.fetch = vi.fn(async (url, opts) => {
+      const payload = JSON.parse(opts.body);
+      capturedPayloads.push(payload);
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [{ finish_reason: 'stop', message: { content: validHtml } }]
+        })
+      };
+    });
+
+    await generateCode({
+      component: sampleComponent,
+      compState: sampleCompState,
+      request: 'make it red'
+    });
+
+    expect(capturedPayloads.length).toBe(1);
+    expect(capturedPayloads[0].max_tokens).toBeGreaterThanOrEqual(16384);
+    expect(capturedPayloads[0].temperature).toBe(0.7);
+  });
+
+  it('preserves the original component untouched on generation failure', async () => {
+    const originalComponentCode = '<button class="btn">Original Canonical</button>';
+    const testComponent = {
+      name: 'Button',
+      category: 'Interactive',
+      original: originalComponentCode,
+      current: ''
+    };
+
+    globalThis.fetch = vi.fn(async () => {
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [{ finish_reason: 'length', message: { content: '<button' } }]
+        })
+      };
+    });
+
+    try {
+      await generateCode({
+        component: testComponent,
+        compState: sampleCompState,
+        request: 'break it'
+      });
+    } catch (_) {
+      // Expected to fail
+    }
+
+    // Original component code remains 100% identical and uncorrupted
+    expect(testComponent.original).toBe(originalComponentCode);
+    expect(testComponent.current).toBe('');
+  });
 });
