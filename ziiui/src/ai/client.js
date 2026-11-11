@@ -5,7 +5,7 @@
  * Errors thrown (err.message): NOKEY, AUTH, NETWORK, ALLMODELS — plus
  * AbortError when the request is cancelled or times out.
  */
-import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured } from './config.js';
+import { AI_API_KEY, AI_ENDPOINT, AI_MODELS, AI_USES_PROXY, aiIsConfigured, MODEL_METADATA } from './config.js';
 import { buildContextMessages } from './state.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
 
@@ -18,6 +18,13 @@ import {
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 const MAX_CODE_CHARS = 200000;
+
+/** Tracks the last model that successfully generated valid component code. */
+let lastSuccessfulModel = null;
+
+export function getLastSuccessfulModel() {
+  return lastSuccessfulModel;
+}
 
 /**
  * Structured AI request error. Carries HTTP status, model id, Retry-After and
@@ -60,6 +67,25 @@ function logAIError({ phase, status, model, body, retryAfter }) {
       }
     }
     console.debug('[ziiui:ai]', info);
+  }
+}
+
+/**
+ * Dev-only structured diagnostic logging for AI model fallback attempts.
+ * Records model identity, attempt number, status, outcome, reason, and latency.
+ * Never logs API keys, bearer tokens, or secret credentials.
+ */
+function logModelAttempt({ attempt, modelId, modelName, status, ok, reason, durationMs }) {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) {
+    console.debug('[ziiui:ai:attempt]', {
+      attempt,
+      modelId,
+      modelName,
+      status,
+      ok,
+      reason,
+      durationMs: Number.isFinite(durationMs) ? durationMs : undefined
+    });
   }
 }
 
@@ -133,8 +159,15 @@ export async function generateCode({ component, compState, request, signal }) {
   }
 
   let lastError = null;
+  let attempt = 0;
+
   for (const model of AI_MODELS) {
     if (signal && signal.aborted) {throw abortError();}
+    attempt++;
+    const meta = MODEL_METADATA?.[model] || {};
+    const modelName = meta.name || model;
+    const startTime = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+
     try {
       const response = await fetch(AI_ENDPOINT, {
         method: 'POST',
@@ -142,55 +175,141 @@ export async function generateCode({ component, compState, request, signal }) {
         body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 5000 }),
         signal
       });
-      if (response.status === 401 || response.status === 403) {
-        throw new AIError('AUTH', { status: response.status, model });
+
+      const now = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+      const durationMs = Math.round(now - startTime);
+
+      // 401 Unauthorized: Invalid API key -> Stop immediately
+      if (response.status === 401) {
+        const body = await readResponseBody(response);
+        logModelAttempt({ attempt, modelId: model, modelName, status: 401, ok: false, reason: 'AUTH_INVALID_KEY', durationMs });
+        logAIError({ phase: 'auth-failed', status: 401, model, body });
+        throw new AIError('AUTH', { status: 401, model, body });
       }
+
+      // 403 Forbidden: Differentiate model-specific gating from general account failure
+      if (response.status === 403) {
+        const body = await readResponseBody(response);
+        const errorMsg = (body?.error?.message || (typeof body === 'string' ? body : '')).toLowerCase();
+        const isModelGated = errorMsg.includes('agentic') || errorMsg.includes('harness') || errorMsg.includes('only available') || errorMsg.includes(model.toLowerCase());
+
+        if (isModelGated) {
+          logModelAttempt({ attempt, modelId: model, modelName, status: 403, ok: false, reason: 'MODEL_GATED', durationMs });
+          logAIError({ phase: 'model-gated', status: 403, model, body });
+          lastError = new AIError('MODEL_GATED', { status: 403, model, body });
+          continue; // Advance to next fallback model
+        }
+
+        logModelAttempt({ attempt, modelId: model, modelName, status: 403, ok: false, reason: 'AUTH_FORBIDDEN', durationMs });
+        logAIError({ phase: 'auth-forbidden', status: 403, model, body });
+        throw new AIError('AUTH', { status: 403, model, body });
+      }
+
+      // 404 Not Found: Model unavailable/deprecated -> Advance to next model
       if (response.status === 404) {
         const body = await readResponseBody(response);
+        logModelAttempt({ attempt, modelId: model, modelName, status: 404, ok: false, reason: 'MODEL_NOT_FOUND', durationMs });
         logAIError({ phase: 'not-found', status: 404, model, body });
-        // 404 means the model/endpoint is not available: do not retry.
-        throw new AIError('The selected AI model is not available.', { status: 404, model, body });
+        lastError = new AIError('The selected AI model is not available.', { status: 404, model, body });
+        continue; // Advance to next fallback model
       }
+
+      // 408 / 504 Timeout: Upstream timed out -> Advance to next model
       if (response.status === 408 || response.status === 504) {
-        throw new AIError('TIMEOUT', { status: response.status, model });
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'TIMEOUT', durationMs });
+        lastError = new AIError('TIMEOUT', { status: response.status, model });
+        continue;
       }
+
+      // 429 Rate Limited: Quota/rate-limit reached -> Advance to next model
       if (response.status === 429) {
         const body = await readResponseBody(response);
         const retryAfter = response.headers.get('Retry-After') || undefined;
+        logModelAttempt({ attempt, modelId: model, modelName, status: 429, ok: false, reason: 'RATE_LIMITED', durationMs });
         logAIError({ phase: 'rate-limited', status: 429, model, body, retryAfter });
         lastError = new AIError('RATE', { status: 429, model, retryAfter, body });
         continue;
       }
+
+      // Other non-200 responses (e.g. 400, 500, 502, 503) -> Advance to next model
       if (!response.ok) {
         const body = await readResponseBody(response);
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: `HTTP_${response.status}`, durationMs });
         logAIError({ phase: 'error', status: response.status, model, body });
         lastError = new AIError(`API:${response.status}`, { status: response.status, model, body });
         continue;
       }
 
       let data;
-      try { data = await response.json(); } catch (_) { /* ignore */ lastError = new Error('BADJSON'); continue; }
+      try {
+        data = await response.json();
+      } catch (_) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'BADJSON', durationMs });
+        lastError = new Error('BADJSON');
+        continue;
+      }
+
       const output = extractResponseText(data);
-      if (!output) { lastError = new Error('EMPTY'); continue; }
-      if (output.length > MAX_CODE_CHARS) { lastError = new Error('INVALID'); continue; }
+      if (!output) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'EMPTY', durationMs });
+        lastError = new Error('EMPTY');
+        continue;
+      }
+
+      if (output.length > MAX_CODE_CHARS) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'TOO_LONG', durationMs });
+        lastError = new Error('INVALID');
+        continue;
+      }
 
       const code = normalizeCode(output);
-      if (!code) { lastError = new Error('EMPTY'); continue; }
-      if (!looksLikeCode(code)) { lastError = new Error('INVALID'); continue; }
+      if (!code) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'NORMALIZED_EMPTY', durationMs });
+        lastError = new Error('EMPTY');
+        continue;
+      }
+
+      if (!looksLikeCode(code)) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'NOT_CODE', durationMs });
+        lastError = new Error('INVALID');
+        continue;
+      }
 
       const validation = validateGeneratedCode(code);
-      if (!validation.ok) { lastError = new Error('INVALID', { model }); continue; }
+      if (!validation.ok) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: false, reason: 'VALIDATION_FAILED', durationMs });
+        lastError = new Error('INVALID', { model });
+        continue;
+      }
 
+      // Successful code generation
+      lastSuccessfulModel = {
+        modelId: model,
+        modelName,
+        attempt,
+        durationMs
+      };
+      logModelAttempt({ attempt, modelId: model, modelName, status: response.status, ok: true, reason: 'SUCCESS', durationMs });
       return code;
+
     } catch (err) {
+      const now = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+      const durationMs = Math.round(now - startTime);
+
       if (err && err.name === 'AbortError') {throw err;}
-      if (err && err.name === 'AIError') {throw err;}
-      if (err && err.message === 'AUTH') {throw err;}
-      if (err && err.message === 'TIMEOUT') {throw err;}
-      lastError = err instanceof TypeError ? new AIError('NETWORK', { model }) : err;
+      if (err && (err.message === 'AUTH' || err.status === 401)) {throw err;}
+
+      if (err instanceof TypeError) {
+        logModelAttempt({ attempt, modelId: model, modelName, status: 0, ok: false, reason: 'NETWORK', durationMs });
+        lastError = new AIError('NETWORK', { model });
+        continue;
+      }
+
+      logModelAttempt({ attempt, modelId: model, modelName, status: err?.status || 0, ok: false, reason: err?.message || 'ERROR', durationMs });
+      lastError = err;
     }
   }
+
   if (lastError && lastError.message === 'NETWORK') {throw lastError;}
-  if (lastError && lastError.message === 'RATE') {throw lastError;}
   throw new Error('ALLMODELS');
 }

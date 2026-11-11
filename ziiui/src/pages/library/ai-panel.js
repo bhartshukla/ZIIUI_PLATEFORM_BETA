@@ -8,7 +8,7 @@ import {
   describeContext, getAISettings, getAIState, setAutoPreview
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
-import { describeAIError } from '../../ai/prompt.js';
+import { describeAIError, getUserFacingAIMessage } from '../../ai/prompt.js';
 import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, isDuplicateRequest } from '../../ai/request.js';
 import { createChatView } from '../../ai/chat-view.js';
 import { store, hooks } from './store.js';
@@ -223,7 +223,7 @@ async function generate() {
     const aborted = err && err.name === 'AbortError';
     chat.add('err', aborted
       ? 'AI request timed out or was cancelled. Your existing component was preserved.'
-      : describeAIError(err));
+      : getUserFacingAIMessage(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     if (el.fab) {el.fab.classList.remove('is-processing');}

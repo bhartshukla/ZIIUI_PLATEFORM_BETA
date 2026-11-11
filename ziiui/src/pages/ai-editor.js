@@ -9,7 +9,7 @@ import {
 } from '../ai/state.js';
 import { EFFECTS, BY_ID } from '../effects/registry.js';
 import { generateCode } from '../ai/client.js';
-import { describeAIError } from '../ai/prompt.js';
+import { describeAIError, getUserFacingAIMessage } from '../ai/prompt.js';
 import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, consumePendingMarker, isDuplicateRequest } from '../ai/request.js';
 import { createChatView } from '../ai/chat-view.js';
 
@@ -137,7 +137,7 @@ async function generate() {
     chat.hideLoading();
     el.prompt.value = request;
     const aborted = err && err.name === 'AbortError';
-    chat.add('err', aborted ? 'Request cancelled or timed out. Existing code preserved.' : describeAIError(err));
+    chat.add('err', aborted ? 'Request cancelled or timed out. Existing code preserved.' : getUserFacingAIMessage(err));
     say(aborted ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     const wasActive = isActiveRequest(req);
