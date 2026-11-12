@@ -14,5 +14,11 @@ const tick = () => {
 };
 stop();
 tick();
-timer = setInterval(tick, 30);
+// Reduced motion: skip the scrambling interval and show the resolved text immediately
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  stop();
+  el.textContent = text;
+} else {
+  timer = setInterval(tick, 30);
+}
 window.addEventListener('pagehide', stop);

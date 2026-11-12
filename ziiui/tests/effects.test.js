@@ -80,6 +80,74 @@ describe('text effect options', () => {
   });
 });
 
+describe('reduced-motion support', () => {
+  const reducedMotionPilot = ['roll', 'wave', 'scramble', 'fancy', 'blockreveal'];
+
+  it.each(reducedMotionPilot)('includes prefers-reduced-motion CSS guard for %s', (id) => {
+    const html = BY_ID[id].code();
+    expect(html).toMatch(/prefers-reduced-motion:\s*reduce/);
+  });
+
+  it('roll CSS disables transitions under reduced motion', () => {
+    const html = BY_ID.roll.code();
+    expect(html).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(html).toContain('transition: none !important');
+  });
+
+  it('wave CSS disables animations under reduced motion', () => {
+    const html = BY_ID.wave.code();
+    expect(html).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(html).toContain('animation: none !important');
+  });
+
+  it('scramble JS checks prefers-reduced-motion before starting interval', () => {
+    const html = BY_ID.scramble.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    // The guard must appear before setInterval to prevent motion when preferred
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const intervalPos = html.indexOf('setInterval');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(intervalPos).toBeGreaterThan(-1);
+  });
+
+  it('fancy JS checks prefers-reduced-motion before calling animate()', () => {
+    const html = BY_ID.fancy.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const animatePos = html.indexOf('.animate(');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(animatePos).toBeGreaterThan(-1);
+  });
+
+  it('blockreveal JS checks prefers-reduced-motion before GSAP animation', () => {
+    const html = BY_ID.blockreveal.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const gsapPos = html.indexOf('gsap.fromTo');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(gsapPos).toBeGreaterThan(-1);
+  });
+
+  it('pilot components still produce valid HTML with content visible', () => {
+    for (const id of reducedMotionPilot) {
+      const html = BY_ID[id].code();
+      expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
+      expect(html.trim().endsWith('</html>')).toBe(true);
+      // Must not have unfilled placeholders
+      expect(html).not.toMatch(/@@\w+@@/);
+    }
+  });
+
+  it('pilot components still produce syntactically valid inline JavaScript', () => {
+    for (const id of reducedMotionPilot) {
+      const html = BY_ID[id].code();
+      for (const code of inlineScripts(html)) {
+        expect(() => new Function(code)).not.toThrow();
+      }
+    }
+  });
+});
+
 describe('component video system', async () => {
   const { getComponentVideoSource } = await import('../src/effects/videos.js');
 

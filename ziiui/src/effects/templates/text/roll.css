@@ -6,3 +6,7 @@
 .c i + i { position: absolute; left: 0; top: 0; transform: translateY(@@FROM@@); }
 .go .c i:first-child { transform: translateY(@@TO@@); }
 .go .c i + i { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c i { transition: none !important; }
+}

@@ -7,6 +7,7 @@ function initBlockReveal() {
   const squareSize = 100;
   let squares = [];
   let overlayVisible = false;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function createSquares() {
     const curW = window.innerWidth;
@@ -56,6 +57,21 @@ function initBlockReveal() {
   gsap.set(menu, { opacity: 0, visibility: 'hidden' });
 
   menuBtn.addEventListener('click', () => {
+    if (reducedMotion) {
+      // Skip square grid animation — show/hide menu immediately
+      if (overlayVisible) {
+        menu.style.opacity = '0';
+        menu.style.visibility = 'hidden';
+        menu.style.zIndex = '-1';
+      } else {
+        menu.style.opacity = '1';
+        menu.style.visibility = 'visible';
+        menu.style.zIndex = '50';
+      }
+      overlayVisible = !overlayVisible;
+      return;
+    }
+
     createSquares();
     animateSquares();
 

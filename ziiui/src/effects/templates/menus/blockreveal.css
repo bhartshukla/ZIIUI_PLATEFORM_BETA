@@ -68,6 +68,21 @@ span {
   background-color: rgba(255, 255, 255, 0.95);
 }
 
+#menuBtn:focus-visible {
+  outline: 2px solid #fd5530;
+  outline-offset: 2px;
+}
+
+.menuContent .nav-links a:focus-visible {
+  outline: 2px solid #fd5530;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #menuBtn { transition: none !important; }
+  .menuContent .nav-links a { transition: none !important; }
+}
+
 #menuBtn i {
   font-size: clamp(16px, 1.5vw, 24px);
   display: block;
