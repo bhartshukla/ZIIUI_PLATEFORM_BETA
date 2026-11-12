@@ -81,7 +81,7 @@ describe('text effect options', () => {
 });
 
 describe('component video system', async () => {
-  const { getComponentVideoSource, COMPONENT_VIDEOS } = await import('../src/effects/videos.js');
+  const { getComponentVideoSource } = await import('../src/effects/videos.js');
 
   it('maps each component to its component-specific video filename', () => {
     expect(getComponentVideoSource('Split Scroll')).toContain('Split%20Scroll.mp4');

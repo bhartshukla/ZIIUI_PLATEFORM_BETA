@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { AI_STATE_KEY, AI_ACTIVE_KEY } from '../src/ai/config.js';
+import { AI_STATE_KEY } from '../src/ai/config.js';
 
 describe('AI Context Command Center UI Redesign', () => {
   const htmlPath = resolve(__dirname, '../context.html');

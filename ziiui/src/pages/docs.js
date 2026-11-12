@@ -28,16 +28,16 @@ const sideOverlay = document.getElementById('sideOverlay');
 const sideClose = document.getElementById('sideClose');
 
 function openDrawer() {
-  if (sidePanel) sidePanel.classList.add('open');
-  if (sideOverlay) sideOverlay.classList.add('open');
-  if (docsMenuToggle) docsMenuToggle.setAttribute('aria-expanded', 'true');
+  if (sidePanel) { sidePanel.classList.add('open'); }
+  if (sideOverlay) { sideOverlay.classList.add('open'); }
+  if (docsMenuToggle) { docsMenuToggle.setAttribute('aria-expanded', 'true'); }
   document.body.style.overflow = 'hidden';
 }
 
 function closeDrawer() {
-  if (sidePanel) sidePanel.classList.remove('open');
-  if (sideOverlay) sideOverlay.classList.remove('open');
-  if (docsMenuToggle) docsMenuToggle.setAttribute('aria-expanded', 'false');
+  if (sidePanel) { sidePanel.classList.remove('open'); }
+  if (sideOverlay) { sideOverlay.classList.remove('open'); }
+  if (docsMenuToggle) { docsMenuToggle.setAttribute('aria-expanded', 'false'); }
   document.body.style.overflow = '';
 }
 
@@ -171,7 +171,7 @@ document.querySelectorAll('[data-copy]').forEach(function (btn) {
 
     groups.forEach(function (group) {
       const linksInGroup = group.querySelectorAll('.sidebar__link');
-      if (!linksInGroup.length) return;
+      if (!linksInGroup.length) { return; }
       const visible = Array.from(linksInGroup).some(l => {
         const li = l.closest('li');
         return li && li.style.display !== 'none';

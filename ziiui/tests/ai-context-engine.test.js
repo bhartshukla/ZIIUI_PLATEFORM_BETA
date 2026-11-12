@@ -7,8 +7,7 @@ import {
   generateStructuredSummary,
   retrieveRelevantMessages,
   buildSmartSystemPrompt,
-  validateGeneratedCode,
-  logContextMetrics
+  validateGeneratedCode
 } from '../src/ai/context-engine.js';
 import {
   getOrCreateComponentState,
@@ -16,7 +15,6 @@ import {
   addVersion,
   persistAIState,
   loadAIState,
-  getAIState,
   saveActiveComponentId,
   getMessages,
   getVersionsForSession
@@ -173,7 +171,6 @@ describe('Smart Context Engine', () => {
 
     it('recovers from storage quota errors by safely pruning inactive component snapshots', () => {
       saveActiveComponentId('active-comp');
-      const activeState = getOrCreateComponentState('active-comp', 'Active', 'Text', '<div>Active</div>');
       const inactiveState = getOrCreateComponentState('inactive-comp', 'Inactive', 'Shader', '<div>Inactive</div>');
 
       for (let i = 0; i < 6; i++) {

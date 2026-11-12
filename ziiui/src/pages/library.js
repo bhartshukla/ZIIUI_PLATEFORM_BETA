@@ -1,7 +1,7 @@
 /* Entry point for index.html — the effects library. */
 import { $, guard, report, installGlobalErrorHandlers } from '../lib/dom.js';
 import { applyThemeIcon, toggleTheme } from '../lib/theme.js';
-import { EFFECTS, BY_ID } from '../effects/registry.js';
+import { BY_ID } from '../effects/registry.js';
 import { loadAIState, loadAISettings } from '../ai/state.js';
 import { consumePendingMarker } from '../ai/request.js';
 import { buildNav, applySearch, openSidebar, closeSidebar, shuffleComponents } from './library/nav.js';

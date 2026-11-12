@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { splitComponentCode } from '../src/pages/library/viewer.js';
 import { BY_ID } from '../src/effects/registry.js';
 
-import { hasTemplate, tpl } from '../src/effects/templates.js';
-
 describe('component code tabs', () => {
   it('separates markup, stylesheets, and scripts from a standalone component', () => {
     const sections = splitComponentCode(

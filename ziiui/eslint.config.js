@@ -5,6 +5,13 @@ export default [
   eslint.configs.recommended,
   prettier,
   {
+    ignores: [
+      'src/effects/templates/text/roll.js',
+      'src/effects/templates/text/wave.js',
+      'src/effects/templates/text/wrap.js'
+    ]
+  },
+  {
     files: ['**/*.{js,mjs,cjs,jsx}'],
     languageOptions: {
       ecmaVersion: 'latest',

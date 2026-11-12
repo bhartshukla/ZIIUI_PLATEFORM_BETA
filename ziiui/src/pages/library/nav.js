@@ -272,6 +272,11 @@ function loadCardVideo(video) {
   video.src = src;
   video.dataset.loaded = 'true';
   if (!isJsdom && typeof video.load === 'function') {
+    // Intentionally empty: video.load() may throw in restricted media environments
+    // (jsdom, sandboxed iframes, autoplay-restricted contexts). The catch exists
+    // solely to swallow expected environmental failures; loadCardVideo already
+    // marks the card as loaded and the failure path is a no-op by design.
+    // eslint-disable-next-line no-empty
     try { video.load(); } catch (_) {}
   }
 }
@@ -313,8 +318,13 @@ function playCardVideo(card, video) {
 function pauseCardVideo(card, video) {
   if (!card || !video) {return;}
   if (!isJsdom && typeof video.pause === 'function') {
+    // Intentionally empty: video.pause() may throw in restricted media environments
+    // (jsdom, sandboxed iframes, autoplay-restricted contexts). The catch exists
+    // solely to swallow expected environmental failures; pauseCardVideo proceeds
+    // to mark the card state as 'paused' regardless, which is the correct fallback.
     try {
       video.pause();
+    // eslint-disable-next-line no-empty -- expected media-environment failure; state already set below
     } catch (_) {}
   }
   card.dataset.videoState = 'paused';

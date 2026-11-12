@@ -272,7 +272,7 @@ describe('AI Fallback & Timeout Flow', () => {
   });
 
   it('falls back to the next model when a model response is truncated with finish_reason: "length"', async () => {
-    let sentMaxTokens = [];
+    const sentMaxTokens = [];
     globalThis.fetch = vi.fn(async (url, opts) => {
       const payload = JSON.parse(opts.body);
       attempts.push(payload.model);
@@ -381,7 +381,7 @@ describe('AI Fallback & Timeout Flow', () => {
   });
 
   it('respects verified model-specific output token limits in the request payload', async () => {
-    let capturedPayloads = [];
+    const capturedPayloads = [];
     globalThis.fetch = vi.fn(async (url, opts) => {
       const payload = JSON.parse(opts.body);
       capturedPayloads.push(payload);
@@ -414,15 +414,13 @@ describe('AI Fallback & Timeout Flow', () => {
       current: ''
     };
 
-    globalThis.fetch = vi.fn(async () => {
-      return {
-        status: 200,
-        ok: true,
-        json: async () => ({
-          choices: [{ finish_reason: 'length', message: { content: '<button' } }]
-        })
-      };
-    });
+    globalThis.fetch = vi.fn(async () => ({
+      status: 200,
+      ok: true,
+      json: async () => ({
+        choices: [{ finish_reason: 'length', message: { content: '<button' } }]
+      })
+    }));
 
     try {
       await generateCode({

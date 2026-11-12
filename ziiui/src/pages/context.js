@@ -54,10 +54,6 @@ import {
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  function isPlainObject(value) {
-    return !!value && typeof value === 'object' && !Array.isArray(value);
-  }
-
   /** Aggregate message/version counts and last-updated across all sessions of a component. */
   function componentStats(cid) {
     let msgs = 0;
