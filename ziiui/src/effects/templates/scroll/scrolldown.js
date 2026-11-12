@@ -1,6 +1,11 @@
-const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((t) => lenis.raf(t * 1000));
+/* ── Reduced Motion Check ── */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!reducedMotion) {
+  const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000));
+}
 
 const wordpink = '#F22A72';
 const wordDark = '#57524f';
@@ -34,11 +39,18 @@ document.fonts.ready.then(() => {
     gsap.set(cardsWrap, { marginTop: '2.5rem' });
     gsap.set(words, { color: wordpink });
 
-    gsap.timeline({
-      scrollTrigger: { trigger: section, start: 'top 40%', end: 'top 0%', scrub: 1 },
-    })
-      .to(cards, { rotateX: 0, rotateY: 0, y: 0, ease: 'power1.inOut', duration: 1 }, 0)
-      .to(copy, { y: 0 }, 0)
-      .to(words, { color: wordDark, stagger: 0.2 }, 0.1);
+    if (!reducedMotion) {
+      gsap.timeline({
+        scrollTrigger: { trigger: section, start: 'top 40%', end: 'top 0%', scrub: 1 },
+      })
+        .to(cards, { rotateX: 0, rotateY: 0, y: 0, ease: 'power1.inOut', duration: 1 }, 0)
+        .to(copy, { y: 0 }, 0)
+        .to(words, { color: wordDark, stagger: 0.2 }, 0.1);
+    } else {
+      /* ── Reduced Motion: Show final state ── */
+      gsap.to(cards, { rotateX: 0, rotateY: 0, y: 0, ease: 'power1.inOut', duration: 0 });
+      gsap.to(copy, { y: 0, duration: 0 });
+      gsap.to(words, { color: wordDark, stagger: 0, duration: 0 });
+    }
   });
 });

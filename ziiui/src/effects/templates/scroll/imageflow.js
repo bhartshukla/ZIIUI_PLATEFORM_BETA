@@ -1,8 +1,13 @@
 window.addEventListener('load', () => {
-  const lenis = new Lenis();
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((time) => { lenis.raf(time * 1000); });
-  gsap.ticker.lagSmoothing(0);
+  /* ── Reduced Motion Check ── */
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reducedMotion) {
+    const lenis = new Lenis();
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
 
   const images = gsap.utils.toArray('.flow .img');
   const positions = [
@@ -35,25 +40,32 @@ window.addEventListener('load', () => {
 
   images.forEach((eachImage, index) => { gsap.set(eachImage, initPos[index]); });
 
-  ScrollTrigger.create({
-    trigger: '.flow',
-    start: 'top top',
-    end: `+=${screenHeight * 10}px`,
-    pin: true, pinSpacing: true, scrub: 1,
-    onUpdate: (self) => {
-      const progress = self.progress;
-      images.forEach((eachImage, index) => {
-        const imgDelay = index * 0.03;
-        const imgProgress = Math.max(0, (progress - imgDelay) * 4);
-        const start = initPos[index];
-        const end = finalPos[index];
-        let x = gsap.utils.interpolate(start.x, end.x, imgProgress);
-        let y = gsap.utils.interpolate(start.y, end.y, imgProgress);
-        let z = gsap.utils.interpolate(start.z, end.z, imgProgress);
-        const scale = gsap.utils.interpolate(start.scale, end.scale, imgProgress);
-        if (index === images.length - 1) { x = 0; y = 0; z = z * 0.4; }
-        gsap.set(eachImage, { x, y, z, scale });
-      });
-    }
-  });
+  if (!reducedMotion) {
+    ScrollTrigger.create({
+      trigger: '.flow',
+      start: 'top top',
+      end: `+=${screenHeight * 10}px`,
+      pin: true, pinSpacing: true, scrub: 1,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        images.forEach((eachImage, index) => {
+          const imgDelay = index * 0.03;
+          const imgProgress = Math.max(0, (progress - imgDelay) * 4);
+          const start = initPos[index];
+          const end = finalPos[index];
+          let x = gsap.utils.interpolate(start.x, end.x, imgProgress);
+          let y = gsap.utils.interpolate(start.y, end.y, imgProgress);
+          let z = gsap.utils.interpolate(start.z, end.z, imgProgress);
+          const scale = gsap.utils.interpolate(start.scale, end.scale, imgProgress);
+          if (index === images.length - 1) { x = 0; y = 0; z = z * 0.4; }
+          gsap.set(eachImage, { x, y, z, scale });
+        });
+      }
+    });
+  } else {
+    /* ── Reduced Motion: Set final positions directly ── */
+    images.forEach((eachImage, index) => {
+      gsap.set(eachImage, finalPos[index]);
+    });
+  }
 });

@@ -221,6 +221,109 @@ describe('Group B reduced-motion support', () => {
   });
 });
 
+describe('Group C reduced-motion support', () => {
+  const groupCComponents = ['splitsection', 'clipreveal', 'imageflow', 'listreveal', 'pinrotate', 'scrolldown', 'scrollmask'];
+
+  it.each(groupCComponents)('includes prefers-reduced-motion JS guard for %s', (id) => {
+    const html = BY_ID[id].code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+  });
+
+  it('splitsection JS skips scroll timeline and Lenis when reduced motion', () => {
+    const html = BY_ID.splitsection.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const scrollTriggerPos = html.indexOf('scrollTrigger');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(scrollTriggerPos).toBeGreaterThan(-1);
+  });
+
+  it('clipreveal JS skips clip-path animation and Lenis when reduced motion', () => {
+    const html = BY_ID.clipreveal.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const clipPathPos = html.indexOf('clipPath');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(clipPathPos).toBeGreaterThan(-1);
+  });
+
+  it('imageflow JS skips 3D transform animation and Lenis when reduced motion', () => {
+    const html = BY_ID.imageflow.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const interpolatePos = html.indexOf('interpolate');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(interpolatePos).toBeGreaterThan(-1);
+  });
+
+  it('listreveal JS skips pin animation and Lenis when reduced motion', () => {
+    const html = BY_ID.listreveal.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const pinPos = html.indexOf('pin: true');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(pinPos).toBeGreaterThan(-1);
+  });
+
+  it('pinrotate JS skips rotation animation and Lenis when reduced motion', () => {
+    const html = BY_ID.pinrotate.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const rotatePos = html.indexOf('rotate:');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(rotatePos).toBeGreaterThan(-1);
+  });
+
+  it('scrolldown JS skips card rotation and word animation when reduced motion', () => {
+    const html = BY_ID.scrolldown.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const cardStartPos = html.indexOf('cardStart');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(cardStartPos).toBeGreaterThan(-1);
+  });
+
+  it('scrollmask JS skips scale animation when reduced motion', () => {
+    const html = BY_ID.scrollmask.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const scalePos = html.indexOf('scale: 100');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(scalePos).toBeGreaterThan(-1);
+  });
+
+  it('Group C components still produce valid HTML with content visible', () => {
+    for (const id of groupCComponents) {
+      const html = BY_ID[id].code();
+      expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
+      expect(html.trim().endsWith('</html>')).toBe(true);
+      // Must not have unfilled placeholders
+      expect(html).not.toMatch(/@@\w+@@/);
+    }
+  });
+
+  it('Group C components still produce syntactically valid inline JavaScript', () => {
+    for (const id of groupCComponents) {
+      const html = BY_ID[id].code();
+      for (const code of inlineScripts(html)) {
+        expect(() => new Function(code)).not.toThrow();
+      }
+    }
+  });
+});
+
 describe('component video system', async () => {
   const { getComponentVideoSource } = await import('../src/effects/videos.js');
 
