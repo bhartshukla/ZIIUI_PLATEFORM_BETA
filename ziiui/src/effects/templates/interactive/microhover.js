@@ -4,6 +4,8 @@
   const keywordTriggers = heroSection.querySelectorAll('.about-hero__keyword');
   const randomBetween = gsap.utils.random;
 
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   let burstTimeline = null;
 
   const hidePhotosOffscreen = () =>
@@ -35,6 +37,7 @@
   };
 
   const playBurst = () => {
+    if (reducedMotion) {return;}
     stopBurst();
     scatterPhotosForBurst();
 

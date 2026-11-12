@@ -96,6 +96,17 @@ footer h1 {
   transition: background 0.3s ease, transform 0.3s ease;
 }
 .social-links a:hover { background: #333; transform: translateY(-3px); }
+
+.footer-links a:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-line::after { animation: none !important; }
+  .footer-links a { transition: none !important; }
+  .social-links a { transition: none !important; }
+}
 @media (max-width: 768px) {
   .container { padding: 40px 30px; }
   .scroll-message h2 { font-size: 36px; }

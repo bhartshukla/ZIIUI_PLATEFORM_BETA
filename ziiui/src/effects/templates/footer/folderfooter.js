@@ -6,6 +6,7 @@ const tiltRange = [
   [-10, 10],
   [10, 20]
 ];
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function muteOthers(allFolders, active, on) {
   for (const folder of allFolders) {
@@ -33,10 +34,15 @@ for (const folder of allFolders) {
 
   target.addEventListener('pointerenter', () => {
     muteOthers(allFolders, folder, true);
+    if (reducedMotion) {
+      // Skip photo tilt animation — keep photos in final static state
+      return;
+    }
     animatePhotos(photos, true);
   });
   target.addEventListener('pointerleave', () => {
     muteOthers(allFolders, folder, false);
+    if (reducedMotion) { return; }
     animatePhotos(photos, false);
   });
 }

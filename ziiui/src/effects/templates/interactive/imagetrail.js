@@ -13,41 +13,45 @@ const IMAGES = [
 
 const SPAWN_DISTANCE = 160;
 
-const imgs = IMAGES.map((src) => {
-  const img = new Image();
-  img.src = src;
-  document.body.appendChild(img);
-  return img;
-});
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-let lastSpawn = null;
-let index = 0;
-let zIndex = 1;
+if (!reducedMotion) {
+  const imgs = IMAGES.map((src) => {
+    const img = new Image();
+    img.src = src;
+    document.body.appendChild(img);
+    return img;
+  });
 
-const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  let lastSpawn = null;
+  let index = 0;
+  let zIndex = 1;
 
-function showImage(x, y) {
-  const img = imgs[index++ % imgs.length];
+  const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  gsap.killTweensOf(img);
+  function showImage(x, y) {
+    const img = imgs[index++ % imgs.length];
 
-  gsap.timeline()
-    .set(img, { zIndex: zIndex++, opacity: 1, xPercent: -50, yPercent: -50, x, y }, 0)
-    .fromTo(img,
-      { scale: 0, rotation: gsap.utils.random(-30, 30) },
-      { scale: gsap.utils.random(0.5, 1.15), rotation: gsap.utils.random(-15, 15), duration: 0.6, ease: 'expo.out' }, 0)
-    .to(img, { opacity: 0, duration: 0.9, ease: 'power1.out' }, 0.55)
-    .to(img, { scale: 0.3, duration: 0.9, ease: 'power4.out' }, 0.55);
+    gsap.killTweensOf(img);
+
+    gsap.timeline()
+      .set(img, { zIndex: zIndex++, opacity: 1, xPercent: -50, yPercent: -50, x, y }, 0)
+      .fromTo(img,
+        { scale: 0, rotation: gsap.utils.random(-30, 30) },
+        { scale: gsap.utils.random(0.5, 1.15), rotation: gsap.utils.random(-15, 15), duration: 0.6, ease: 'expo.out' }, 0)
+      .to(img, { opacity: 0, duration: 0.9, ease: 'power1.out' }, 0.55)
+      .to(img, { scale: 0.3, duration: 0.9, ease: 'power4.out' }, 0.55);
+  }
+
+  const handlePointer = (e) => {
+    const mouse = { x: e.clientX, y: e.clientY };
+
+    if (lastSpawn && distance(mouse, lastSpawn) < SPAWN_DISTANCE) {return;}
+
+    lastSpawn = mouse;
+    showImage(mouse.x, mouse.y);
+  };
+
+  addEventListener('pointermove', handlePointer);
+  addEventListener('pointerdown', handlePointer);
 }
-
-const handlePointer = (e) => {
-  const mouse = { x: e.clientX, y: e.clientY };
-
-  if (lastSpawn && distance(mouse, lastSpawn) < SPAWN_DISTANCE) {return;}
-
-  lastSpawn = mouse;
-  showImage(mouse.x, mouse.y);
-};
-
-addEventListener('pointermove', handlePointer);
-addEventListener('pointerdown', handlePointer);

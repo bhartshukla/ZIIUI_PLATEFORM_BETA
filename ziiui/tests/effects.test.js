@@ -148,6 +148,79 @@ describe('reduced-motion support', () => {
   });
 });
 
+describe('Group B reduced-motion support', () => {
+  const groupBComponents = ['microhover', 'snakehover', 'hoversection', 'imagetrail', 'revealmenu'];
+
+  it.each(groupBComponents)('includes prefers-reduced-motion JS guard for %s', (id) => {
+    const html = BY_ID[id].code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+  });
+
+  it('microhover JS skips burst animation when reduced motion', () => {
+    const html = BY_ID.microhover.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const playBurstPos = html.indexOf('playBurst');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(playBurstPos).toBeGreaterThan(-1);
+  });
+
+  it('snakehover JS skips SVG stroke animation when reduced motion', () => {
+    const html = BY_ID.snakehover.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const mouseenterPos = html.indexOf('onmouseenter');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(mouseenterPos).toBeGreaterThan(-1);
+  });
+
+  it('hoversection JS skips thumbnail sliding when reduced motion', () => {
+    const html = BY_ID.hoversection.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const mousemovePos = html.indexOf('mousemove');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(mousemovePos).toBeGreaterThan(-1);
+  });
+
+  it('imagetrail JS skips pointer-following when reduced motion', () => {
+    const html = BY_ID.imagetrail.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const pointermovePos = html.indexOf('pointermove');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(pointermovePos).toBeGreaterThan(-1);
+  });
+
+  it('revealmenu JS skips SVG morph and stagger when reduced motion', () => {
+    const html = BY_ID.revealmenu.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const toggleMenuPos = html.indexOf('toggleMenu');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(toggleMenuPos).toBeGreaterThan(-1);
+  });
+
+  it('Group B components still produce valid HTML with content visible', () => {
+    for (const id of groupBComponents) {
+      const html = BY_ID[id].code();
+      expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
+      expect(html.trim().endsWith('</html>')).toBe(true);
+      // Must not have unfilled placeholders
+      expect(html).not.toMatch(/@@\w+@@/);
+    }
+  });
+
+  it('Group B components still produce syntactically valid inline JavaScript', () => {
+    for (const id of groupBComponents) {
+      const html = BY_ID[id].code();
+      for (const code of inlineScripts(html)) {
+        expect(() => new Function(code)).not.toThrow();
+      }
+    }
+  });
+});
+
 describe('component video system', async () => {
   const { getComponentVideoSource } = await import('../src/effects/videos.js');
 
