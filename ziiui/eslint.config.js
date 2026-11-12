@@ -41,6 +41,13 @@ export default [
         Node: 'readonly',
         Element: 'readonly',
         HTMLElement: 'readonly',
+        // Browser / DOM — fetch, timing and navigation APIs
+        fetch: 'readonly',
+        performance: 'readonly',
+        AbortController: 'readonly',
+        Headers: 'readonly',
+        URLSearchParams: 'readonly',
+        confirm: 'readonly',
         // Node / test
         process: 'readonly',
         __dirname: 'readonly',
@@ -57,7 +64,7 @@ export default [
     },
     rules: {
       'no-console': 'off',
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-constant-condition': 'off',
       'eqeqeq': ['error', 'always', { null: 'ignore' }],
       'curly': ['error', 'all'],
@@ -92,6 +99,13 @@ export default [
     },
     rules: {
       'no-console': 'off'
+    }
+  },
+  {
+    files: ['src/effects/templates/**/*.js'],
+    rules: {
+      'no-undef': 'off',
+      'no-unused-vars': 'off'
     }
   }
 ];
