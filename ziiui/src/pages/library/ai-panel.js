@@ -3,12 +3,13 @@ import { $, esc, say, report, guard, exportFile } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
 import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js';
 import {
-  getOrCreateComponentState, getComponentState, saveActiveComponentId, persistAIState, flushPersist,
-  clearComponentHistory, clearAllAIHistory, pushChatMessage, addCodeVersion, setCurrentCode,
-  describeContext, getAISettings, getAIState, setAutoPreview, startNewSession
+  getComponent, getOrCreateComponentState, saveActiveComponentId, persistAIState, flushPersist,
+  clearAllAIHistory, addMessage, addVersion, setCurrentCode, describeContext,
+  getAISettings, getAIState, setAutoPreview, startNewSession, clearMessages,
+  getMessages
 } from '../../ai/state.js';
 import { generateCode } from '../../ai/client.js';
-import { describeAIError, getUserFacingAIMessage } from '../../ai/prompt.js';
+import { getUserFacingAIMessage } from '../../ai/prompt.js';
 import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, isDuplicateRequest } from '../../ai/request.js';
 import { createChatView } from '../../ai/chat-view.js';
 import { store, hooks } from './store.js';
@@ -168,9 +169,9 @@ function renderSelected() {
 function renderChat() {
   if (!chat) {return;}
   if (!store.cur) { chat.render([], 'Select a component to start editing.'); syncAIInputState(); return; }
-  const s = getComponentState(store.cur.id);
+  const session = store.compState;
   chat.render(
-    s ? s.chatHistory : [],
+    session ? getMessages(session.id) : [],
     'Hi! Pick a component on the left, then tell me what you want to change. Your conversation will be saved automatically.'
   );
   syncAIInputState();
@@ -178,8 +179,9 @@ function renderChat() {
 
 function updateContextIndicator() {
   if (!el.context) {return;}
-  el.context.textContent = store.cur && store.compState
-    ? describeContext(store.compState, store.cur.name)
+  const session = store.compState;
+  el.context.textContent = store.cur && session
+    ? describeContext(session.id, store.cur.name)
     : 'New AI session';
 }
 
@@ -188,24 +190,31 @@ async function generate() {
   if (isBusy()) {return;}
   const cur = store.cur;
   if (!cur) { chat.add('err', 'Select a component first.'); return; }
-  const compState = store.compState;
-  if (!compState) { chat.add('err', 'No component selected.'); return; }
+  const session = store.compState;
+  if (!session) { chat.add('err', 'No component selected.'); return; }
   const request = (el.prompt.value || '').trim();
   if (!request) { chat.add('err', 'Please describe what you want to change.'); return; }
   if (!store.html) { chat.add('err', 'No component code available yet.'); return; }
 
-  if (isDuplicateRequest(cur.id, request, Number(compState.revision || 0), 'library')) {
+  const component = getComponent(cur.id);
+  if (!component || !component.originalCode) {
+    chat.add('err', 'This component has no saved original code. Open it in the library first.');
+    return;
+  }
+
+  const sessionId = session.id;
+  if (isDuplicateRequest(sessionId, request, Number(session.revision || 0), 'library')) {
     chat.add('err', 'The same AI request is already in progress.');
     return;
   }
 
-  const req = beginRequest(cur.id, request, Number(compState.revision || 0), 'library');
+  const req = beginRequest(sessionId, request, Number(session.revision || 0), 'library');
   if (!req) {
     chat.add('err', 'Unable to start the AI request.');
     return;
   }
 
-  compState.lastUpdated = Date.now();
+  session.lastUpdated = Date.now();
   persistAIState();
 
   el.prompt.value = '';
@@ -214,7 +223,7 @@ async function generate() {
   if (el.banner) {el.banner.hidden = false;}
   syncAIInputState();
   setNavigationLocked(true);
-  pushChatMessage(compState, 'user', request);
+  addMessage(sessionId, 'user', request);
   chat.add('user', request);
   chat.showLoading();
   say('AI is editing your component…');
@@ -222,27 +231,28 @@ async function generate() {
   try {
     const code = await generateCode({
       component: {
+        id: component.id,
         name: cur.name,
         category: cur.cat,
-        original: compState.originalCode,
-        current: store.editActive ? store.edited : ''
+        original: component.originalCode
       },
-      compState,
+      session,
       request,
       signal: req.signal
     });
     if (!isCurrent(req) || cur.id !== store.cur.id) {return;}
-    if ((compState.revision || 0) !== Number(req.baseRevision || 0)) {
+    if ((session.revision || 0) !== Number(req.baseRevision || 0)) {
       el.prompt.value = request;
       chat.add('err', 'This AI result was generated from an older version and was ignored.');
       return;
     }
     chat.hideLoading();
     if (el.banner) {el.banner.hidden = true;}
+    // Commit version + baseline + revision together.
+    addVersion(sessionId, code, request);
+    addMessage(sessionId, 'assistant', `Applied: ${  request}`);
     store.edited = code;
     store.editActive = true;
-    addCodeVersion(compState, code, request);
-    pushChatMessage(compState, 'assistant', `Applied: ${  request}`);
     chat.add('ai', 'Updated the component. Opening the AI editor…');
     if (el.code) {el.code.value = code;}
     refreshCodeView();
@@ -261,7 +271,7 @@ async function generate() {
     const msg = getUserFacingAIMessage(err, isCancelled);
     chat.add('err', msg);
     if (isCancelled) {
-      pushChatMessage(compState, 'assistant', 'Request cancelled. Your component was preserved.');
+      addMessage(sessionId, 'assistant', 'Request cancelled. Your component was preserved.');
       chat.add('ai', 'Request cancelled. Your component was preserved.');
     }
     say(isCancelled ? 'AI request cancelled.' : 'AI edit failed.');
@@ -356,7 +366,7 @@ function applyEdited() {
   const val = el.code.value;
   store.edited = val;
   store.editActive = val !== store.html;
-  setCurrentCode(store.compState, val);
+  setCurrentCode(store.compState.id, val);
   refreshCodeView();
   setFrameHTML($('frame'), injectDebug(val));
   updateStatus();
@@ -366,9 +376,10 @@ function applyEdited() {
 }
 
 export function resetToOriginal() {
+  if (!store.compState) {return;}
   store.edited = store.html;
   store.editActive = false;
-  setCurrentCode(store.compState, '');
+  setCurrentCode(store.compState.id, '');
   if (el.code) {el.code.value = store.html || '';}
   refreshCodeView();
   if (store.html) {setFrameHTML($('frame'), injectDebug(store.html));}
@@ -415,39 +426,39 @@ async function copyEdited() {
 function clearThisComponent() {
   const cur = store.cur;
   if (!cur) {return;}
-  const state = store.compState;
-  const hasHistory = !!(state && (
-    state.chatHistory.length ||
-    state.codeVersions.length ||
-    state.currentCode
+  const session = store.compState;
+  const hasHistory = !!(session && (
+    getMessages(session.id).length ||
+    store.editActive ||
+    store.compState.currentCode
   ));
   if (!hasHistory) {
     chat.add('sys', 'There is no saved AI history to clear for this component.');
     return;
   }
-  if (!window.confirm(`Clear chat history and AI versions for "${  cur.name  }"? The original component will remain.`)) {return;}
-  clearComponentHistory(cur.id);
+  if (!window.confirm(`Clear the AI conversation for "${  cur.name  }"? Code versions and the original component will remain.`)) {return;}
+  clearMessages(session.id);
   store.edited = store.html;
   store.editActive = false;
   refreshCodeView();
   updateDraftIndicators();
   renderChat();
   updateContextIndicator();
-  chat.add('sys', 'Component AI history cleared.');
-  say(`Cleared AI history for ${  cur.name  }.`);
+  chat.add('sys', 'AI conversation cleared.');
+  say(`Cleared AI conversation for ${  cur.name  }.`);
   play(store.html);
 }
 
 function clearEverything() {
-  const components = Object.values(getAIState().components || {});
-  const hasHistory = store.editActive || components.some((state) =>
-    state.chatHistory.length || state.codeVersions.length || state.currentCode
-  );
+  const sessions = Object.values(getAIState().sessions || {});
+  const hasHistory = store.editActive || sessions.some((s) =>
+    getMessages(s.id).length || s.currentCode
+  ) || Object.values(getAIState().versions || {}).length > 0;
   if (!hasHistory) {
     chat.add('sys', 'There is no saved AI history to clear.');
     return;
   }
-  if (!window.confirm('Clear ALL AI history for every component? Original components will remain intact.')) {return;}
+  if (!window.confirm('Clear ALL AI conversations and drafts for every component? Original components and code versions will remain intact.')) {return;}
   clearAllAIHistory();
   store.edited = store.html;
   store.editActive = false;
@@ -491,7 +502,8 @@ export function initAIPanel() {
       return;
     }
     if (window.confirm(`Start a fresh AI session for "${store.cur.name}"? Previous conversation will be reset.`)) {
-      startNewSession(store.cur.id);
+      const session = startNewSession(store.cur.id);
+      store.compState = session;
       store.edited = store.html;
       store.editActive = false;
       refreshCodeView();
@@ -548,7 +560,7 @@ export function initAIPanel() {
       const val = el.code.value;
       store.edited = val;
       store.editActive = val !== store.html;
-      setCurrentCode(store.compState, val);
+      setCurrentCode(store.compState.id, val);
       updateStatus();
       updateContextIndicator();
       if (el.auto && el.auto.checked) {
@@ -575,9 +587,9 @@ export function initAIPanel() {
 
 /** After boot: tell the user if a previous request was interrupted. */
 export function announceInterruptedRequest(marker) {
-  if (marker && store.cur && marker.componentId === store.cur.id && store.compState) {
+  if (marker && store.cur && store.compState && marker.sessionId === store.compState.id) {
     const text = 'Previous AI session restored. The interrupted request was not completed.';
-    pushChatMessage(store.compState, 'assistant', text);
+    addMessage(store.compState.id, 'assistant', text);
     renderChat();
     updateContextIndicator();
     say(text);

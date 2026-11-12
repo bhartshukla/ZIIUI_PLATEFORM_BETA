@@ -14,7 +14,6 @@ import {
   MODEL_METADATA,
   AI_MODEL_TIMEOUT_MS,
   AI_REQUEST_TIMEOUT_MS,
-  AI_MAX_TOKENS,
   getModelMaxTokens
 } from './config.js';
 import { buildSystemPrompt, normalizeCode, looksLikeCode } from './prompt.js';
@@ -26,6 +25,10 @@ import {
   logContextMetrics,
   retrieveRelevantMessages
 } from './context-engine.js';
+
+import {
+  getMessages, sessionComponentId
+} from './state.js';
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 const MAX_CODE_CHARS = 200000;
@@ -122,43 +125,53 @@ function extractResponseText(payload) {
 
 /**
  * @param {object}  p
- * @param {{name:string, category:string, original:string, current:string}} p.component
- * @param {object}  p.compState  persisted state, used for the chat context
+ * @param {{id:string, name:string, category:string, original:string}} p.component  immutable source component
+ * @param {object}  p.session  the active editing session (currentCode = editing baseline)
  * @param {string}  p.request    the user's latest instruction
  * @param {AbortSignal} [p.signal]
  * @returns {Promise<string>} the complete updated HTML
  */
-export async function generateCode({ component, compState, request, signal }) {
+export async function generateCode({ component, session, request, signal }) {
   if (!aiIsConfigured()) {throw new Error('NOKEY');}
   const prompt = String(request || '').trim();
   if (!prompt) {throw new Error('INVALID');}
   if (prompt.length > 4000) {throw new Error('INVALID');}
 
+  const sessionId = session && typeof session.id === 'string' ? session.id : '';
+  const messages = getMessages(sessionId);
+  const summary = typeof session?.contextSummary === 'string' ? session.contextSummary : '';
+
   // Enrich component with Layer B memory and Layer C task intent
   const taskIntent = classifyTaskIntent(prompt);
-  const constraints = extractComponentConstraints(compState?.chatHistory);
+  const constraints = extractComponentConstraints(messages);
   const enrichedComponent = {
     ...component,
-    summary: compState?.summary || '',
+    summary,
     constraints,
-    taskIntent
+    taskIntent,
+    // Layer 3: session baseline is the authoritative working code
+    current: typeof session?.currentCode === 'string' ? session.currentCode : '',
+    // Layer 5: current task
+    currentTask: prompt,
+    scope: constraints.length ? constraints.join('; ') : '',
+    preserve: 'All functionality and structure not requested to change'
   };
 
   const systemPrompt = buildSystemPrompt(enrichedComponent);
-  const messages = [{ role: 'system', content: systemPrompt }];
-  const context = retrieveRelevantMessages(compState, prompt);
-  context.forEach((m) => messages.push(m));
-  messages.push({ role: 'user', content: prompt });
+  const messageList = [{ role: 'system', content: systemPrompt }];
+  const context = retrieveRelevantMessages({ chatHistory: messages }, prompt);
+  context.forEach((m) => messageList.push(m));
+  messageList.push({ role: 'user', content: prompt });
 
   // Dev-mode context metrics logging (zero secrets)
   logContextMetrics({
-    componentId: compState?.componentId || component?.name,
+    componentId: sessionComponentId(sessionId) || component?.id || component?.name,
     intents: taskIntent,
     rulesText: systemPrompt,
-    memoryText: compState?.summary || '',
+    memoryText: summary,
     codeText: component?.current || component?.original || '',
     chatText: context.map((m) => m.content).join('\n'),
-    totalText: messages.map((m) => m.content).join('\n'),
+    totalText: messageList.map((m) => m.content).join('\n'),
     messageCount: context.length
   });
 

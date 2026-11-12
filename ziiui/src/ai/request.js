@@ -15,30 +15,30 @@ export function getActiveRequest() { return active; }
 /** True while this request still owns the active-request slot, even if aborted. */
 export const isActiveRequest = (req) => !!req && active === req;
 
-export function buildRequestFingerprint(componentId, prompt, baseRevision, model = '') {
+export function buildRequestFingerprint(sessionId, prompt, baseRevision, model = '') {
   return JSON.stringify({
-    componentId: String(componentId || ''),
+    sessionId: String(sessionId || ''),
     prompt: String(prompt || '').trim(),
     baseRevision: Number(baseRevision) || 0,
     model: String(model || '')
   });
 }
 
-export function isDuplicateRequest(componentId, prompt, baseRevision, model = '') {
+export function isDuplicateRequest(sessionId, prompt, baseRevision, model = '') {
   if (!active) {return false;}
-  const fingerprint = buildRequestFingerprint(componentId, prompt, baseRevision, model);
-  return active.componentId === componentId && active.requestFingerprint === fingerprint;
+  const fingerprint = buildRequestFingerprint(sessionId, prompt, baseRevision, model);
+  return active.sessionId === sessionId && active.requestFingerprint === fingerprint;
 }
 
-export function beginRequest(componentId, prompt = '', baseRevision = 0, model = '') {
-  const fingerprint = buildRequestFingerprint(componentId, prompt, baseRevision, model);
-  if (active && active.componentId === componentId && active.requestFingerprint === fingerprint) {
+export function beginRequest(sessionId, prompt = '', baseRevision = 0, model = '') {
+  const fingerprint = buildRequestFingerprint(sessionId, prompt, baseRevision, model);
+  if (active && active.sessionId === sessionId && active.requestFingerprint === fingerprint) {
     return active;
   }
   const controller = new AbortController();
   const req = {
     id: uid(),
-    componentId,
+    sessionId,
     requestFingerprint: fingerprint,
     baseRevision: Number(baseRevision) || 0,
     prompt: String(prompt || '').trim(),
@@ -48,7 +48,7 @@ export function beginRequest(componentId, prompt = '', baseRevision = 0, model =
     timeoutId: setTimeout(() => { try { controller.abort(); } catch (_) { /* ignore */ } }, AI_REQUEST_TIMEOUT_MS)
   };
   active = req;
-  safeSet(AI_PENDING_KEY, JSON.stringify({ requestId: req.id, componentId, baseRevision: req.baseRevision, timestamp: Date.now() }));
+  safeSet(AI_PENDING_KEY, JSON.stringify({ requestId: req.id, sessionId, baseRevision: req.baseRevision, timestamp: Date.now() }));
   return req;
 }
 

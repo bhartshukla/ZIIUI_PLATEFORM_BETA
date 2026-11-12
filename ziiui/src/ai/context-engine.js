@@ -1,11 +1,12 @@
 /*
  * ZiiUI Smart Context Engine.
  *
- * Implements a 4-layer context builder with:
- * Layer A: Project Rules (immutable platform constraints)
- * Layer B: Component Memory (component-specific decisions & constraints)
- * Layer C: Task Memory (current goal, classified task intent, reference resolution)
- * Layer D: Relevant Conversation (relevance + recency scored message retrieval)
+ * Implements a 5-layer context builder:
+ *   Layer 1 — Global Project Rules (immutable platform constraints)
+ *   Layer 2 — Component Intelligence (name, purpose, HTML/CSS/JS, deps, selectors)
+ *   Layer 3 — Session Memory (latest successful code, active version, summary, constraints)
+ *   Layer 4 — Relevant Conversation (relevance + recency scored message retrieval)
+ *   Layer 5 — Current Task (latest request, scope, elements to change/preserve, output format)
  *
  * Plus:
  * - Conservative token estimation (~3.8 chars/token)
@@ -248,48 +249,79 @@ export function retrieveRelevantMessages(compState, currentPrompt, budgetChars =
 }
 
 /**
- * Builds the complete 4-layer system prompt.
+ * Builds the complete 5-layer system prompt.
+ *
+ * Layer 1: Global Project Rules
+ * Layer 2: Component Intelligence (name, purpose, structure, dependencies, selectors)
+ * Layer 3: Session Memory (editing baseline, active version, summary, constraints)
+ * Layer 4: Relevant Conversation (relevance-scored prior messages)
+ * Layer 5: Current Task (latest request, scope, preserve/change, output format)
  *
  * @param {object} c
  * @param {string} c.name - Component display name
  * @param {string} c.category - Component category
- * @param {string} c.original - Original immutable code
- * @param {string} [c.current] - Active edited code draft
+ * @param {string} c.original - Original immutable code (preservation reference)
+ * @param {string} [c.current] - Active edited code baseline (session.currentCode)
  * @param {string} [c.summary] - Cached conversation summary
  * @param {string[]} [c.constraints] - Explicit user constraints
  * @param {string} [c.taskIntent] - Classified task intent
+ * @param {string} [c.currentTask] - Latest user request (current task)
+ * @param {string} [c.scope] - Modification scope (elements to change)
+ * @param {string} [c.preserve] - Elements to preserve
+ * @param {string} [c.activeVersionId] - Active version id
  */
 export function buildSmartSystemPrompt(c = {}) {
   const workingCode = c.current || c.original || '(unavailable)';
   const constraints = Array.isArray(c.constraints) ? c.constraints : [];
+  const taskIntent = Array.isArray(c.taskIntent) ? c.taskIntent : [];
   const lines = [PROJECT_RULES, ''];
 
-  // Layer B: Component Memory & Constraints
-  lines.push(`Component name: ${  c.name || '(none)'}`);
-  lines.push(`Category: ${  c.category || '(none)'}`);
+  // Layer 2: Component Intelligence
+  lines.push(`Component name: ${c.name || '(none)'}`);
+  lines.push(`Category: ${c.category || '(none)'}`);
+  if (c.original) {
+    lines.push('');
+    lines.push('Original component code (preservation reference — do not mutate):');
+    lines.push(c.original);
+  }
 
+  // Layer 3: Session Memory
+  lines.push('');
+  lines.push('Session memory — editing baseline (authoritative working version):');
+  lines.push(workingCode);
+  if (c.summary) {
+    lines.push('');
+    lines.push(`Prior session summary: ${c.summary}`);
+  }
   if (constraints.length) {
     lines.push('');
     lines.push('Persistent user constraints for this component:');
     constraints.forEach((cons) => lines.push(`- ${cons}`));
   }
-
-  if (c.summary) {
+  if (taskIntent.length) {
     lines.push('');
-    lines.push(`Prior session summary: ${  c.summary}`);
+    lines.push(`Active focus areas: ${taskIntent.join(', ')}`);
   }
 
-  // Layer C: Task Intent Guidance
-  if (c.taskIntent && c.taskIntent.length) {
+  // Layer 4: Relevant Conversation is injected by the caller as message list;
+  // here we note that prior assistant results remain intact unless reverted.
+
+  // Layer 5: Current Task
+  if (c.currentTask) {
     lines.push('');
-    lines.push(`Active focus areas: ${  c.taskIntent.join(', ')}`);
+    lines.push(`Current task: ${c.currentTask}`);
+  }
+  if (c.scope) {
+    lines.push(`Elements to change (scope): ${c.scope}`);
+  }
+  if (c.preserve) {
+    lines.push(`Elements to preserve: ${c.preserve}`);
   }
 
   lines.push('');
-  lines.push('Selected component code (authoritative working version — modify THIS):');
-  lines.push(workingCode);
-  lines.push('');
-  lines.push('Return ONLY the complete updated HTML.');
+  lines.push('Output contract: Return ONLY the complete updated runnable HTML component.');
+  lines.push('Apply the current task to the editing baseline above. Preserve everything not requested to change.');
+  lines.push('Do not return explanations before the code. Do not use Markdown fences.');
 
   return lines.join('\n');
 }

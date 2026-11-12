@@ -1,6 +1,10 @@
 /* Entry point for context.html — view, search, and manage saved AI conversations in the Command Center. */
-import { AI_STATE_KEY, AI_ACTIVE_KEY } from '../ai/config.js';
-import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
+import { AI_STATE_KEY } from '../ai/config.js';
+import {
+  loadAIState, getAIState, getComponent, getWorkspacesForComponent,
+  getSessionsForWorkspace, getMessages, getVersionsForSession,
+  clearAllAIHistory, saveActiveComponentId, getActiveComponentId
+} from '../ai/state.js';
 
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -26,7 +30,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         month: 'short',
         day: 'numeric',
         year: 'numeric'
-      })  } · ${  d.toLocaleTimeString(undefined, {
+      })} · ${d.toLocaleTimeString(undefined, {
         hour: '2-digit',
         minute: '2-digit'
       })}`;
@@ -39,59 +43,60 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     if (!ts) {return '';}
     const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
     if (s < 60) {return 'Just now';}
-    if (s < 3600) {return `${Math.floor(s / 60)  }m ago`;}
-    if (s < 86400) {return `${Math.floor(s / 3600)  }h ago`;}
-    return `${Math.floor(s / 86400)  }d ago`;
+    if (s < 3600) {return `${Math.floor(s / 60)}m ago`;}
+    if (s < 86400) {return `${Math.floor(s / 3600)}h ago`;}
+    return `${Math.floor(s / 86400)}d ago`;
   }
 
   function esc(s) {
     return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   function isPlainObject(value) {
     return !!value && typeof value === 'object' && !Array.isArray(value);
   }
 
-  function load() {
-    const raw = safeGet(AI_STATE_KEY);
-    if (!raw) {
-      state = { components: {} };
-      activeId = null;
-      return false;
-    }
-    try {
-      const p = JSON.parse(raw);
-      if (!isPlainObject(p) || !isPlainObject(p.components)) {
-        state = { components: {} };
-        activeId = null;
-        return false;
-      }
-      state = { components: p.components };
+  /** Aggregate message/version counts and last-updated across all sessions of a component. */
+  function componentStats(cid) {
+    let msgs = 0;
+    let vers = 0;
+    let last = 0;
+    const comp = getComponent(cid);
+    if (comp) { last = Math.max(last, Number(comp.lastUpdated || 0)); }
+    getWorkspacesForComponent(cid).forEach((ws) => {
+      getSessionsForWorkspace(ws.id).forEach((s) => {
+        msgs += getMessages(s.id).length;
+        vers += getVersionsForSession(s.id).length;
+        last = Math.max(last, Number(s.lastUpdated || 0));
+      });
+    });
+    return { msgs, vers, last };
+  }
 
-      // Check query parameter first, fallback to active key or first component
-      const urlParam = new URLSearchParams(window.location.search).get('component');
-      if (urlParam && state.components[urlParam]) {
-        activeId = urlParam;
-        safeSet(AI_ACTIVE_KEY, activeId);
-      } else {
-        activeId = safeGet(AI_ACTIVE_KEY) || null;
-      }
-      return true;
-    } catch (_) {
-      state = { components: {} };
-      activeId = null;
-      return false;
+  function load() {
+    loadAIState();
+    const ai = getAIState();
+    state = { components: ai.components || {} };
+
+    const urlParam = new URLSearchParams(window.location.search).get('component');
+    if (urlParam && state.components[urlParam]) {
+      activeId = urlParam;
+      saveActiveComponentId(activeId);
+    } else {
+      activeId = getActiveComponentId() || null;
     }
+    return !!state.components && Object.keys(state.components).length > 0;
   }
 
   function getComponentList() {
     return Object.values(state.components || {})
-      .filter((c) => c && (c.componentName || c.componentId))
+      .filter((c) => c && (c.name || c.id))
+      .map((c) => {
+        const stats = componentStats(c.id);
+        return { ...c, _stats: stats, lastUpdated: stats.last || c.lastUpdated };
+      })
       .sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
   }
 
@@ -99,34 +104,38 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const all = getComponentList();
     const q = (searchQuery || '').trim().toLowerCase();
     if (!q) {return all;}
-
     return all.filter((c) => {
-      const name = (c.componentName || '').toLowerCase();
-      const id = (c.componentId || '').toLowerCase();
+      const name = (c.name || '').toLowerCase();
+      const id = (c.id || '').toLowerCase();
       const cat = (c.category || '').toLowerCase();
       if (name.includes(q) || id.includes(q) || cat.includes(q)) {return true;}
-
-      // Match conversation message text
-      if (Array.isArray(c.chatHistory)) {
-        const matchesMsg = c.chatHistory.some((m) => m && typeof m.text === 'string' && m.text.toLowerCase().includes(q));
-        if (matchesMsg) {return true;}
-      }
-
-      // Match summary
-      if (typeof c.summary === 'string' && c.summary.toLowerCase().includes(q)) {
-        return true;
-      }
-
-      return false;
+      // Match conversation message text across sessions of this component.
+      let match = false;
+      getWorkspacesForComponent(c.id).forEach((ws) => {
+        if (match) {return;}
+        getSessionsForWorkspace(ws.id).forEach((s) => {
+          if (match) {return;}
+          if (getMessages(s.id).some((m) => m && typeof m.text === 'string' && m.text.toLowerCase().includes(q))) {
+            match = true;
+          }
+        });
+      });
+      return match;
     });
   }
 
   function updateSummaryCards() {
     const all = getComponentList();
     const compCount = all.length;
-    const convCount = all.filter((c) => Array.isArray(c.chatHistory) && c.chatHistory.length > 0).length;
-    const versionCount = all.reduce((sum, c) => sum + (Array.isArray(c.codeVersions) ? c.codeVersions.length : 0), 0);
-    const totalMsgs = all.reduce((sum, c) => sum + (Array.isArray(c.chatHistory) ? c.chatHistory.length : 0), 0);
+    let convCount = 0;
+    let versionCount = 0;
+    let totalMsgs = 0;
+    all.forEach((c) => {
+      const st = c._stats || componentStats(c.id);
+      if (st.msgs > 0) { convCount++; }
+      versionCount += st.vers;
+      totalMsgs += st.msgs;
+    });
 
     if ($('statComponents')) {$('statComponents').textContent = compCount.toLocaleString();}
     if ($('statComponentsSub')) {$('statComponentsSub').textContent = compCount === 1 ? '1 tracked component' : `${compCount} in memory`;}
@@ -140,7 +149,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
   function openInEditor(componentId) {
     if (!componentId) {return;}
-    safeSet(AI_ACTIVE_KEY, componentId);
+    saveActiveComponentId(componentId);
     window.location.href = `ai.html?component=${encodeURIComponent(componentId)}`;
   }
 
@@ -183,17 +192,16 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
     if (searchNoResults) {searchNoResults.hidden = true;}
 
-    // Ensure activeId is pointing to one of the filtered items
-    if (!activeId || !filtered.some((c) => c.componentId === activeId)) {
-      activeId = filtered[0].componentId;
-      safeSet(AI_ACTIVE_KEY, activeId);
+    if (!activeId || !filtered.some((c) => c.id === activeId)) {
+      activeId = filtered[0].id;
+      saveActiveComponentId(activeId);
     }
 
     filtered.forEach((c) => {
-      const id = c.componentId;
+      const id = c.id;
       const isActive = id === activeId;
       const li = document.createElement('li');
-      li.className = `comp-item${  isActive ? ' active' : ''}`;
+      li.className = `comp-item${isActive ? ' active' : ''}`;
 
       const button = document.createElement('button');
       button.type = 'button';
@@ -203,26 +211,34 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       button.setAttribute('aria-selected', String(isActive));
 
       const timeText = fmtAgo(c.lastUpdated) || fmtDateTime(c.lastUpdated);
-      const msgCount = Array.isArray(c.chatHistory) ? c.chatHistory.length : 0;
-      const verCount = Array.isArray(c.codeVersions) ? c.codeVersions.length : 0;
+      const st = c._stats || componentStats(id);
+      const msgCount = st.msgs;
+      const verCount = st.vers;
 
-      // Check if item matched via message text
       let matchSnippet = '';
-      if (q && Array.isArray(c.chatHistory)) {
-        const found = c.chatHistory.find((m) => m && typeof m.text === 'string' && m.text.toLowerCase().includes(q.toLowerCase()));
-        if (found && !(c.componentName || '').toLowerCase().includes(q.toLowerCase())) {
-          const rawText = found.text.replace(/\s+/g, ' ').trim();
-          const idx = rawText.toLowerCase().indexOf(q.toLowerCase());
-          const start = Math.max(0, idx - 18);
-          const excerpt = (start > 0 ? '…' : '') + rawText.slice(start, start + 54) + (start + 54 < rawText.length ? '…' : '');
-          matchSnippet = `<div class="comp-match-snippet"><i class="ri-search-line"></i> ${esc(excerpt)}</div>`;
-        }
+      if (q) {
+        let matched = false;
+        getWorkspacesForComponent(id).forEach((ws) => {
+          if (matched) {return;}
+          getSessionsForWorkspace(ws.id).forEach((s) => {
+            if (matched) {return;}
+            const found = getMessages(s.id).find((m) => m && typeof m.text === 'string' && m.text.toLowerCase().includes(q.toLowerCase()));
+            if (found && !(c.name || '').toLowerCase().includes(q.toLowerCase())) {
+              matched = true;
+              const rawText = found.text.replace(/\s+/g, ' ').trim();
+              const idx = rawText.toLowerCase().indexOf(q.toLowerCase());
+              const start = Math.max(0, idx - 18);
+              const excerpt = (start > 0 ? '…' : '') + rawText.slice(start, start + 54) + (start + 54 < rawText.length ? '…' : '');
+              matchSnippet = `<div class="comp-match-snippet"><i class="ri-search-line"></i> ${esc(excerpt)}</div>`;
+            }
+          });
+        });
       }
 
       button.innerHTML = `
         <div class="comp-item-header">
           <div class="comp-item-title-wrap">
-            <span class="comp-title">${esc(c.componentName || id)}</span>
+            <span class="comp-title">${esc(c.name || id)}</span>
             ${c.category ? `<span class="comp-cat-tag">${esc(c.category)}</span>` : ''}
           </div>
           <i class="ri-arrow-right-s-line comp-chevron" aria-hidden="true"></i>
@@ -239,7 +255,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
       button.addEventListener('click', () => {
         activeId = id;
-        safeSet(AI_ACTIVE_KEY, id);
+        saveActiveComponentId(id);
         renderList();
         renderDetail();
         if (window.innerWidth <= 820) {
@@ -256,7 +272,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   function renderDetail() {
     const card = $('detailCard');
     if (!card) {return;}
-    const c = activeId ? state.components[activeId] : null;
+    const c = activeId ? getComponent(activeId) : null;
 
     if (!c) {
       card.hidden = true;
@@ -265,7 +281,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
 
     card.hidden = false;
     const nameEl = $('detailCompName');
-    if (nameEl) {nameEl.textContent = c.componentName || activeId;}
+    if (nameEl) {nameEl.textContent = c.name || activeId;}
 
     const catEl = $('detailCategory');
     if (catEl) {
@@ -277,14 +293,14 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       }
     }
 
+    const st = componentStats(activeId);
     const timeEl = $('detailTime');
-    if (timeEl) {timeEl.textContent = fmtDateTime(c.lastUpdated);}
+    if (timeEl) {timeEl.textContent = fmtDateTime(Math.max(st.last, c.lastUpdated || 0));}
 
-    const msgCount = Array.isArray(c.chatHistory) ? c.chatHistory.length : 0;
     const msgEl = $('detailMsgCount');
     const dotEl = $('detailDot');
     if (msgEl) {
-      msgEl.textContent = msgCount === 1 ? '1 message' : `${msgCount} messages`;
+      msgEl.textContent = st.msgs === 1 ? '1 message' : `${st.msgs} messages`;
     }
     if (dotEl) {dotEl.hidden = false;}
 
@@ -300,17 +316,25 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const wrap = $('chatMsgs');
     if (!wrap) {return;}
     wrap.innerHTML = '';
-    const msgs = Array.isArray(c.chatHistory) ? c.chatHistory : [];
+    // Show messages from the default (most recently updated) session of this component.
+    let displayMsgs = [];
+    let bestSession = null;
+    getWorkspacesForComponent(activeId).forEach((ws) => {
+      getSessionsForWorkspace(ws.id).forEach((s) => {
+        if (!bestSession || s.lastUpdated > bestSession.lastUpdated) { bestSession = s; }
+      });
+    });
+    if (bestSession) { displayMsgs = getMessages(bestSession.id); }
 
     const chatEmpty = $('chatEmpty');
-    if (!msgs.length) {
+    if (!displayMsgs.length) {
       if (chatEmpty) {chatEmpty.hidden = false;}
       return;
     }
 
     if (chatEmpty) {chatEmpty.hidden = true;}
 
-    msgs.forEach((m) => {
+    displayMsgs.forEach((m) => {
       const isUser = m.role === 'user';
       const div = document.createElement('div');
       div.className = `msg ${isUser ? 'user' : 'assistant'}`;
@@ -331,11 +355,11 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
         <div class="msg-resume-hint"><i class="ri-edit-line" aria-hidden="true"></i> Continue in AI Editor</div>
       `;
 
-      div.addEventListener('click', () => openInEditor(c.componentId));
+      div.addEventListener('click', () => openInEditor(c.id));
       div.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openInEditor(c.componentId);
+          openInEditor(c.id);
         }
       });
 
@@ -344,29 +368,15 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   }
 
   function clearAll() {
-    const comps = Object.values(state.components || {});
-    const hasHistory = comps.some(
-      (c) => (c.chatHistory && c.chatHistory.length) || c.currentCode
-    );
+    const hasHistory = Object.values(getAIState().sessions || {}).some((s) =>
+      getMessages(s.id).length || s.currentCode
+    ) || Object.values(getAIState().versions || {}).length > 0;
     if (!hasHistory) {
       toast('There is no saved AI conversation to clear.');
       return;
     }
     if (!confirm('Clear all saved conversations? Original components will remain intact.')) {return;}
-    // Preserve original component data while clearing all AI-generated data.
-    Object.keys(state.components || {}).forEach((k) => {
-      const c = state.components[k];
-      if (c) {
-        c.chatHistory = [];
-        c.codeVersions = [];
-        c.currentCode = '';
-        c.activeVersionId = null;
-        c.summary = '';
-        c.revision = (Number(c.revision) || 0) + 1;
-        c.lastUpdated = Date.now();
-      }
-    });
-    safeSet(AI_STATE_KEY, JSON.stringify(state));
+    clearAllAIHistory();
     activeId = null;
     searchQuery = '';
     const searchInput = $('contextSearch');
@@ -377,7 +387,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   }
 
   function initTheme() {
-    const t = safeGet('ziiui-theme');
+    const t = localStorage.getItem('ziiui-theme');
     if (t === 'light' || t === 'dark') {document.documentElement.setAttribute('data-theme', t);}
     else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
     {document.documentElement.setAttribute('data-theme', 'light');}
@@ -397,7 +407,7 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const cur = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = cur === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
-    safeSet('ziiui-theme', next);
+    localStorage.setItem('ziiui-theme', next);
     updateThemeControl();
   }
 
@@ -407,7 +417,6 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     const resetBtn = $('resetSearchBtn');
     const kbd = $('searchKbd');
 
-    // Adapt keyboard shortcut badge for Mac
     const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
     if (kbd) {
       kbd.innerHTML = isMac ? '<span class="kbd-mod">⌘</span>K' : '<span class="kbd-mod">Ctrl</span>+K';
@@ -463,7 +472,6 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
       });
     }
 
-    // Global shortcut Ctrl+K / Cmd+K
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -475,7 +483,6 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
     });
   }
 
-  // Bind toolbar actions
   if ($('refreshBtn')) {
     $('refreshBtn').addEventListener('click', () => {
       load();
@@ -501,5 +508,5 @@ import { safeGet, safeSet, safeRemove } from '../lib/storage.js';
   setupSearch();
   load();
   renderList();
-  if (activeId && state.components[activeId]) {renderDetail();}
+  if (activeId && getComponent(activeId)) {renderDetail();}
 })();

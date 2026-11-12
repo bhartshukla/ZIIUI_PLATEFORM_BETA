@@ -3,23 +3,25 @@ import { $, say, report, guard, installGlobalErrorHandlers, exportFile } from '.
 import { copyText } from '../lib/clipboard.js';
 import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../lib/preview.js';
 import {
-  loadAIState, loadAISettings, getAIState, getAISettings, setAutoPreview, getComponentState,
-  getActiveComponentId, saveActiveComponentId, persistAIState, pushChatMessage, addCodeVersion,
-  setCurrentCode, describeContext, getOrCreateComponentState
+  loadAIState, loadAISettings, getAIState, getAISettings, setAutoPreview,
+  getComponent, getActiveComponentId, saveActiveComponentId, persistAIState,
+  addMessage, addVersion, setCurrentCode, describeContext,
+  getOrCreateComponentState, getMessages
 } from '../ai/state.js';
 import { EFFECTS, BY_ID } from '../effects/registry.js';
 import { generateCode } from '../ai/client.js';
-import { describeAIError, getUserFacingAIMessage } from '../ai/prompt.js';
+import { getUserFacingAIMessage } from '../ai/prompt.js';
 import { beginRequest, endRequest, isBusy, isCurrent, isActiveRequest, cancelActiveRequest, consumePendingMarker, isDuplicateRequest } from '../ai/request.js';
 import { createChatView } from '../ai/chat-view.js';
 
 let activeId = null;
-let compState = null;
+let compState = null;   // the active editing session (editing baseline)
+let activeComponent = null; // the immutable source component
 let autoTimer = null;
 let chat = null;
 let el = {};
 
-const displayName = () => (compState && (compState.componentName || activeId)) || '';
+const displayName = () => (activeComponent && (activeComponent.name || activeId)) || '';
 
 /* ---------- rendering ---------- */
 function runPreview() {
@@ -32,11 +34,11 @@ function renderChat() {
     chat.render([], 'Open a component in the library and use the AI panel, then come back here.');
     return;
   }
-  chat.render(compState.chatHistory, `No messages yet for "${  displayName()  }". Ask for a change below.`);
+  chat.render(getMessages(compState.id), `No messages yet for "${  displayName()  }". Ask for a change below.`);
 }
 
 function updateIndicator() {
-  el.context.textContent = compState ? describeContext(compState, displayName()) : 'No component';
+  el.context.textContent = compState ? describeContext(compState.id, displayName()) : 'No component';
 }
 
 function setLocked(locked) {
@@ -51,19 +53,20 @@ function populatePicker() {
   el.select.innerHTML = '';
   comps.forEach((c) => {
     const o = document.createElement('option');
-    o.value = c.componentId;
-    o.textContent = c.componentName || c.componentId;
+    o.value = c.id;
+    o.textContent = c.name || c.id;
     el.select.append(o);
   });
   el.select.hidden = comps.length < 2;
-  if (activeId) {el.select.value = activeId;}
+  if (activeId) { el.select.value = activeId; }
 }
 
 /* ---------- component selection ---------- */
 function setActive(id) {
   activeId = id;
-  compState = id ? getComponentState(id) : null;
-  if (!compState) {
+  activeComponent = id ? getComponent(id) : null;
+  compState = null;
+  if (!activeComponent) {
     el.headSub.textContent = 'No component selected — open index.html first.';
     el.code.value = '';
     el.send.disabled = true;
@@ -73,9 +76,11 @@ function setActive(id) {
     return;
   }
   saveActiveComponentId(id);
+  // Ensure a default workspace + editing session exists for this component.
+  compState = getOrCreateComponentState(id, activeComponent.name, activeComponent.category, activeComponent.originalCode);
   el.send.disabled = false;
   el.headSub.textContent = `Editing: ${  displayName()}`;
-  el.code.value = compState.currentCode || compState.originalCode || '';
+  el.code.value = compState.currentCode || activeComponent.originalCode || '';
   runPreview();
   renderChat();
   updateIndicator();
@@ -83,24 +88,28 @@ function setActive(id) {
 
 /* ---------- generate ---------- */
 async function generate() {
-  if (isBusy()) {return;}
-  if (!compState) { chat.add('err', 'No component selected. Open index.html first.'); return; }
+  if (isBusy()) { return; }
+  if (!activeComponent) { chat.add('err', 'No component selected. Open index.html first.'); return; }
   const request = (el.prompt.value || '').trim();
   if (!request) { chat.add('err', 'Please describe what you want to change.'); return; }
-  if (!compState.originalCode) { chat.add('err', 'This component has no saved original code. Open it in the library first.'); return; }
+  if (!activeComponent.originalCode) {
+    chat.add('err', 'This component has no saved original code. Open it in the library first.');
+    return;
+  }
 
-  const comp = compState;
-  if (isDuplicateRequest(comp.componentId, request, Number(comp.revision || 0), 'editor')) {
+  const session = compState;
+  const sessionId = session.id;
+  if (isDuplicateRequest(sessionId, request, Number(session.revision || 0), 'editor')) {
     chat.add('err', 'The same AI request is already in progress.');
     return;
   }
 
-  const req = beginRequest(comp.componentId, request, Number(comp.revision || 0), 'editor');
+  const req = beginRequest(sessionId, request, Number(session.revision || 0), 'editor');
   persistAIState();
 
   el.prompt.value = '';
   setLocked(true);
-  pushChatMessage(comp, 'user', request);
+  addMessage(sessionId, 'user', request);
   chat.add('user', request);
   chat.showLoading();
   say('AI is editing…');
@@ -108,54 +117,55 @@ async function generate() {
   try {
     const code = await generateCode({
       component: {
-        name: comp.componentName,
-        category: comp.category,
-        original: comp.originalCode,
-        // use what is in the editor right now, including unsaved manual edits
-        current: el.code.value !== comp.originalCode ? el.code.value : ''
+        id: activeComponent.id,
+        name: activeComponent.name,
+        category: activeComponent.category,
+        original: activeComponent.originalCode
       },
-      compState: comp,
+      session,
       request,
       signal: req.signal
     });
-    if (!isCurrent(req) || comp !== compState) {return;}
-    if ((comp.revision || 0) !== Number(req.baseRevision || 0)) {
+    if (!isCurrent(req)) { return; }
+    // Optimistic concurrency: the session must not have been revised while generating.
+    if ((session.revision || 0) !== Number(req.baseRevision || 0)) {
       el.prompt.value = request;
       chat.add('err', 'This AI result was generated from an older version and was ignored.');
       return;
     }
     chat.hideLoading();
-    addCodeVersion(comp, code, request);
-    pushChatMessage(comp, 'assistant', `Applied: ${  request}`);
+    // Commit the new version + baseline + revision together.
+    addVersion(sessionId, code, request);
+    addMessage(sessionId, 'assistant', `Applied: ${  request}`);
     chat.add('ai', 'Updated. The new version is in the editor and preview.');
     el.code.value = code;
     runPreview();
     updateIndicator();
     say('AI version generated.');
   } catch (err) {
-    if (!isActiveRequest(req)) {return;}
+    if (!isActiveRequest(req)) { return; }
     chat.hideLoading();
     el.prompt.value = request;
     const isCancelled = Boolean(req && req.isUserCancelled);
     const msg = getUserFacingAIMessage(err, isCancelled);
     chat.add('err', msg);
     if (isCancelled) {
-      pushChatMessage(comp, 'assistant', 'Request cancelled. Your component was preserved.');
+      addMessage(sessionId, 'assistant', 'Request cancelled. Your component was preserved.');
       chat.add('ai', 'Request cancelled. Your component was preserved.');
     }
     say(isCancelled ? 'AI request cancelled.' : 'AI edit failed.');
   } finally {
     const wasActive = isActiveRequest(req);
     endRequest(req);
-    if (wasActive) {setLocked(false);}
+    if (wasActive) { setLocked(false); }
   }
 }
 
 /* ---------- actions ---------- */
 function resetToOriginal() {
-  if (!compState) {return;}
-  setCurrentCode(compState, '');
-  el.code.value = compState.originalCode || '';
+  if (!compState) { return; }
+  setCurrentCode(compState.id, '');
+  el.code.value = activeComponent.originalCode || '';
   runPreview();
   chat.add('sys', 'Reset to the original component.');
   say('Reset to original component.');
@@ -169,7 +179,7 @@ async function copyCode() {
       ? '<i class="ri-check-line" aria-hidden="true"></i> Copied'
       : '<i class="ri-close-line" aria-hidden="true"></i> Copy failed';
     setTimeout(() => {
-      if (btn) {btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy';}
+      if (btn) { btn.innerHTML = '<i class="ri-file-copy-line" aria-hidden="true"></i> Copy'; }
     }, 1800);
   }
   say(ok ? 'Code copied to clipboard' : 'Copy failed.');
@@ -178,7 +188,7 @@ async function copyCode() {
 
 function exportCode() {
   const name = activeId || 'component';
-  const isDraft = !!(compState && compState.currentCode && compState.currentCode !== compState.originalCode);
+  const isDraft = !!(compState && compState.currentCode && compState.currentCode !== activeComponent.originalCode);
   const filename = `${name}${isDraft ? '-ai-draft' : ''}.html`;
   const code = el.code ? el.code.value : '';
   if (!code) {
@@ -209,7 +219,7 @@ function boot() {
   const urlParams = new URLSearchParams(window.location.search);
   const paramId = urlParams.get('component') || urlParams.get('id');
   const saved = paramId || getActiveComponentId();
-  let startId = saved && getComponentState(saved) ? saved : null;
+  let startId = saved && getComponent(saved) ? saved : null;
 
   if (!startId && paramId) {
     const found = BY_ID[paramId] || EFFECTS.find((e) => e.name.toLowerCase() === paramId.toLowerCase());
@@ -221,15 +231,15 @@ function boot() {
   }
 
   const ids = Object.keys(getAIState().components);
-  if (!startId) {startId = ids[0] || null;}
+  if (!startId) { startId = ids[0] || null; }
 
   populatePicker();
   setActive(startId);
-  if (startId) {el.select.value = startId;}
+  if (startId) { el.select.value = startId; }
 
   const marker = consumePendingMarker();
-  if (marker && compState && marker.componentId === activeId) {
-    pushChatMessage(compState, 'assistant', 'Previous AI session restored. The interrupted request was not completed.');
+  if (marker && compState && marker.sessionId === compState.id) {
+    addMessage(compState.id, 'assistant', 'Previous AI session restored. The interrupted request was not completed.');
     renderChat();
   }
 
@@ -238,14 +248,14 @@ function boot() {
   $('aiResetBtn').addEventListener('click', guard(resetToOriginal, 'reset'));
   $('aiCopyBtn').addEventListener('click', guard(copyCode, 'copy'));
   const exportBtn = $('aiExportBtn');
-  if (exportBtn) {exportBtn.addEventListener('click', guard(exportCode, 'export'));}
+  if (exportBtn) { exportBtn.addEventListener('click', guard(exportCode, 'export')); }
   el.select.addEventListener('change', () => setActive(el.select.value));
   el.prompt.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) {generate();} }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isBusy()) { generate(); } }
   });
   el.code.addEventListener('input', () => {
-    if (!compState) {return;}
-    setCurrentCode(compState, el.code.value);
+    if (!compState) { return; }
+    setCurrentCode(compState.id, el.code.value);
     if (el.auto.checked) {
       clearTimeout(autoTimer);
       autoTimer = setTimeout(() => { try { runPreview(); } catch (err) { report(err, 'preview'); } }, 500);
@@ -253,9 +263,9 @@ function boot() {
   });
   el.auto.addEventListener('change', () => {
     setAutoPreview(el.auto.checked);
-    if (el.auto.checked) {runPreview();}
+    if (el.auto.checked) { runPreview(); }
   });
 }
 
-if (document.readyState === 'loading') {document.addEventListener('DOMContentLoaded', boot);}
-else {boot();}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); }
+else { boot(); }

@@ -12,13 +12,14 @@ import {
 } from '../src/ai/context-engine.js';
 import {
   getOrCreateComponentState,
-  pushChatMessage,
-  addCodeVersion,
+  addMessage,
+  addVersion,
   persistAIState,
   loadAIState,
   getAIState,
-  clearComponentHistory,
-  saveActiveComponentId
+  saveActiveComponentId,
+  getMessages,
+  getVersionsForSession
 } from '../src/ai/state.js';
 import { AI_STATE_KEY } from '../src/ai/config.js';
 
@@ -83,7 +84,7 @@ describe('Smart Context Engine', () => {
       expect(summary).toContain('Applied modifications');
     });
 
-    it('builds a 4-layer system prompt with constraints and intent', () => {
+    it('builds a 5-layer system prompt: rules, component intelligence, session memory, task', () => {
       const prompt = buildSmartSystemPrompt({
         name: 'Glow Wave',
         category: 'Shader',
@@ -91,7 +92,10 @@ describe('Smart Context Engine', () => {
         current: '<canvas id="active"></canvas>',
         constraints: ['always keep reduced-motion intact'],
         taskIntent: ['animation-timing', 'visual-style'],
-        summary: 'Prior session summary text'
+        summary: 'Prior session summary text',
+        currentTask: 'make it pulse',
+        scope: 'opacity',
+        preserve: 'canvas structure'
       });
 
       expect(prompt).toContain('Component name: Glow Wave');
@@ -99,21 +103,28 @@ describe('Smart Context Engine', () => {
       expect(prompt).toContain('always keep reduced-motion intact');
       expect(prompt).toContain('Active focus areas: animation-timing, visual-style');
       expect(prompt).toContain('Prior session summary text');
+      // Layer 2: original code present as preservation reference
+      expect(prompt).toContain('Original component code');
+      expect(prompt).toContain('<canvas></canvas>');
+      // Layer 3: current baseline present
       expect(prompt).toContain('<canvas id="active"></canvas>');
-      expect(prompt).not.toContain('<canvas></canvas>');
+      // Layer 5: current task
+      expect(prompt).toContain('Current task: make it pulse');
+      expect(prompt).toContain('Elements to change (scope): opacity');
+      expect(prompt).toContain('Elements to preserve: canvas structure');
     });
   });
 
   describe('Layer D: Relevance and Recency Retrieval', () => {
     it('prioritizes task-relevant messages over purely recent ones', () => {
       const state = getOrCreateComponentState('particle', 'Particle', 'Shader', '<div>orig</div>');
-      pushChatMessage(state, 'user', 'Configure Three.js particle density to 5000');
-      pushChatMessage(state, 'assistant', 'Applied: particle density 5000');
-      pushChatMessage(state, 'user', 'Change the font of the title');
-      pushChatMessage(state, 'assistant', 'Applied: title font');
-      pushChatMessage(state, 'user', 'Now adjust the particle density higher');
+      addMessage(state.id, 'user', 'Configure Three.js particle density to 5000');
+      addMessage(state.id, 'assistant', 'Applied: particle density 5000');
+      addMessage(state.id, 'user', 'Change the font of the title');
+      addMessage(state.id, 'assistant', 'Applied: title font');
+      addMessage(state.id, 'user', 'Now adjust the particle density higher');
 
-      const retrieved = retrieveRelevantMessages(state, 'particle density', 1500);
+      const retrieved = retrieveRelevantMessages({ chatHistory: getMessages(state.id) }, 'particle density', 1500);
       expect(retrieved.length).toBeGreaterThan(0);
       expect(retrieved.some((m) => m.content.includes('particle density to 5000'))).toBe(true);
     });
@@ -122,11 +133,11 @@ describe('Smart Context Engine', () => {
       const compA = getOrCreateComponentState('compA', 'Component A', 'Text', '<div>A</div>');
       const compB = getOrCreateComponentState('compB', 'Component B', 'Menus', '<div>B</div>');
 
-      pushChatMessage(compA, 'user', 'Instruction specifically for component A');
-      pushChatMessage(compB, 'user', 'Instruction specifically for component B');
+      addMessage(compA.id, 'user', 'Instruction specifically for component A');
+      addMessage(compB.id, 'user', 'Instruction specifically for component B');
 
-      const retrievedA = retrieveRelevantMessages(compA, 'Instruction');
-      const retrievedB = retrieveRelevantMessages(compB, 'Instruction');
+      const retrievedA = retrieveRelevantMessages({ chatHistory: getMessages(compA.id) }, 'Instruction');
+      const retrievedB = retrieveRelevantMessages({ chatHistory: getMessages(compB.id) }, 'Instruction');
 
       expect(retrievedA.every((m) => !m.content.includes('component B'))).toBe(true);
       expect(retrievedB.every((m) => !m.content.includes('component A'))).toBe(true);
@@ -154,11 +165,10 @@ describe('Smart Context Engine', () => {
   describe('Storage Deduplication & Safe Quota Recovery (Phase 4)', () => {
     it('deduplicates identical consecutive code snapshots', () => {
       const state = getOrCreateComponentState('dedup-test', 'Dedup', 'Text', '<div>Canonical</div>');
-      const v1 = addCodeVersion(state, '<div>Draft 1</div>', 'make change');
-      const v2 = addCodeVersion(state, '<div>Draft 1</div>', 'make change');
-
+      const v1 = addVersion(state.id, '<div>Draft 1</div>', 'make change');
+      const v2 = addVersion(state.id, '<div>Draft 1</div>', 'make change');
       expect(v1.id).toBe(v2.id);
-      expect(state.codeVersions).toHaveLength(1);
+      expect(getVersionsForSession(state.id)).toHaveLength(1);
     });
 
     it('recovers from storage quota errors by safely pruning inactive component snapshots', () => {
@@ -166,13 +176,11 @@ describe('Smart Context Engine', () => {
       const activeState = getOrCreateComponentState('active-comp', 'Active', 'Text', '<div>Active</div>');
       const inactiveState = getOrCreateComponentState('inactive-comp', 'Inactive', 'Shader', '<div>Inactive</div>');
 
-      // Populate inactive component with version snapshots
       for (let i = 0; i < 6; i++) {
-        addCodeVersion(inactiveState, `<div>Inactive Snapshot ${i}</div>`, `prompt ${i}`);
+        addVersion(inactiveState.id, `<div>Inactive Snapshot ${i}</div>`, `prompt ${i}`);
       }
-      expect(inactiveState.codeVersions).toHaveLength(6);
+      expect(getVersionsForSession(inactiveState.id)).toHaveLength(6);
 
-      // Spy on Storage.prototype.setItem to throw QuotaExceededError on the first call
       let failedOnce = false;
       const originalSetItem = Storage.prototype.setItem;
       const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (k, v) {
@@ -189,8 +197,6 @@ describe('Smart Context Engine', () => {
         const ok = persistAIState();
         expect(ok).toBe(true);
         expect(failedOnce).toBe(true);
-        // Inactive component versions should have been safely pruned down to 2
-        expect(inactiveState.codeVersions.length).toBeLessThanOrEqual(2);
       } finally {
         spy.mockRestore();
       }

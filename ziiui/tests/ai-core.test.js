@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { buildContextMessages, getOrCreateComponentState, pushChatMessage, setCurrentCode } from '../src/ai/state.js';
+import { buildContextMessages, getOrCreateComponentState, setCurrentCode, addMessage } from '../src/ai/state.js';
 import { normalizeCode } from '../src/ai/prompt.js';
 import { AI_MAX_CONTEXT_CHARS } from '../src/ai/config.js';
 
@@ -21,18 +21,18 @@ describe('AI state and prompt helpers', () => {
   it('keeps the active revision stable until the code actually changes', () => {
     const state = getOrCreateComponentState('demo-component', 'Demo', 'Text', '<div>Original</div>');
     const before = state.revision || 0;
-    setCurrentCode(state, '<div>Original</div>');
+    setCurrentCode(state.id, '<div>Original</div>');
     expect(state.revision).toBe(before);
-    setCurrentCode(state, '<div>Updated</div>');
+    setCurrentCode(state.id, '<div>Updated</div>');
     expect(state.currentCode).toBe('<div>Updated</div>');
     expect(state.revision).toBeGreaterThan(before);
   });
 
   it('builds bounded context from recent conversation messages', () => {
     const state = getOrCreateComponentState('ctx-component', 'Context', 'Text', '<section>Original</section>');
-    pushChatMessage(state, 'user', 'Make the button blue.');
-    pushChatMessage(state, 'assistant', 'Done — the button is now blue.');
-    const ctx = buildContextMessages(state, 'Make it darker.');
+    addMessage(state.id, 'user', 'Make the button blue.');
+    addMessage(state.id, 'assistant', 'Done — the button is now blue.');
+    const ctx = buildContextMessages(state.id, 'Make it darker.');
     expect(ctx).toEqual([
       { role: 'user', content: 'Make the button blue.' },
       { role: 'assistant', content: 'Done — the button is now blue.' }
@@ -42,9 +42,9 @@ describe('AI state and prompt helpers', () => {
 
   it('never exceeds the conversation context budget', () => {
     const state = getOrCreateComponentState('large-context', 'Large', 'Text', '<div></div>');
-    pushChatMessage(state, 'assistant', 'a'.repeat(AI_MAX_CONTEXT_CHARS + 100));
-    pushChatMessage(state, 'user', 'current request');
-    const ctx = buildContextMessages(state, 'current request');
+    addMessage(state.id, 'assistant', 'a'.repeat(AI_MAX_CONTEXT_CHARS + 100));
+    addMessage(state.id, 'user', 'current request');
+    const ctx = buildContextMessages(state.id, 'current request');
     expect(ctx).toHaveLength(1);
     expect(ctx[0].content).toHaveLength(AI_MAX_CONTEXT_CHARS);
     expect(ctx[0].content.endsWith('a'.repeat(50))).toBe(true);
