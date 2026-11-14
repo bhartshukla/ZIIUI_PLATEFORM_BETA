@@ -324,6 +324,139 @@ describe('Group C reduced-motion support', () => {
   });
 });
 
+describe('Group D reduced-motion support', () => {
+  const groupDComponents = ['noisypixel', 'mirror', 'maskdrag'];
+
+  it.each(groupDComponents)('includes prefers-reduced-motion JS guard for %s', (id) => {
+    const html = BY_ID[id].code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+  });
+
+  it('noisypixel JS skips Lenis and RAF loop when reduced motion', () => {
+    const html = BY_ID.noisypixel.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const lenisPos = html.indexOf('new Lenis');
+    const rafPos = html.indexOf('requestAnimationFrame(loop)');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(lenisPos).toBeGreaterThan(-1);
+    expect(rafPos).toBeGreaterThan(-1);
+  });
+
+  it('mirror JS skips scroll-driven uniforms and uses one-time render when reduced motion', () => {
+    const html = BY_ID.mirror.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const scrollPos = html.indexOf('window.addEventListener(\'scroll\'');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(scrollPos).toBeGreaterThan(-1);
+    // Should NOT have continuous RAF in reduced branch
+    const reducedBranch = html.slice(html.indexOf('} else {'));
+    expect(reducedBranch).not.toContain('requestAnimationFrame(rafReduced)');
+  });
+
+  it('maskdrag JS skips RAF draw loop and disables drag when reduced motion', () => {
+    const html = BY_ID.maskdrag.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const rafPos = html.indexOf('requestAnimationFrame(draw)');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(rafPos).toBeGreaterThan(-1);
+  });
+
+  it('Group D components still produce valid HTML with content visible', () => {
+    for (const id of groupDComponents) {
+      const html = BY_ID[id].code();
+      expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
+      expect(html.trim().endsWith('</html>')).toBe(true);
+      expect(html).not.toMatch(/@@\w+@@/);
+    }
+  });
+
+  it('Group D components still produce syntactically valid inline JavaScript', () => {
+    for (const id of groupDComponents) {
+      const html = BY_ID[id].code();
+      for (const code of inlineScripts(html)) {
+        expect(() => new Function(code)).not.toThrow();
+      }
+    }
+  });
+});
+
+describe('Group E reduced-motion support', () => {
+  const groupEComponents = ['footer2', 'effect'];
+
+  it.each(groupEComponents)('includes prefers-reduced-motion guard for %s', (id) => {
+    const html = BY_ID[id].code('char', 'fade');
+    expect(html).toContain('prefers-reduced-motion: reduce');
+  });
+
+  it('footer2 JS skips GSAP timeline and ScrollTrigger when reduced motion', () => {
+    const html = BY_ID.footer2.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const gsapTimelinePos = html.indexOf('gsap.timeline');
+    const scrollTriggerPos = html.indexOf('ScrollTrigger.create');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(gsapTimelinePos).toBeGreaterThan(-1);
+    expect(scrollTriggerPos).toBeGreaterThan(-1);
+  });
+
+  it('footer2 JS disables magnetic hover when reduced motion', () => {
+    const html = BY_ID.footer2.code();
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const mousemovePos = html.indexOf('mousemove');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(mousemovePos).toBeGreaterThan(-1);
+  });
+
+  it('effect text component CSS disables transitions under reduced motion', () => {
+    const html = BY_ID.effect.code('char', 'fade');
+    expect(html).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(html).toContain('transition: none !important');
+  });
+
+  it('effect text component JS (tail.js) shows final state immediately when reduced motion', () => {
+    const html = BY_ID.effect.code('char', 'fade');
+    expect(html).toContain('prefers-reduced-motion: reduce');
+    const guardPos = html.indexOf('prefers-reduced-motion: reduce');
+    const classListPos = html.indexOf('classList.add(\'on\')');
+    expect(guardPos).toBeGreaterThan(-1);
+    expect(classListPos).toBeGreaterThan(-1);
+  });
+
+  it('effect component works for all split/preset combinations', () => {
+    for (const per of ['char', 'word', 'line']) {
+      for (const preset of ['fade', 'blur', 'fade-in-blur', 'scale', 'slide']) {
+        const html = BY_ID.effect.code(per, preset);
+        expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
+        expect(html.trim().endsWith('</html>')).toBe(true);
+        expect(html).not.toMatch(/@@\w+@@/);
+        expect(html).toContain('prefers-reduced-motion: reduce');
+      }
+    }
+  });
+
+  it('Group E components still produce valid HTML with content visible', () => {
+    for (const id of groupEComponents) {
+      const html = id === 'effect' ? BY_ID[id].code('char', 'fade') : BY_ID[id].code();
+      expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
+      expect(html.trim().endsWith('</html>')).toBe(true);
+      expect(html).not.toMatch(/@@\w+@@/);
+    }
+  });
+
+  it('Group E components still produce syntactically valid inline JavaScript', () => {
+    for (const id of groupEComponents) {
+      const html = id === 'effect' ? BY_ID[id].code('char', 'fade') : BY_ID[id].code();
+      for (const code of inlineScripts(html)) {
+        expect(() => new Function(code)).not.toThrow();
+      }
+    }
+  });
+});
+
 describe('component video system', async () => {
   const { getComponentVideoSource } = await import('../src/effects/videos.js');
 

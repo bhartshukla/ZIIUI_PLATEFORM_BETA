@@ -213,7 +213,7 @@ if (!reducedMotion) {
   }
   requestAnimationFrame(raf);
 } else {
-  /* ── Reduced Motion: Set final revealed state ── */
+  /* ── Reduced Motion: Set final revealed state, render once ── */
   if (mat1) {
     mat1.uniforms.uDissolve.value       = 1.0;
     mat1.uniforms.uGrayscale.value      = 1.0;
@@ -227,10 +227,6 @@ if (!reducedMotion) {
   }
   hint.style.opacity = '0';
 
-  function rafReduced() {
-    renderer2.render(scene2, cam2);
-    renderer1.render(scene1, cam1);
-    requestAnimationFrame(rafReduced);
-  }
-  requestAnimationFrame(rafReduced);
+  renderer2.render(scene2, cam2);
+  renderer1.render(scene1, cam1);
 }

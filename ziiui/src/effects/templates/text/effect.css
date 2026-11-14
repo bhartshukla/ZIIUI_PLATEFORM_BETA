@@ -6,3 +6,7 @@
   transition-delay: calc(var(--i) * @@STAG@@s);
 }
 .u.on { @@SHOWN@@ }
+
+@media (prefers-reduced-motion: reduce) {
+  .u { transition: none !important; }
+}
