@@ -3,6 +3,9 @@ const masks = document.querySelectorAll('.maskContainer');
 const globalHud = document.querySelector('.globalHud');
 let isHoveringMask = false;
 
+/* ── Reduced Motion Check ── */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 const state = new Map();
 
 document.addEventListener('mousemove', e => {
@@ -71,13 +74,16 @@ function draw() {
     drawClipped(ctx, video, s);
     updateCoords(mask);
   });
-  requestAnimationFrame(draw);
+  if (!reducedMotion) {
+    requestAnimationFrame(draw);
+  }
 }
 
 masks.forEach(mask => {
   let dragging = false;
   let ox = 0, oy = 0;
   mask.addEventListener('mousedown', e => {
+    if (reducedMotion) {return;}
     dragging = true;
     const s = state.get(mask);
     ox = e.clientX - s.x;
@@ -85,7 +91,7 @@ masks.forEach(mask => {
     mask.style.cursor = 'grabbing';
   });
   document.addEventListener('mousemove', e => {
-    if (!dragging) {return;}
+    if (!dragging || reducedMotion) {return;}
     const s = state.get(mask);
     s.x = e.clientX - ox;
     s.y = e.clientY - oy;

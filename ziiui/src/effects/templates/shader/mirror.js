@@ -180,31 +180,57 @@ window.addEventListener('resize', () => {
 
 const hint = document.getElementById('scrollHint');
 
-window.addEventListener('scroll', () => {
-  const scrollTop = window.scrollY;
-  const maxScroll = document.body.scrollHeight - window.innerHeight;
-  const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+/* ── Reduced Motion Check ── */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (mat1) {
-    mat1.uniforms.uDissolve.value       = progress;
-    mat1.uniforms.uGrayscale.value      = Math.min(1.0, progress / 0.4);
-    mat1.uniforms.uEdgeIntensity.value  = progress * 0.5;
-    mat1.uniforms.uEdgeBrightness.value = 1.0 - progress;
+if (!reducedMotion) {
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+
+    if (mat1) {
+      mat1.uniforms.uDissolve.value       = progress;
+      mat1.uniforms.uGrayscale.value      = Math.min(1.0, progress / 0.4);
+      mat1.uniforms.uEdgeIntensity.value  = progress * 0.5;
+      mat1.uniforms.uEdgeBrightness.value = 1.0 - progress;
+    }
+
+    if (mat2) {
+      const ap = Math.min(1.0, progress * 1.1);
+      mat2.uniforms.uEdgeIntensity.value = 0.6 * (1.0 - ap);
+      mat2.uniforms.uDarkness.value      = 1.0 - ap;
+      mat2.uniforms.uGrayscale.value     = 1.0 - ap;
+    }
+
+    hint.style.opacity = Math.max(0, 1 - progress * 5);
+  });
+
+  function raf() {
+    renderer2.render(scene2, cam2);
+    renderer1.render(scene1, cam1);
+    requestAnimationFrame(raf);
   }
-
-  if (mat2) {
-    const ap = Math.min(1.0, progress * 1.1);
-    mat2.uniforms.uEdgeIntensity.value = 0.6 * (1.0 - ap);
-    mat2.uniforms.uDarkness.value      = 1.0 - ap;
-    mat2.uniforms.uGrayscale.value     = 1.0 - ap;
-  }
-
-  hint.style.opacity = Math.max(0, 1 - progress * 5);
-});
-
-function raf() {
-  renderer2.render(scene2, cam2);
-  renderer1.render(scene1, cam1);
   requestAnimationFrame(raf);
+} else {
+  /* ── Reduced Motion: Set final revealed state ── */
+  if (mat1) {
+    mat1.uniforms.uDissolve.value       = 1.0;
+    mat1.uniforms.uGrayscale.value      = 1.0;
+    mat1.uniforms.uEdgeIntensity.value  = 0.5;
+    mat1.uniforms.uEdgeBrightness.value = 0.0;
+  }
+  if (mat2) {
+    mat2.uniforms.uEdgeIntensity.value = 0.0;
+    mat2.uniforms.uDarkness.value      = 0.0;
+    mat2.uniforms.uGrayscale.value     = 0.0;
+  }
+  hint.style.opacity = '0';
+
+  function rafReduced() {
+    renderer2.render(scene2, cam2);
+    renderer1.render(scene1, cam1);
+    requestAnimationFrame(rafReduced);
+  }
+  requestAnimationFrame(rafReduced);
 }
-requestAnimationFrame(raf);

@@ -1,6 +1,9 @@
 const lerp = (a, b, t) => a + (b - a) * t;
 const damp = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
 
+/* ── Reduced Motion Check ── */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 class Lenis {
   constructor({ lerp: lerpFactor = 0.085, smoothWheel = true } = {}) {
     this.lerpFactor = lerpFactor;
@@ -250,28 +253,39 @@ async function boot() {
     onLeaveBack: () => document.getElementById('endSection').classList.remove('visible'),
   });
 
-  const lenis = new Lenis({ lerp: 0.085 });
-  let prevTime = 0;
+  if (!reducedMotion) {
+    const lenis = new Lenis({ lerp: 0.085 });
+    let prevTime = 0;
 
-  function loop(time) {
+    function loop(time) {
+      requestAnimationFrame(loop);
+      const dt = Math.min((time - prevTime) / 1000, 0.05);
+      prevTime = time;
+      lenis.raf(time);
+      ScrollTrigger.update();
+      smoothProgress = damp(smoothProgress, rawProgress, 6.5, dt);
+      coverMat.uniforms.uProgress.value    = smoothProgress;
+      coverMat.uniforms.uRawProgress.value = rawProgress;
+      coverMat.uniforms.uTime.value        = time * 0.001;
+      const pct = Math.round(smoothProgress * 100);
+      display.textContent = `${pct  }%`;
+      display.style.color = smoothProgress > 0.5
+        ? 'rgba(255,255,255,0.12)'
+        : 'rgba(255,255,255,0.25)';
+      renderer.clear();
+      renderer.render(scene, camera);
+    }
     requestAnimationFrame(loop);
-    const dt = Math.min((time - prevTime) / 1000, 0.05);
-    prevTime = time;
-    lenis.raf(time);
-    ScrollTrigger.update();
-    smoothProgress = damp(smoothProgress, rawProgress, 6.5, dt);
-    coverMat.uniforms.uProgress.value    = smoothProgress;
-    coverMat.uniforms.uRawProgress.value = rawProgress;
-    coverMat.uniforms.uTime.value        = time * 0.001;
-    const pct = Math.round(smoothProgress * 100);
-    display.textContent = `${pct  }%`;
-    display.style.color = smoothProgress > 0.5
-      ? 'rgba(255,255,255,0.12)'
-      : 'rgba(255,255,255,0.25)';
+  } else {
+    /* ── Reduced Motion: Show final revealed state ── */
+    coverMat.uniforms.uProgress.value    = 1.0;
+    coverMat.uniforms.uRawProgress.value = 1.0;
+    coverMat.uniforms.uTime.value        = 0;
+    display.textContent = '100%';
+    display.style.color = 'rgba(255,255,255,0.12)';
     renderer.clear();
     renderer.render(scene, camera);
   }
-  requestAnimationFrame(loop);
 }
 
 boot();
