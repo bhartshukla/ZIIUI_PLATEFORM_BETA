@@ -1,7 +1,7 @@
 /* The floating AI panel + the code/preview modal on the library page. */
 import { $, esc, say, report, guard, exportFile } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
-import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js';
+import { injectDebugHook, setFrameHTML, emptyPreviewDoc } from '../../lib/preview.js';
 import {
   getComponent, getOrCreateComponentState, saveActiveComponentId, persistAIState, flushPersist,
   clearAllAIHistory, addMessage, addVersion, setCurrentCode, describeContext,
@@ -337,7 +337,7 @@ function keepModalFocus(event) {
 function runPreview() {
   if (!el.previewFrame) {return;}
   const code = el.code ? el.code.value : '';
-  setFrameHTML(el.previewFrame, code && code.trim() ? injectDebug(code) : emptyPreviewDoc());
+  setFrameHTML(el.previewFrame, code && code.trim() ? injectDebugHook(code) : emptyPreviewDoc());
 }
 
 function updateStatus() {
@@ -368,7 +368,7 @@ function applyEdited() {
   store.editActive = val !== store.html;
   setCurrentCode(store.compState.id, val);
   refreshCodeView();
-  setFrameHTML($('frame'), injectDebug(val));
+  setFrameHTML($('frame'), injectDebugHook(val));
   updateStatus();
   updateDraftIndicators();
   chat.add('sys', 'Applied AI version to the preview.');
@@ -382,7 +382,7 @@ export function resetToOriginal() {
   setCurrentCode(store.compState.id, '');
   if (el.code) {el.code.value = store.html || '';}
   refreshCodeView();
-  if (store.html) {setFrameHTML($('frame'), injectDebug(store.html));}
+  if (store.html) {setFrameHTML($('frame'), injectDebugHook(store.html));}
   updateStatus();
   updateDraftIndicators();
   runPreview();

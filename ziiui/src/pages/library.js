@@ -1,5 +1,6 @@
 /* Entry point for index.html — the effects library. */
 import { $, guard, report, installGlobalErrorHandlers } from '../lib/dom.js';
+import { installPreviewMessageHandler } from '../lib/preview.js';
 import { applyThemeIcon, toggleTheme } from '../lib/theme.js';
 import { BY_ID } from '../effects/registry.js';
 import { loadAIState, loadAISettings } from '../ai/state.js';
@@ -168,6 +169,7 @@ function openCurrentRoute() {
 
 function boot() {
   installGlobalErrorHandlers();
+  installPreviewMessageHandler();
   loadAISettings();
   loadAIState();
 

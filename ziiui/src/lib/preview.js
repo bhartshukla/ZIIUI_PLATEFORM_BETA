@@ -1,59 +1,297 @@
-/* Helpers for rendering generated HTML inside sandboxed preview iframes. */
-import { esc } from './dom.js';
-import { buildDoc } from '../effects/builders.js';
+/* Secure preview iframe lifecycle for ZiiUI component previews.
+ *
+ * Security model:
+ * - Preview iframes use opaque-origin sandboxing (no allow-same-origin)
+ * - Each preview gets a unique nonce and generation ID
+ * - All iframe->parent messages are validated by source + nonce + generation
+ * - Cleanup protocol uses postMessage with acknowledgement
+ */
+import { esc, say } from './dom.js';
 
-/** Posts runtime errors from the iframe back to the host page. */
-const DEBUG_HOOK =
-  '<script>' +
-  'window.addEventListener("error",function(e){try{parent.postMessage({__ziiui:1,message:String((e&&e.message)||e)},"*");}catch(_){}});' +
-  'window.addEventListener("unhandledrejection",function(e){try{parent.postMessage({__ziiui:1,message:"Promise: "+String((e&&e.reason)||e)},"*");}catch(_){}});' +
-  '</script>';
+/** Build an empty preview document. */
+export function emptyPreviewDoc() {
+  return '<!DOCTYPE html><html><head></head><body></body></html>';
+}
 
-/** Insert the error-reporting hook right after <head> (or prepend it). */
-export function injectDebug(code) {
-  const src = String(code || '');
-  const marker = '<head>';
-  const i = src.indexOf(marker);
-  if (i === -1) {return `${DEBUG_HOOK  }\n${  src}`;}
-  const at = i + marker.length;
-  return `${src.slice(0, at)  }\n${  DEBUG_HOOK  }${src.slice(at)}`;
+/** Build an error page with the given title and message. */
+export function errorDoc(title, message) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${esc(title)}</title>
+</head>
+<body><pre>${esc(message)}</pre></body>
+</html>`;
+}
+
+/* Per-iframe lifecycle state, keyed by iframe DOM node. */
+const frames = new WeakMap();
+
+function getRecord(frame) {
+  let record = frames.get(frame);
+  if (!record) {
+    record = {
+      generation: 0,
+      activeGeneration: null,
+      activeNonce: null,
+      requestedGeneration: null,
+      requestedNonce: null,
+      pending: null,
+      aborted: false,
+    };
+    frames.set(frame, record);
+  }
+  return record;
+}
+
+function settle(pending, result) {
+  if (!pending || pending.settled) {return;}
+  pending.settled = true;
+  if (pending.timeoutId) {
+    clearTimeout(pending.timeoutId);
+    pending.timeoutId = null;
+  }
+  pending.resolve(result);
+}
+
+/** Build the debug hook injected into every preview document.
+ *
+ * The hook:
+ * 1. Exposes __ziiuiNonce and __ziiuiGeneration for cleanup correlation
+ * 2. Provides a default no-op __ziiuiCleanup (effects can override)
+ * 3. Reports runtime errors and unhandled rejections to parent
+ * 4. Handles cleanup requests from parent (ziiui:cleanup)
+ */
+function createDebugHook(nonce, generation) {
+  return `<script>
+window.__ziiuiNonce = ${JSON.stringify(nonce)};
+window.__ziiuiGeneration = ${generation};
+window.__ziiuiCleanup = function() {};
+window.addEventListener("error",function(e){try{parent.postMessage({type:"ziiui:error",nonce:window.__ziiuiNonce,generation:window.__ziiuiGeneration,message:String((e&&e.message)||e)},"*");}catch(_){}});
+window.addEventListener("unhandledrejection",function(e){try{parent.postMessage({type:"ziiui:error",nonce:window.__ziiuiNonce,generation:window.__ziiuiGeneration,message:"Promise: "+String((e&&e.reason)||e)},"*");}catch(_){}});
+window.addEventListener("message",function(e){
+  if (e.source !== parent) return;
+  if (!e.data || e.data.type !== "ziiui:cleanup") return;
+  if (e.data.nonce !== window.__ziiuiNonce) return;
+  if (e.data.generation !== window.__ziiuiGeneration) return;
+  try { window.__ziiuiCleanup(); } catch (_) {}
+  try { parent.postMessage({type:"ziiui:ack:cleanup",nonce:window.__ziiuiNonce,generation:window.__ziiuiGeneration},"*"); } catch (_) {}
+});
+</script>`;
 }
 
 const urls = new WeakMap();
 
-/** Load HTML into an iframe safely and immediately using srcdoc (with blob/data fallback). */
+/** Inject debug hook after <head> (case-insensitive, handles attributes, missing head). */
+export function injectDebugHook(html, hook) {
+  const src = String(html || '');
+  const marker = '<head';
+  const i = src.toLowerCase().indexOf(marker);
+  if (i === -1) { return `${hook}\n${src}`; }
+  const gt = src.indexOf('>', i);
+  if (gt === -1) { return `${hook}\n${src}`; }
+  const at = gt + 1;
+  return `${src.slice(0, at)}\n${hook}${src.slice(at)}`;
+}
+
+/** Request cleanup of the current preview in an iframe.
+ *
+ * Sends ziiui:cleanup to the iframe and waits for ziiui:ack:cleanup
+ * or a 500ms timeout. Returns a Promise that settles exactly once.
+ *
+ * Results:
+ *   { acknowledged: true, nonce }  - iframe acknowledged cleanup
+ *   { timedOut: true }              - timeout before ACK
+ *   { superseded: true }            - a newer cleanup replaced this one
+ *   { error: true, message }        - postMessage threw
+ *   { noPreview: true }             - no active preview to clean
+ */
+export function requestCleanup(frame) {
+  if (!frame) {return Promise.resolve({ noPreview: true });}
+
+  const record = getRecord(frame);
+  if (!record.activeNonce) {
+    return Promise.resolve({ noPreview: true });
+  }
+
+  // Same generation cleanup already pending -> return same Promise
+  if (record.pending && !record.pending.settled && record.pending.generation === record.activeGeneration) {
+    return record.pending.promise;
+  }
+
+  // Abort any pending cleanup for a different generation
+  if (record.pending && !record.pending.settled) {
+    settle(record.pending, { superseded: true, supersededBy: record.generation });
+    record.pending = null;
+  }
+
+  return new Promise((resolve) => {
+    let settledLocally = false;
+    const timeoutId = setTimeout(() => {
+      if (!settledLocally) {
+        settledLocally = true;
+        settle(record.pending, { timedOut: true });
+        record.pending = null;
+      }
+    }, 500);
+
+    const pending = {
+      op: 'replace',
+      generation: record.activeGeneration,
+      nonce: record.activeNonce,
+      promise: null,
+      resolve,
+      reject: null,
+      timeoutId,
+      settled: false,
+    };
+
+    pending.promise = pending;
+    record.pending = pending;
+
+    try {
+      frame.contentWindow.postMessage(
+        { type: 'ziiui:cleanup', nonce: pending.nonce, generation: pending.generation },
+        '*'
+      );
+    } catch (err) {
+      if (!pending.settled) {
+        pending.settled = true;
+        settle(pending, { error: true, message: String(err) });
+        record.pending = null;
+      }
+    }
+  });
+}
+
+/** Load HTML into an iframe securely.
+ *
+ * Sets sandbox attribute BEFORE assigning srcdoc/src.
+ * Injects nonce/generation into DEBUG_HOOK.
+ * Does NOT await cleanup - call requestCleanup() separately if needed.
+ * Normal-motion animation behavior is unchanged.
+ */
 export function setFrameHTML(frame, source) {
   if (!frame) {return;}
+
+  const record = getRecord(frame);
+  const generation = ++record.generation;
+  const nonce = crypto.randomUUID();
+
+  // MARK requested identity (not yet active - confirmed by ziiui:ready)
+  record.requestedGeneration = generation;
+  record.requestedNonce = nonce;
+
   const content = String(source == null ? '' : source);
+
+  // Revoke old blob URL
   const old = urls.get(frame);
   if (old) {
     URL.revokeObjectURL(old);
     urls.delete(frame);
   }
 
-  // Use srcdoc as primary mechanism for sandboxed iframes (instant parsing, no cross-origin blob restrictions)
+  // Inject DEBUG_HOOK with nonce/generation
+  const hook = createDebugHook(nonce, generation);
+  const contentWithHook = injectDebugHook(content, hook);
+
   if ('srcdoc' in frame) {
+    // Remove src attribute first, then set sandbox BEFORE srcdoc
     if (frame.hasAttribute('src')) {
       frame.removeAttribute('src');
     }
-    frame.srcdoc = content;
+    frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-pointer-lock');
+    frame.srcdoc = contentWithHook;
     return;
   }
 
   // Fallback for environments where srcdoc is not supported
   try {
-    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+    const blob = new Blob([contentWithHook], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     urls.set(frame, url);
+    frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-pointer-lock');
     frame.src = url;
   } catch (_) {
-    frame.src = `data:text/html;charset=utf-8,${  encodeURIComponent(content)}`;
+    frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-pointer-lock');
+    frame.src = `data:text/html;charset=utf-8,${encodeURIComponent(contentWithHook)}`;
   }
 }
 
-/** Clear an iframe completely to stop running animation loops and release resources. */
-export function clearFrameHTML(frame) {
+/** Clear an iframe completely to stop running animation loops and release resources.
+ *
+ * Sends cleanup request first, then clears the document.
+ * Returns a Promise that settles when cleanup completes (ACK or timeout).
+ */
+export async function clearFrameHTML(frame) {
   if (!frame) {return;}
+
+  const record = getRecord(frame);
+
+  // Send cleanup if there's an active preview
+  if (record.activeNonce) {
+    await requestCleanup(frame);
+  }
+
+  // Revoke old blob URL
+  const old = urls.get(frame);
+  if (old) {
+    URL.revokeObjectURL(old);
+    urls.delete(frame);
+  }
+
+  // Clear document
+  if ('srcdoc' in frame) {
+    frame.srcdoc = '';
+  }
+  if (frame.hasAttribute('src')) {
+    frame.removeAttribute('src');
+  }
+
+  // Clear state
+  record.activeNonce = null;
+  record.activeGeneration = null;
+  record.requestedGeneration = null;
+  record.requestedNonce = null;
+}
+
+/** Full lifecycle preview replacement.
+ *
+ * 1. Clean up old preview (await acknowledgement or timeout)
+ * 2. Revoke old Blob URL
+ * 3. Clear old document
+ * 4. Assign new sandbox
+ * 5. Generate new nonce
+ * 6. Inject new DEBUG_HOOK
+ * 7. Load new preview
+ *
+ * Returns a Promise that settles when the operation completes.
+ */
+export async function requestFrameHTML(frame, source) {
+  if (!frame) {return { noPreview: true };}
+
+  const record = getRecord(frame);
+  const generation = ++record.generation;
+  const nonce = crypto.randomUUID();
+
+  record.requestedGeneration = generation;
+  record.requestedNonce = nonce;
+
+  // Phase 1: Clean up old preview
+  if (record.activeNonce) {
+    const cleanupResult = await requestCleanup(frame);
+
+    if (cleanupResult.superseded) {
+      return { superseded: true };
+    }
+
+    if (record.requestedGeneration !== generation) {
+      return { superseded: true };
+    }
+  }
+
+  // Phase 2: Clear old document
   const old = urls.get(frame);
   if (old) {
     URL.revokeObjectURL(old);
@@ -65,20 +303,122 @@ export function clearFrameHTML(frame) {
   if (frame.hasAttribute('src')) {
     frame.removeAttribute('src');
   }
+
+  // Phase 3: Set active identity
+  record.activeNonce = nonce;
+  record.activeGeneration = generation;
+
+  if (record.requestedGeneration !== generation) {
+    return { superseded: true };
+  }
+
+  // Phase 4: Load new preview
+  const content = String(source == null ? '' : source);
+  const hook = createDebugHook(nonce, generation);
+  const contentWithHook = injectDebugHook(content, hook);
+
+  if ('srcdoc' in frame) {
+    if (frame.hasAttribute('src')) {
+      frame.removeAttribute('src');
+    }
+    frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-pointer-lock');
+    frame.srcdoc = contentWithHook;
+  } else {
+    try {
+      const blob = new Blob([contentWithHook], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      urls.set(frame, url);
+      frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-pointer-lock');
+      frame.src = url;
+    } catch (_) {
+      frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-pointer-lock');
+      frame.src = `data:text/html;charset=utf-8,${encodeURIComponent(contentWithHook)}`;
+    }
+  }
+
+  record.requestedGeneration = null;
+  record.requestedNonce = null;
+
+  return { loaded: true, nonce, generation };
 }
 
-export function errorDoc(title, message) {
-  return buildDoc({
-    title: `ziiui — ${  title}`,
-    css: 'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f1115;color:#eceef2;font-family:system-ui,sans-serif;text-align:center;padding:2rem}h1{font-size:1.05rem;margin:0 0 .6rem;font-weight:700}code{display:block;color:#ff8a8a;font-size:.85rem;white-space:pre-wrap;word-break:break-word}',
-    body: `<div><h1>${  esc(title)  }</h1><code>${  esc(message)  }</code></div>`
+/** Global message handler for preview iframe messages.
+ *
+ * Validates source, nonce, and generation before processing.
+ * Must be called once at application startup (e.g., in each page's boot).
+ */
+export function installPreviewMessageHandler() {
+  window.addEventListener('message', (e) => {
+    // Find which iframe sent this message
+    let targetFrame = null;
+    for (const [frame] of frames.entries()) {
+      if (e.source === frame.contentWindow) {
+        targetFrame = frame;
+        break;
+      }
+    }
+
+    if (!targetFrame) {return;}
+
+    const record = getRecord(targetFrame);
+    if (record.aborted) {return;}
+
+    const type = e.data?.type;
+    if (type !== 'ziiui:ack:cleanup' && type !== 'ziiui:error' && type !== 'ziiui:ready') {return;}
+
+    // --- Independent routing: ziiui:ready ---
+    if (type === 'ziiui:ready') {
+      // Validate against requested identity (not pending)
+      if (e.data.nonce !== record.requestedNonce) {return;}
+      if (e.data.generation !== record.requestedGeneration) {return;}
+
+      // Promote requested identity to active
+      record.activeNonce = record.requestedNonce;
+      record.activeGeneration = record.requestedGeneration;
+      record.requestedGeneration = null;
+      record.requestedNonce = null;
+      return;
+    }
+
+    // --- Cleanup ACK handling requires pending operation ---
+    const pending = record.pending;
+    if (!pending || pending.settled) {return;}
+
+    // Nonce validation: must match the pending operation's nonce
+    if (e.data.nonce !== pending.nonce) {return;}
+
+    // Generation validation: must match the pending operation's generation
+    if (e.data.generation !== pending.generation) {return;}
+
+    if (type === 'ziiui:ack:cleanup') {
+      if (typeof e.data.nonce !== 'string') {return;}
+      settle(pending, { acknowledged: true, nonce: e.data.nonce });
+      record.pending = null;
+    }
+
+    // ziiui:error from iframe is just logged, not a cleanup ack
+    if (type === 'ziiui:error') {
+      if (typeof e.data.message === 'string' && e.data.message.length <= 1000) {
+        console.error('[ziiui:preview]', e.data.message);
+        say(`Preview error: ${e.data.message}`);
+      }
+    }
   });
 }
 
-export function emptyPreviewDoc() {
-  return buildDoc({
-    title: 'ziiui — Preview',
-    css: 'body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui,sans-serif;background:#0f1115;color:#8b92a0}',
-    body: 'Nothing to preview'
-  });
+/** Mark an iframe as removed/aborted. Call when iframe is detached from DOM.
+ *
+ * Settles any pending cleanup exactly once with { aborted: true }.
+ * Prevents all outstanding async operations from continuing.
+ */
+export function abortFrame(frame) {
+  const record = frames.get(frame);
+  if (!record) {return;}
+
+  record.aborted = true;
+  if (record.pending && !record.pending.settled) {
+    settle(record.pending, { aborted: true });
+    record.pending = null;
+  }
+  frames.delete(frame);
 }

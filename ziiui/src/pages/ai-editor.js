@@ -1,7 +1,7 @@
 /* Entry point for ai.html — full-page AI editor for one saved component. */
 import { $, say, report, guard, installGlobalErrorHandlers, exportFile } from '../lib/dom.js';
 import { copyText } from '../lib/clipboard.js';
-import { injectDebug, setFrameHTML, emptyPreviewDoc } from '../lib/preview.js';
+import { injectDebugHook, setFrameHTML, emptyPreviewDoc, installPreviewMessageHandler } from '../lib/preview.js';
 import {
   loadAIState, loadAISettings, getAIState, getAISettings, setAutoPreview,
   getComponent, getActiveComponentId, saveActiveComponentId, persistAIState,
@@ -26,7 +26,7 @@ const displayName = () => (activeComponent && (activeComponent.name || activeId)
 /* ---------- rendering ---------- */
 function runPreview() {
   const code = el.code.value;
-  setFrameHTML(el.preview, code && code.trim() ? injectDebug(code) : emptyPreviewDoc());
+  setFrameHTML(el.preview, code && code.trim() ? injectDebugHook(code) : emptyPreviewDoc());
 }
 
 function renderChat() {
@@ -205,6 +205,7 @@ function exportCode() {
 /* ---------- boot ---------- */
 function boot() {
   installGlobalErrorHandlers();
+  installPreviewMessageHandler();
   el = {
     headSub: $('aiHeadSub'), prompt: $('aiPrompt'), send: $('aiSend'), code: $('aiCodeEditor'),
     preview: $('aiPreviewFrame'), auto: $('aiAutoPreview'), banner: $('aiLockBanner'),
