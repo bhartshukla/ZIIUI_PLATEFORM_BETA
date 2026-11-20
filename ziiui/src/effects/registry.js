@@ -223,3 +223,6 @@ export const CATEGORIES = ['Web', 'Menus', 'Interactive', 'Scroll', 'Shader', 'F
 export const FIELD_LABELS = {};
 
 export const BY_ID = Object.fromEntries(EFFECTS.map((e) => [e.id, e]));
+
+// Async compatibility (Stage 3A): preserve sync code() while exposing async entry point.
+EFFECTS.forEach((e) => { if (typeof e.code === 'function' && !e.codeAsync) { e.codeAsync = async (...args) => e.code(...args); } });

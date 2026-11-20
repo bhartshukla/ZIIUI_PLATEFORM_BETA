@@ -203,7 +203,7 @@ function exportCode() {
 }
 
 /* ---------- boot ---------- */
-function boot() {
+async function boot() {
   installGlobalErrorHandlers();
   installPreviewMessageHandler();
   el = {
@@ -225,7 +225,14 @@ function boot() {
   if (!startId && paramId) {
     const found = BY_ID[paramId] || EFFECTS.find((e) => e.name.toLowerCase() === paramId.toLowerCase());
     if (found) {
-      const initialCode = typeof found.code === 'function' ? found.code() : '';
+      let initialCode = '';
+      try {
+        if (typeof found.codeAsync === 'function') {
+          initialCode = await found.codeAsync();
+        } else if (typeof found.code === 'function') {
+          initialCode = found.code();
+        }
+      } catch (err) { report(err, 'initialCode'); }
       getOrCreateComponentState(found.id, found.name, found.cat, initialCode);
       startId = found.id;
     }

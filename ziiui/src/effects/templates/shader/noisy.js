@@ -79,10 +79,10 @@ const fragCover = `
   uniform float uCharCount;
   varying vec2 vUv;
   float hash(vec2 p){
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453);
   }
   float hash3(vec3 p){
-    return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453123);
+    return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453);
   }
   void main(){
     vec2 gridSize  = uPlaneSize / uPixelSize;
@@ -183,8 +183,8 @@ async function boot() {
   renderer.sortObjects = false;
   stage.appendChild(renderer.domElement);
 
-  const scene  = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  let scene  = new THREE.Scene();
+  let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const geo    = new THREE.PlaneGeometry(2, 2);
 
   const imgTex = new THREE.Texture(img);
@@ -240,14 +240,14 @@ async function boot() {
   let rawProgress    = 0;
   let smoothProgress = 0;
 
-  ScrollTrigger.create({
+  const st1 = ScrollTrigger.create({
     trigger: stage, start: 'top bottom', end: 'bottom top',
     onUpdate(self) {
       rawProgress = gsap.utils.clamp(0, 1, (self.progress - 0.05) / 0.85);
     },
   });
 
-  ScrollTrigger.create({
+  const st2 = ScrollTrigger.create({
     trigger: '#endSection', start: 'top 80%',
     onEnter: () => document.getElementById('endSection').classList.add('visible'),
     onLeaveBack: () => document.getElementById('endSection').classList.remove('visible'),
@@ -256,9 +256,10 @@ async function boot() {
   if (!reducedMotion) {
     const lenis = new Lenis({ lerp: 0.085 });
     let prevTime = 0;
+    let rafId = null;
 
     function loop(time) {
-      requestAnimationFrame(loop);
+      rafId = requestAnimationFrame(loop);
       const dt = Math.min((time - prevTime) / 1000, 0.05);
       prevTime = time;
       lenis.raf(time);
@@ -275,7 +276,7 @@ async function boot() {
       renderer.clear();
       renderer.render(scene, camera);
     }
-    requestAnimationFrame(loop);
+    rafId = requestAnimationFrame(loop);
   } else {
     /* ── Reduced Motion: Show final revealed state ── */
     coverMat.uniforms.uProgress.value    = 1.0;
@@ -286,6 +287,27 @@ async function boot() {
     renderer.clear();
     renderer.render(scene, camera);
   }
+
+  window.__ziiuiCleanup = () => {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (lenis) {
+      window.removeEventListener('wheel', lenis._onWheel);
+      window.removeEventListener('scroll', lenis._onScroll);
+    }
+    st1.kill();
+    st2.kill();
+    renderer.dispose();
+    renderer.forceContextLoss();
+    renderer.domElement.remove();
+    scene.clear();
+    scene = null;
+    camera = null;
+    geo.dispose();
+    imgTex.dispose();
+    charsTex.dispose();
+    baseMat.dispose();
+    coverMat.dispose();
+  };
 }
 
 boot();

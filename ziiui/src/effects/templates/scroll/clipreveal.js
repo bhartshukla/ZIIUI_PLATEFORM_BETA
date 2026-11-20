@@ -4,7 +4,8 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 if (!reducedMotion) {
   const lenis = new Lenis();
   lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add(t => lenis.raf(t * 1000));
+  const lenisRaf = (time) => { lenis.raf(time * 1000); };
+  gsap.ticker.add(lenisRaf);
   gsap.ticker.lagSmoothing(0);
 }
 
@@ -37,6 +38,8 @@ if (!reducedMotion) {
     }
   });
 
+  const tlRef = tl;
+
   ScrollTrigger.create({
     animation: tl,
     trigger: '.panels',
@@ -66,3 +69,11 @@ if (!reducedMotion) {
   // Last nav dot active
   dots.forEach((d, i) => d.classList.toggle('active', i === panels.length - 1));
 }
+
+window.__ziiuiCleanup = () => {
+  if (!reducedMotion) {
+    lenis.destroy();
+    gsap.ticker.remove(lenisRaf);
+  }
+  ScrollTrigger.getAll().forEach(st => st.kill());
+};

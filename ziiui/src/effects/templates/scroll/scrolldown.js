@@ -3,8 +3,9 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 
 if (!reducedMotion) {
   const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+  const lenisRaf = (t) => lenis.raf(t * 1000);
   lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  gsap.ticker.add(lenisRaf);
 }
 
 const wordpink = '#F22A72';
@@ -53,4 +54,12 @@ document.fonts.ready.then(() => {
       gsap.to(words, { color: wordDark, stagger: 0, duration: 0 });
     }
   });
+
+  window.__ziiuiCleanup = () => {
+    if (!reducedMotion) {
+      lenis.destroy();
+      gsap.ticker.remove(lenisRaf);
+    }
+    ScrollTrigger.getAll().forEach(st => st.kill());
+  };
 });

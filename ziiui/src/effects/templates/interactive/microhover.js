@@ -75,9 +75,22 @@
 
   hidePhotosOffscreen();
 
+  const enterHandler = () => playBurst();
+  const focusHandler = () => playBurst();
+
   keywordTriggers.forEach((trigger) => {
-    trigger.addEventListener('mouseenter', playBurst);
-    trigger.addEventListener('focus', playBurst);
+    trigger.addEventListener('mouseenter', enterHandler);
+    trigger.addEventListener('focus', enterHandler);
   });
   heroSection.addEventListener('mouseleave', stopBurst);
+
+  window.__ziiuiCleanup = () => {
+    stopBurst();
+    keywordTriggers.forEach((trigger) => {
+      trigger.removeEventListener('mouseenter', enterHandler);
+      trigger.removeEventListener('focus', enterHandler);
+    });
+    heroSection.removeEventListener('mouseleave', stopBurst);
+    gsap.killTweensOf(photoElements);
+  };
 })();

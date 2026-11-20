@@ -170,13 +170,38 @@ loader.load(
   }
 );
 
-window.addEventListener('resize', () => {
+const rafId = { value: null };
+const scrollHandler = () => {
+  const scrollTop = window.scrollY;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+
+  if (mat1) {
+    mat1.uniforms.uDissolve.value       = progress;
+    mat1.uniforms.uGrayscale.value      = Math.min(1.0, progress / 0.4);
+    mat1.uniforms.uEdgeIntensity.value  = progress * 0.5;
+    mat1.uniforms.uEdgeBrightness.value = 1.0 - progress;
+  }
+
+  if (mat2) {
+    const ap = Math.min(1.0, progress * 1.1);
+    mat2.uniforms.uEdgeIntensity.value = 0.6 * (1.0 - ap);
+    mat2.uniforms.uDarkness.value      = 1.0 - ap;
+    mat2.uniforms.uGrayscale.value     = 1.0 - ap;
+  }
+
+  hint.style.opacity = Math.max(0, 1 - progress * 5);
+};
+
+const resizeHandler = () => {
   const w = window.innerWidth, h = window.innerHeight;
   renderer1.setSize(w, h);
   renderer2.setSize(w, h);
   if (mat1) {mat1.uniforms.uResolution.value.set(w, h);}
   if (mat2) {mat2.uniforms.uResolution.value.set(w, h);}
-});
+};
+
+window.addEventListener('resize', resizeHandler);
 
 const hint = document.getElementById('scrollHint');
 
@@ -184,34 +209,14 @@ const hint = document.getElementById('scrollHint');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (!reducedMotion) {
-  window.addEventListener('scroll', () => {
-    const scrollTop = window.scrollY;
-    const maxScroll = document.body.scrollHeight - window.innerHeight;
-    const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
-
-    if (mat1) {
-      mat1.uniforms.uDissolve.value       = progress;
-      mat1.uniforms.uGrayscale.value      = Math.min(1.0, progress / 0.4);
-      mat1.uniforms.uEdgeIntensity.value  = progress * 0.5;
-      mat1.uniforms.uEdgeBrightness.value = 1.0 - progress;
-    }
-
-    if (mat2) {
-      const ap = Math.min(1.0, progress * 1.1);
-      mat2.uniforms.uEdgeIntensity.value = 0.6 * (1.0 - ap);
-      mat2.uniforms.uDarkness.value      = 1.0 - ap;
-      mat2.uniforms.uGrayscale.value     = 1.0 - ap;
-    }
-
-    hint.style.opacity = Math.max(0, 1 - progress * 5);
-  });
+  window.addEventListener('scroll', scrollHandler);
 
   function raf() {
+    rafId.value = requestAnimationFrame(raf);
     renderer2.render(scene2, cam2);
     renderer1.render(scene1, cam1);
-    requestAnimationFrame(raf);
   }
-  requestAnimationFrame(raf);
+  rafId.value = requestAnimationFrame(raf);
 } else {
   /* ── Reduced Motion: Set final revealed state, render once ── */
   if (mat1) {
@@ -230,3 +235,20 @@ if (!reducedMotion) {
   renderer2.render(scene2, cam2);
   renderer1.render(scene1, cam1);
 }
+
+window.__ziiuiCleanup = () => {
+  if (rafId.value) { cancelAnimationFrame(rafId.value); rafId.value = null; }
+  window.removeEventListener('scroll', scrollHandler);
+  window.removeEventListener('resize', resizeHandler);
+  renderer1.dispose();
+  renderer1.forceContextLoss();
+  renderer1.domElement.remove();
+  renderer2.dispose();
+  renderer2.forceContextLoss();
+  renderer2.domElement.remove();
+  scene1.clear();
+  scene2.clear();
+  geo.dispose();
+  if (mat1) {mat1.dispose();}
+  if (mat2) {mat2.dispose();}
+};

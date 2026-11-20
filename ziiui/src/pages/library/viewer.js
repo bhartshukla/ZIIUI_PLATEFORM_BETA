@@ -237,11 +237,14 @@ function updateHint(empty, trimmed) {
       : `${n.toLocaleString()  } / ${  MAX.toLocaleString()  } characters`;
 }
 
-export function rebuild() {
+let currentBuildId = 0;
+
+export async function rebuild() {
   clearTimeout(buildTimer);
   buildTimer = null;
   const cur = store.cur;
   if (!cur) {return;}
+  const buildId = ++currentBuildId;
   try {
     const ta = $('text');
     const raw = norm(ta ? ta.value : '');
@@ -254,7 +257,12 @@ export function rebuild() {
     if (buildCache.has(cacheKey)) {
       generated = buildCache.get(cacheKey);
     } else {
-      generated = cur.opts ? cur.code(perVal, presetVal) : cur.code();
+      if (typeof cur.codeAsync === 'function') {
+        generated = cur.opts ? await cur.codeAsync(perVal, presetVal) : await cur.codeAsync();
+      } else {
+        generated = cur.opts ? cur.code(perVal, presetVal) : cur.code();
+      }
+      if (buildId !== currentBuildId) { return; }
       if (buildCache.size >= MAX_BUILD_CACHE) {
         const firstKey = buildCache.keys().next().value;
         buildCache.delete(firstKey);
@@ -262,16 +270,19 @@ export function rebuild() {
       buildCache.set(cacheKey, generated);
     }
 
+    if (buildId !== currentBuildId) { return; }
+
     store.html = String(generated).replace(/__TEXT__/g, () => esc(empty ? PLACEHOLDER : raw));
     const labelEl = $('label');
     if (labelEl) {labelEl.textContent = cur.name + (cur.opts ? ` · ${  perVal  } · ${  presetVal}` : '');}
     $('frame').title = `Preview of ${  cur.name}`;
     updateHint(empty);
 
-    hooks.afterBuild(store.html); // syncs AI state / edited code
+    hooks.afterBuild(store.html);
     renderCodeView(activeCode());
     play(activeCode());
   } catch (err) {
+    if (buildId !== currentBuildId) { return; }
     store.html = '';
     const out = $('code-out');
     if (out) {out.textContent = `Could not build this effect: ${  err.message}`;}

@@ -43,7 +43,9 @@ if (!reducedMotion) {
       .to(img, { scale: 0.3, duration: 0.9, ease: 'power4.out' }, 0.55);
   }
 
-  const handlePointer = (e) => {
+  const imgsArray = imgs;
+
+  const onPointerMove = e => {
     const mouse = { x: e.clientX, y: e.clientY };
 
     if (lastSpawn && distance(mouse, lastSpawn) < SPAWN_DISTANCE) {return;}
@@ -52,6 +54,17 @@ if (!reducedMotion) {
     showImage(mouse.x, mouse.y);
   };
 
-  addEventListener('pointermove', handlePointer);
-  addEventListener('pointerdown', handlePointer);
+  addEventListener('pointermove', onPointerMove);
+  addEventListener('pointerdown', onPointerMove);
+
+  window.__ziiuiCleanup = () => {
+    removeEventListener('pointermove', onPointerMove);
+    removeEventListener('pointerdown', onPointerMove);
+    imgsArray.forEach(img => {
+      gsap.killTweensOf(img);
+      if (img.parentNode) {
+        img.parentNode.removeChild(img);
+      }
+    });
+  };
 }

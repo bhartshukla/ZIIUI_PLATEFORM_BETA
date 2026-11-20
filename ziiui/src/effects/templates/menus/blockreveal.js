@@ -56,7 +56,7 @@ function initBlockReveal() {
 
   gsap.set(menu, { opacity: 0, visibility: 'hidden' });
 
-  menuBtn.addEventListener('click', () => {
+  const btnClickHandler = () => {
     if (reducedMotion) {
       // Skip square grid animation — show/hide menu immediately
       if (overlayVisible) {
@@ -88,7 +88,16 @@ function initBlockReveal() {
     });
 
     overlayVisible = !overlayVisible;
-  });
+  };
+
+  menuBtn.addEventListener('click', btnClickHandler);
+
+  window.__ziiuiCleanup = () => {
+    menuBtn.removeEventListener('click', btnClickHandler);
+    gsap.killTweensOf(squares);
+    gsap.killTweensOf(menu);
+    squares = [];
+  };
 }
 
 if (document.readyState === 'loading') {

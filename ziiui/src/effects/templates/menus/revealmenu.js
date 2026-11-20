@@ -97,13 +97,26 @@ function initRevealMenu() {
     isMenuOpen = !isMenuOpen;
   }
 
-  menuBtn.addEventListener('click', toggleMenu);
-  menuBtn.addEventListener('keydown', (e) => {
+  const btnClickHandler = () => toggleMenu();
+  const btnKeydownHandler = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       toggleMenu();
     }
-  });
+  };
+
+  menuBtn.addEventListener('click', btnClickHandler);
+  menuBtn.addEventListener('keydown', btnKeydownHandler);
+
+  window.__ziiuiCleanup = () => {
+    menuBtn.removeEventListener('click', btnClickHandler);
+    menuBtn.removeEventListener('keydown', btnKeydownHandler);
+    menuItems.left.forEach(item => gsap.killTweensOf(item));
+    menuItems.right.forEach(item => gsap.killTweensOf(item));
+    gsap.killTweensOf('.menu');
+    gsap.killTweensOf('.menu svg');
+    gsap.killTweensOf('.menu svg path');
+  };
 }
 
 if (document.readyState === 'loading') {

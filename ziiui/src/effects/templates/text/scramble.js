@@ -22,3 +22,7 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   timer = setInterval(tick, 30);
 }
 window.addEventListener('pagehide', stop);
+
+window.__ziiuiCleanup = () => {
+  stop();
+};

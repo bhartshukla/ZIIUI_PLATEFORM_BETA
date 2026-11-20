@@ -3,7 +3,7 @@
  * documents (the code users copy and the code shown in the preview iframe).
  */
 import { esc, indent } from '../lib/dom.js';
-import { tpl, fill } from './templates.js';
+import { tpl, fill, loadTemplate } from './templates.js';
 
 /* ---------- <head> helpers ---------- */
 export const scriptSrc = (src) => `<script src="${src}"></script>`;
@@ -44,6 +44,17 @@ export function textPage(css, js) {
   });
 }
 
+export async function textPageAsync(css, js) {
+  const baseCss = await loadTemplate('base.css');
+  const wrapJs = await loadTemplate('wrap.js');
+  return buildDoc({
+    title: 'ziiui — Text Effect',
+    css: `${baseCss  }\n${  css}`,
+    body: '<p id="t">__TEXT__</p>',
+    js: js === null ? null : fill(wrapJs, { BODY: indent(js) })
+  });
+}
+
 export function fullPage(css, bodyHtml, js, head) {
   return buildDoc({ title: 'ziiui — Effect', head: head || [], css, body: bodyHtml, js });
 }
@@ -53,9 +64,20 @@ export function templatePage(name, head) {
   return fullPage(tpl(`${name  }.css`), tpl(`${name  }.html`), tpl(`${name  }.js`), head);
 }
 
+export async function templatePageAsync(name, head) {
+  const [css, html, js] = await Promise.all([
+    loadTemplate(`${name}.css`),
+    loadTemplate(`${name}.html`),
+    loadTemplate(`${name}.js`)
+  ]);
+  return fullPage(css, html, js, head);
+}
+
 /* ---------- text-effect building blocks ---------- */
 export const graphemesJs = () => tpl('graphemes.js');
 export const buildJs = () => `${graphemesJs()  }\n\n${  tpl('build.js')}`;
+export const graphemesJsAsync = async () => loadTemplate('graphemes.js');
+export const buildJsAsync = async () => `${await graphemesJsAsync()  }\n\n${  await loadTemplate('build.js')}`;
 
 export const STAGGER = { char: 0.03, word: 0.05, line: 0.1 };
 
@@ -73,6 +95,12 @@ function splitJs(per) {
   return tpl('split-line.js');
 }
 
+async function splitJsAsync(per) {
+  if (per === 'char') {return `${await buildJsAsync()  }\n\n${  await loadTemplate('split-char.js')}`;}
+  if (per === 'word') {return loadTemplate('split-word.js');}
+  return loadTemplate('split-line.js');
+}
+
 export function splitEffectPage(per, preset) {
   const p = PRESETS[preset] || PRESETS.fade;
   const css = fill(tpl('effect.css'), {
@@ -84,10 +112,34 @@ export function splitEffectPage(per, preset) {
   return textPage(css, `${splitJs(per)  }\n${  tpl('tail.js')}`);
 }
 
+export async function splitEffectPageAsync(per, preset) {
+  const p = PRESETS[preset] || PRESETS.fade;
+  const effectCss = await loadTemplate('effect.css');
+  const wcss = per === 'char' ? await loadTemplate('wcss.css') : '';
+  const css = fill(effectCss, {
+    WCSS: per === 'char' ? `${wcss  }\n` : '',
+    DISPLAY: per === 'line' ? 'block' : 'inline-block',
+    MINH: per === 'line' ? ' min-height: 1.2em;' : '',
+    HIDDEN: p.h, TRANS: p.t, STAG: STAGGER[per] || STAGGER.char, SHOWN: p.s
+  });
+  const sj = await splitJsAsync(per);
+  const tail = await loadTemplate('tail.js');
+  return textPageAsync(css, `${sj  }\n${  tail}`);
+}
+
 export function rollPage(o) {
   const css = fill(tpl('roll.css'), { WCSS: tpl('wcss.css'), DUR: o.dur, EASE: o.ease, FROM: o.from, TO: o.to });
   const js = `${buildJs()  }\n\n${  fill(tpl('roll.js'), { A: o.a, B: o.b })}`;
   return textPage(css, js);
+}
+
+export async function rollPageAsync(o) {
+  const rollCss = await loadTemplate('roll.css');
+  const wcss = await loadTemplate('wcss.css');
+  const rollJs = await loadTemplate('roll.js');
+  const css = fill(rollCss, { WCSS: wcss, DUR: o.dur, EASE: o.ease, FROM: o.from, TO: o.to });
+  const js = `${await buildJsAsync()  }\n\n${  fill(rollJs, { A: o.a, B: o.b })}`;
+  return textPageAsync(css, js);
 }
 
 export function wavePage(o) {
@@ -96,6 +148,21 @@ export function wavePage(o) {
   return textPage(css, js);
 }
 
+export async function wavePageAsync(o) {
+  const waveCss = await loadTemplate('wave.css');
+  const wcss = await loadTemplate('wcss.css');
+  const waveJs = await loadTemplate('wave.js');
+  const css = fill(waveCss, { WCSS: wcss, BASE: o.base });
+  const js = `${await buildJsAsync()  }\n\n${  fill(waveJs, { BASE: o.base, GRAD: o.grad, Z: o.z, S: o.s, R: o.r })}`;
+  return textPageAsync(css, js);
+}
+
 export function scramblePage() {
   return textPage(tpl('scramble.css'), `${graphemesJs()  }\n\n${  tpl('scramble.js')}`);
+}
+
+export async function scramblePageAsync() {
+  const scrambleCss = await loadTemplate('scramble.css');
+  const scrambleJs = await loadTemplate('scramble.js');
+  return textPageAsync(scrambleCss, `${await graphemesJsAsync()  }\n\n${  scrambleJs}`);
 }

@@ -5,7 +5,8 @@ window.addEventListener('load', () => {
   if (!reducedMotion) {
     const lenis = new Lenis();
     lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    const lenisRaf = (time) => { lenis.raf(time * 1000); };
+    gsap.ticker.add(lenisRaf);
     gsap.ticker.lagSmoothing(0);
   }
 
@@ -68,4 +69,12 @@ window.addEventListener('load', () => {
       gsap.set(eachImage, finalPos[index]);
     });
   }
+
+  window.__ziiuiCleanup = () => {
+    if (!reducedMotion) {
+      lenis.destroy();
+      gsap.ticker.remove(lenisRaf);
+    }
+    ScrollTrigger.getAll().forEach(st => st.kill());
+  };
 });

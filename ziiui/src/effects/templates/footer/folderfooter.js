@@ -28,21 +28,36 @@ function animatePhotos(photoEls, opening) {
 }
 
 const allFolders = root.querySelectorAll('.folder');
+const folderHandlers = [];
+
 for (const folder of allFolders) {
   const target = folder.querySelector('.target');
   const photos = folder.querySelectorAll('.photo');
 
-  target.addEventListener('pointerenter', () => {
+  const onPointerEnter = () => {
     muteOthers(allFolders, folder, true);
     if (reducedMotion) {
       // Skip photo tilt animation — keep photos in final static state
       return;
     }
     animatePhotos(photos, true);
-  });
-  target.addEventListener('pointerleave', () => {
+  };
+  const onPointerLeave = () => {
     muteOthers(allFolders, folder, false);
     if (reducedMotion) { return; }
     animatePhotos(photos, false);
-  });
+  };
+
+  target.addEventListener('pointerenter', onPointerEnter);
+  target.addEventListener('pointerleave', onPointerLeave);
+  folderHandlers.push({ folder, target, onPointerEnter, onPointerLeave });
 }
+
+window.__ziiuiCleanup = () => {
+  folderHandlers.forEach(({ folder, target, onPointerEnter, onPointerLeave }) => {
+    target.removeEventListener('pointerenter', onPointerEnter);
+    target.removeEventListener('pointerleave', onPointerLeave);
+    const photos = folder.querySelectorAll('.photo');
+    photos.forEach(photo => gsap.killTweensOf(photo));
+  });
+};

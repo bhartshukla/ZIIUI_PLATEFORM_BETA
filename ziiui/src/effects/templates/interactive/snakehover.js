@@ -32,3 +32,13 @@ document.querySelectorAll('.tile').forEach((t) => {
     gsap.set(lbl, { opacity: 0 });
   };
 });
+
+window.__ziiuiCleanup = () => {
+  document.querySelectorAll('.tile').forEach((t) => {
+    t.onmouseenter = null;
+    t.onmouseleave = null;
+    const paths = t.querySelectorAll('.path');
+    const lbl = t.querySelector('.label');
+    gsap.killTweensOf([...paths, lbl]);
+  });
+};

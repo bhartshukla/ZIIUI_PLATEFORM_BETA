@@ -12,6 +12,7 @@
     "lint": "eslint src tests"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^9.1.2",
     "jsdom": "^26.0.0",

@@ -8,12 +8,13 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 
 const state = new Map();
 
-document.addEventListener('mousemove', e => {
+const onGlobalMousemove = e => {
   if (!isHoveringMask) {
     globalHud.innerHTML = `X: ${e.clientX}px <br/> Y: ${e.clientY}px`;
   }
   globalHud.style.transform = `translate3d(${e.clientX + 2}px, ${e.clientY + 2}px, 0)`;
-});
+};
+document.addEventListener('mousemove', onGlobalMousemove);
 
 function updateCoords(mask) {
   const s = state.get(mask);
@@ -65,6 +66,7 @@ function initCanvases() {
   });
 }
 
+let rafId = null;
 function draw() {
   masks.forEach(mask => {
     const s = state.get(mask);
@@ -75,32 +77,36 @@ function draw() {
     updateCoords(mask);
   });
   if (!reducedMotion) {
-    requestAnimationFrame(draw);
+    rafId = requestAnimationFrame(draw);
   }
 }
 
-masks.forEach(mask => {
+const masksArray = Array.from(masks);
+masksArray.forEach(mask => {
   let dragging = false;
   let ox = 0, oy = 0;
-  mask.addEventListener('mousedown', e => {
+  const onMouseDown = e => {
     if (reducedMotion) {return;}
     dragging = true;
     const s = state.get(mask);
     ox = e.clientX - s.x;
     oy = e.clientY - s.y;
     mask.style.cursor = 'grabbing';
-  });
-  document.addEventListener('mousemove', e => {
+  };
+  const onMouseMove = e => {
     if (!dragging || reducedMotion) {return;}
     const s = state.get(mask);
     s.x = e.clientX - ox;
     s.y = e.clientY - oy;
     mask.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
-  });
-  document.addEventListener('mouseup', () => {
+  };
+  const onMouseUp = () => {
     dragging = false;
     mask.style.cursor = 'grab';
-  });
+  };
+  mask.addEventListener('mousedown', onMouseDown);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 });
 
 let started = false;
@@ -113,3 +119,21 @@ function start() {
 }
 video.addEventListener('playing', start);
 video.addEventListener('loadeddata', start);
+
+window.__ziiuiCleanup = () => {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  document.removeEventListener('mousemove', onGlobalMousemove);
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+  masksArray.forEach(mask => {
+    mask.removeEventListener('mouseenter', () => {
+      isHoveringMask = true;
+      globalHud.textContent = 'GRAB';
+    });
+    mask.removeEventListener('mouseleave', () => { isHoveringMask = false; });
+    mask.removeEventListener('mousedown', onMouseDown);
+  });
+  video.removeEventListener('playing', start);
+  video.removeEventListener('loadeddata', start);
+  started = false;
+};

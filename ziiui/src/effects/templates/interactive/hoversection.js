@@ -11,26 +11,44 @@ if (!reducedMotion) {
   const xTo = gsap.quickTo(projectThumbnail, 'x', { duration: 0.4, ease: 'power3.out' });
   const yTo = gsap.quickTo(projectThumbnail, 'y', { duration: 0.4, ease: 'power3.out' });
 
-  projectsContainer.addEventListener('mousemove', (e) => {
+  const onMouseMove = e => {
     xTo(e.clientX); yTo(e.clientY);
-  });
-
-  projectsContainer.addEventListener('mouseleave', () => {
+  };
+  const onMouseLeave = () => {
     gsap.to(projectThumbnail, {
       scale: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto'
     });
-  });
+  };
+
+  const projectEnterHandlers = [];
+
+  projectsContainer.addEventListener('mousemove', onMouseMove);
+  projectsContainer.addEventListener('mouseleave', onMouseLeave);
 
   projects.forEach((project, index) => {
-    project.addEventListener('mouseenter', () => {
+    const onMouseEnter = () => {
       gsap.to(projectThumbnail, {
         scale: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto'
       });
       gsap.to(thumbnails, {
         yPercent: -100 * index, duration: 0.4, ease: 'power2.out', overwrite: 'auto'
       });
-    });
+    };
+    project.addEventListener('mouseenter', onMouseEnter);
+    projectEnterHandlers.push({ project, handler: onMouseEnter });
   });
+
+  window.__ziiuiCleanup = () => {
+    if (!reducedMotion) {
+      projectsContainer.removeEventListener('mousemove', onMouseMove);
+      projectsContainer.removeEventListener('mouseleave', onMouseLeave);
+      projectEnterHandlers.forEach(({ project, handler }) => {
+        project.removeEventListener('mouseenter', handler);
+      });
+      gsap.killTweensOf(projectThumbnail);
+      gsap.killTweensOf(thumbnails);
+    }
+  };
 } else {
   gsap.set(projectThumbnail, { display: 'none' });
 }

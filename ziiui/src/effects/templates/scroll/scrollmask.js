@@ -13,3 +13,7 @@ if (!reducedMotion) {
   /* ── Reduced Motion: Show final scaled state ── */
   gsap.set('h2', { scale: 100 });
 }
+
+window.__ziiuiCleanup = () => {
+  ScrollTrigger.getAll().forEach(st => st.kill());
+};
