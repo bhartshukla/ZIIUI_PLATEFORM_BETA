@@ -584,7 +584,7 @@ export function addMessage(sessionId, role, text) {
     s.messageIds.map((mid) => aiState.messages[mid]).filter(Boolean)
   ) || '';
   s.lastUpdated = Date.now();
-  persistAIState();
+  schedulePersist();
   return msg;
 }
 
@@ -639,7 +639,7 @@ export function addVersion(sessionId, code, prompt) {
     s.activeVersionId = existing.id;
     s.revision = (Number(s.revision) || 0) + 1;
     s.lastUpdated = Date.now();
-    persistAIState();
+    schedulePersist();
     return existing;
   }
 
@@ -669,7 +669,7 @@ export function addVersion(sessionId, code, prompt) {
     s.messageIds.map((mid) => aiState.messages[mid]).filter(Boolean)
   ) || '';
   s.lastUpdated = Date.now();
-  persistAIState();
+  schedulePersist();
   return version;
 }
 

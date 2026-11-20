@@ -140,9 +140,14 @@ function wire() {
       }
     }
   });
+  let resizeFrame = null;
   window.addEventListener('resize', () => {
-    placeSearch();
-    if (window.innerWidth > 900) {closeSidebar();}
+    if (resizeFrame) {return;}
+    resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = null;
+      placeSearch();
+      if (window.innerWidth > 900) {closeSidebar();}
+    });
   });
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement && isFullscreen()) {

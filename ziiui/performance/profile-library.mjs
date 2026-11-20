@@ -6,6 +6,10 @@
 //
 // Measures: initial paint, time to first component preview, rapid
 // component-switching cycle times, and preview create/destroy timing.
+//
+// Note: srcdoc iframes expose no readable contentDocument in headless
+// Chromium (opaque-origin sandbox), so preview readiness is detected via
+// the frame's srcdoc attribute plus the iframe load event.
 
 import { chromium } from 'playwright';
 import { writeJson, outPath } from './capture.mjs';
@@ -13,6 +17,16 @@ import { writeJson, outPath } from './capture.mjs';
 const PORT = 5174;
 const URL = `http://localhost:${PORT}/`;
 const DIR = process.argv.includes('--final') ? 'final' : 'baseline';
+
+// Wait until the preview iframe has been populated with new HTML (srcdoc set)
+// then give the iframe time to fire its load event.
+async function waitForPreviewInjected(page, timeoutMs = 15000) {
+  await page.waitForFunction(() => {
+    const f = document.getElementById('frame');
+    return !!(f && f.srcdoc && f.srcdoc.length > 50);
+  }, { timeout: timeoutMs });
+  await page.waitForTimeout(300);
+}
 
 async function main() {
   const browser = await chromium.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
@@ -47,22 +61,20 @@ async function main() {
   // Select the first component and measure time until the preview frame loads content.
   await (await sample('select-first-component', async () => {
     await cards.first().click();
-    await page.waitForSelector('#frame', { state: 'visible' });
-    await page.waitForFunction(() => {
-      const f = document.getElementById('frame');
-      return f && f.contentDocument && f.contentDocument.body && f.contentDocument.body.children.length > 0;
-    }, { timeout: 15000 });
+    await waitForPreviewInjected(page);
   }))();
 
   // Rapid switching: select N components in sequence, measuring each switch.
+  // After each selection the page shows the detail view, so we return to
+  // discovery before selecting the next card.
   const switches = Math.min(10, count - 1);
   for (let i = 1; i <= switches; i++) {
     await (await sample(`switch-${i}`, async () => {
-      await cards.nth(i).click();
-      await page.waitForFunction(() => {
-        const f = document.getElementById('frame');
-        return f && f.contentDocument && f.contentDocument.body && f.contentDocument.body.children.length > 0;
-      }, { timeout: 15000 });
+      await page.click('#backToComponents');
+      await page.waitForFunction(() => document.getElementById('catalogSection')?.hidden === false);
+      const currentCards = page.locator('.component-card');
+      await currentCards.nth(i % (await currentCards.count())).click();
+      await waitForPreviewInjected(page);
     }))();
   }
 
@@ -73,16 +85,12 @@ async function main() {
   }))();
   await (await sample('recreate-preview', async () => {
     await cards.first().click();
-    await page.waitForFunction(() => {
-      const f = document.getElementById('frame');
-      return f && f.contentDocument && f.contentDocument.body && f.contentDocument.body.children.length > 0;
-    }, { timeout: 15000 });
+    await waitForPreviewInjected(page);
   }))();
 
   const mem = await client.send('Performance.getProcessMemory').catch(() => null);
   results.memory = mem;
 
-  // Snapshot vitals if the page instrumented them.
   results.vitals = await page.evaluate(() => window.__ziiuiVitals ? window.__ziiuiVitals() : null);
 
   writeJson(DIR, 'library-interaction.json', results);

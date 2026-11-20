@@ -6,6 +6,8 @@
 //
 // Checks each viewport for: load success, horizontal overflow, sidebar
 // behaviour, component selection + preview render, and console errors.
+// Preview readiness detected via frame srcdoc (contentDocument is null for
+// srcdoc iframes in headless Chromium).
 
 import { chromium } from 'playwright';
 import { writeJson, outPath } from './capture.mjs';
@@ -21,6 +23,14 @@ const VIEWPORTS = [
   { name: 'desktop-hd', width: 1440, height: 900 },
   { name: 'desktop-fhd', width: 1920, height: 1080 }
 ];
+
+async function waitForPreviewInjected(page, timeoutMs = 15000) {
+  await page.waitForFunction(() => {
+    const f = document.getElementById('frame');
+    return !!(f && f.srcdoc && f.srcdoc.length > 50);
+  }, { timeout: timeoutMs });
+  await page.waitForTimeout(300);
+}
 
 async function main() {
   const browser = await chromium.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
@@ -39,7 +49,8 @@ async function main() {
     await page.waitForTimeout(1000);
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
-    const navVisible = await page.evaluate(() => !document.getElementById('sidePanel')?.classList.contains('open'));
+    const nav = document.getElementById('sidePanel');
+    const sidebarOpenInitially = nav ? nav.classList.contains('open') : false;
     const cards = page.locator('.component-card');
     const count = await cards.count();
 
@@ -48,10 +59,7 @@ async function main() {
     if (count > 0) {
       await cards.first().click();
       try {
-        await page.waitForFunction(() => {
-          const f = document.getElementById('frame');
-          return f && f.contentDocument && f.contentDocument.body && f.contentDocument.body.children.length > 0;
-        }, { timeout: 15000 });
+        await waitForPreviewInjected(page);
         previewOk = true;
         selectOk = true;
       } catch (_) { /* select/preview failed on this viewport */ }
@@ -60,7 +68,7 @@ async function main() {
     results.viewports.push({
       ...vp,
       overflow,
-      sidebarOpenInitially: !navVisible,
+      sidebarOpenInitially,
       componentCount: count,
       selectAndPreview: selectOk,
       previewRendered: previewOk,

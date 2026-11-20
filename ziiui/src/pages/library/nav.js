@@ -235,6 +235,28 @@ function renderList() {
 
 let cardObserver = null;
 let userInteracted = false;
+let pageLoaded = false;
+
+if (typeof window !== 'undefined') {
+  const markPageLoaded = () => {
+    pageLoaded = true;
+    // Backfill playback for cards already visible when initial resources settle.
+    document.querySelectorAll('.component-card-video').forEach((video) => {
+      const card = video.closest('.component-card');
+      if (card && isCardInViewport(card) && video.dataset.loaded !== 'true' && video.dataset.failed !== 'true') {
+        playCardVideo(card, video);
+      }
+    });
+  };
+  window.addEventListener('load', markPageLoaded, { once: true, passive: true });
+  if (document.readyState === 'complete') { markPageLoaded(); }
+}
+
+function isCardInViewport(card) {
+  if (!card || typeof window === 'undefined') {return false;}
+  const rect = card.getBoundingClientRect();
+  return rect.bottom > 0 && rect.right > 0 && rect.left < window.innerWidth && rect.top < window.innerHeight;
+}
 
 function prefersReducedMotion() {
   return !!(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -251,9 +273,10 @@ function unlockAutoplayOnUserGesture() {
   if (!grid || prefersReducedMotion()) {return;}
   grid.querySelectorAll('.component-card-video').forEach((video) => {
     const card = video.closest('.component-card');
-    if (card && card.dataset.videoState !== 'playing' && video.dataset.failed !== 'true') {
-      playCardVideo(card, video);
-    }
+    if (!card || card.dataset.videoState === 'playing' || video.dataset.failed === 'true') {return;}
+    // Only start videos that are actually visible; offscreen cards stay unloaded.
+    if (!isCardInViewport(card)) {return;}
+    playCardVideo(card, video);
   });
 }
 
@@ -370,8 +393,11 @@ function renderCards(effects) {
         const video = card.querySelector('.component-card-video');
         if (!video || video.dataset.failed === 'true') {return;}
 
-        // Autoplay when visible in viewport; pause when outside for performance
+        // Autoplay when visible in viewport; pause when outside for performance.
+        // Video sources are only loaded after the page has finished loading so
+        // card previews never compete with the initial page resources.
         if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
+          if (!pageLoaded) {return;}
           playCardVideo(card, video);
         } else if (!entry.isIntersecting) {
           pauseCardVideo(card, video);
@@ -440,7 +466,7 @@ function renderCards(effects) {
       video.loop = true;
       video.autoplay = true;
       video.controls = false;
-      video.preload = 'metadata';
+      video.preload = 'none';
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       video.setAttribute('muted', '');

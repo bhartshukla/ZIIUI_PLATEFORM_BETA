@@ -41,23 +41,17 @@ export function fill(source, map) {
   );
 }
 
-/* ---------------- Lazy loader (Stage 4B) ---------------- */
+/* ---------------- Template cache (lazy loader backed by the eager map) ---------------- */
 
-const lazyFiles = import.meta.glob('./templates/**/*.{css,html,js}', {
-  query: '?raw',
-  import: 'default'
-});
-
-const lazyByName = {};
-for (const path of Object.keys(lazyFiles)) {
-  lazyByName[path.split('/').pop()] = lazyFiles[path];
-}
-
+/* The eager import above already materialises every template source into
+ * `byName`. `loadTemplate()` reads from that same map asynchronously so callers
+ * can await templates without importing them twice; the import graph keeps a
+ * single copy of each template source in the bundle. */
 const cache = new Map();
 const inflight = new Map();
 
 export function hasLazyTemplate(name) {
-  return Object.prototype.hasOwnProperty.call(lazyByName, name);
+  return Object.prototype.hasOwnProperty.call(byName, name);
 }
 
 export async function loadTemplate(name) {
@@ -70,14 +64,13 @@ export async function loadTemplate(name) {
   if (inflight.has(name)) {
     return inflight.get(name);
   }
-  const loader = lazyByName[name];
-  if (typeof loader !== 'function') {
+  const source = byName[name];
+  if (typeof source !== 'string') {
     const err = new Error(`[ziiui] missing template: ${name}`);
     throw err;
   }
   const promise = (async () => {
     try {
-      const source = await loader();
       const normalized = norm(source).replace(/^\n/, '').replace(/\s+$/, '');
       cache.set(name, normalized);
       return normalized;

@@ -1,7 +1,7 @@
 /* The effect viewer: text controls, code generation, live preview, copy. */
 import { $, esc, norm, say, report } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
-import { injectDebugHook, setFrameHTML, clearFrameHTML, errorDoc } from '../../lib/preview.js';
+import { setFrameHTML, clearFrameHTML, errorDoc } from '../../lib/preview.js';
 import { FIELD_LABELS } from '../../effects/registry.js';
 import { isBusy } from '../../ai/request.js';
 import { store, hooks, activeCode } from './store.js';
@@ -222,7 +222,7 @@ export function play(code) {
   wireFrameEvents();
   showPreviewLoading();
   nonce++;
-  setFrameHTML($('frame'), injectDebugHook(`${src  }\n<!-- ${  nonce  } -->`));
+  setFrameHTML($('frame'), `${src}\n<!-- ${nonce} -->`);
 }
 
 function updateHint(empty, trimmed) {
@@ -287,7 +287,7 @@ export async function rebuild() {
     const out = $('code-out');
     if (out) {out.textContent = `Could not build this effect: ${  err.message}`;}
     hidePreviewLoading();
-    setFrameHTML($('frame'), injectDebugHook(errorDoc('Build error', err.message)));
+    setFrameHTML($('frame'), errorDoc('Build error', err.message));
     report(err, 'rebuild');
   }
 }

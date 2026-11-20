@@ -1,0 +1,66 @@
+{
+  "url": "http://localhost:5174/",
+  "dir": "baseline",
+  "collectedAt": "2026-11-20T15:50:23.036Z",
+  "samples": [
+    {
+      "name": "initial-paint",
+      "ms": 154.4
+    },
+    {
+      "name": "select-first-component",
+      "ms": 487.7
+    },
+    {
+      "name": "switch-1",
+      "ms": 674.2
+    },
+    {
+      "name": "switch-2",
+      "ms": 646.8
+    },
+    {
+      "name": "switch-3",
+      "ms": 564.7
+    },
+    {
+      "name": "switch-4",
+      "ms": 583.4
+    },
+    {
+      "name": "switch-5",
+      "ms": 606.6
+    },
+    {
+      "name": "switch-6",
+      "ms": 599.4
+    },
+    {
+      "name": "switch-7",
+      "ms": 557.3
+    },
+    {
+      "name": "switch-8",
+      "ms": 626.2
+    },
+    {
+      "name": "switch-9",
+      "ms": 531.3
+    },
+    {
+      "name": "switch-10",
+      "ms": 479.3
+    },
+    {
+      "name": "destroy-preview",
+      "ms": 136.9
+    },
+    {
+      "name": "recreate-preview",
+      "ms": 445.6
+    }
+  ],
+  "componentCount": 12,
+  "memory": null,
+  "vitals": null
+}

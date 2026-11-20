@@ -6,6 +6,9 @@
 //
 // Measures create/destroy cycles of the preview iframe and reports console
 // errors emitted during preview switching (regression signal for lifecycle bugs).
+//
+// Preview readiness is detected via the frame's srcdoc attribute because
+// srcdoc iframes expose no readable contentDocument in headless Chromium.
 
 import { chromium } from 'playwright';
 import { writeJson, outPath } from './capture.mjs';
@@ -14,6 +17,14 @@ const PORT = 5174;
 const URL = `http://localhost:${PORT}/`;
 const DIR = process.argv.includes('--final') ? 'final' : 'baseline';
 const CYCLES = 15;
+
+async function waitForPreviewInjected(page, timeoutMs = 15000) {
+  await page.waitForFunction(() => {
+    const f = document.getElementById('frame');
+    return !!(f && f.srcdoc && f.srcdoc.length > 50);
+  }, { timeout: timeoutMs });
+  await page.waitForTimeout(300);
+}
 
 async function main() {
   const browser = await chromium.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
@@ -34,13 +45,17 @@ async function main() {
   const count = await cards.count();
 
   for (let i = 0; i < CYCLES; i++) {
-    const card = cards.nth(i % count);
+    // Each cycle: ensure we are in discovery view, then select a component.
+    if (i > 0) {
+      await page.click('#backToComponents');
+      await page.waitForFunction(() => document.getElementById('catalogSection')?.hidden === false);
+    }
+    const currentCards = page.locator('.component-card');
+    const count = await currentCards.count();
+    const card = currentCards.nth(i % count);
     const t0 = process.hrtime.bigint();
     await card.click();
-    await page.waitForFunction(() => {
-      const f = document.getElementById('frame');
-      return f && f.contentDocument && f.contentDocument.body && f.contentDocument.body.children.length > 0;
-    }, { timeout: 15000 });
+    await waitForPreviewInjected(page);
     const ms = Number(process.hrtime.bigint() - t0) / 1_000_000;
     results.cycles.push({ cycle: i + 1, component: await card.getAttribute('id') || `nth-${i % count}`, ms: Math.round(ms * 10) / 10 });
     process.stdout.write(`cycle ${i + 1}/${CYCLES}: ${results.cycles[i].ms} ms\n`);
@@ -60,7 +75,7 @@ async function main() {
   // Validate the frame element is cleared after returning to discovery.
   results.frameCleared = await page.evaluate(() => {
     const f = document.getElementById('frame');
-    return f ? (f.srcdoc === '' || !f.srcdoc) : true;
+    return f ? (f.srcdoc === '' || !f.srcdoc || f.srcdoc.length < 50) : true;
   });
 
   writeJson(DIR, 'preview-lifecycle.json', results);
