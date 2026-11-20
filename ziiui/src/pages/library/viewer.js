@@ -260,7 +260,7 @@ export async function rebuild() {
       if (typeof cur.codeAsync === 'function') {
         generated = cur.opts ? await cur.codeAsync(perVal, presetVal) : await cur.codeAsync();
       } else {
-        generated = cur.opts ? cur.code(perVal, presetVal) : cur.code();
+        throw new Error('No async code generator available');
       }
       if (buildId !== currentBuildId) { return; }
       if (buildCache.size >= MAX_BUILD_CACHE) {

@@ -342,14 +342,53 @@ export async function requestFrameHTML(frame, source) {
   return { loaded: true, nonce, generation };
 }
 
-/** Global message handler for preview iframe messages.
+/** Pure, testable preview message handler.
  *
- * Validates source, nonce, and generation before processing.
- * Must be called once at application startup (e.g., in each page's boot).
+ * Mutates `record` according to the validated message and returns
+ * true when the message was accepted, false when rejected.
+ * All security checks (type, nonce, generation) are preserved.
  */
+export function handlePreviewMessage(record, event) {
+  if (!record || record.aborted) {return false;}
+
+  const type = event?.data?.type;
+  if (type !== 'ziiui:ack:cleanup' && type !== 'ziiui:error' && type !== 'ziiui:ready') {
+    return false;
+  }
+
+  if (type === 'ziiui:ready') {
+    if (event.data.nonce !== record.requestedNonce) {return false;}
+    if (event.data.generation !== record.requestedGeneration) {return false;}
+
+    record.activeNonce = record.requestedNonce;
+    record.activeGeneration = record.requestedGeneration;
+    record.requestedGeneration = null;
+    record.requestedNonce = null;
+    return true;
+  }
+
+  const pending = record.pending;
+  if (!pending || pending.settled) {return false;}
+
+  if (event.data.nonce !== pending.nonce) {return false;}
+  if (event.data.generation !== pending.generation) {return false;}
+
+  if (type === 'ziiui:ack:cleanup') {
+    if (typeof event.data.nonce !== 'string') {return false;}
+    settle(pending, { acknowledged: true, nonce: event.data.nonce });
+    record.pending = null;
+    return true;
+  }
+
+  if (type === 'ziiui:error') {
+    return true;
+  }
+
+  return false;
+}
+
 export function installPreviewMessageHandler() {
   window.addEventListener('message', (e) => {
-    // Find which iframe sent this message
     let targetFrame = null;
     for (const [frame] of frames.entries()) {
       if (e.source === frame.contentWindow) {
@@ -361,43 +400,9 @@ export function installPreviewMessageHandler() {
     if (!targetFrame) {return;}
 
     const record = getRecord(targetFrame);
-    if (record.aborted) {return;}
+    const accepted = handlePreviewMessage(record, e);
 
-    const type = e.data?.type;
-    if (type !== 'ziiui:ack:cleanup' && type !== 'ziiui:error' && type !== 'ziiui:ready') {return;}
-
-    // --- Independent routing: ziiui:ready ---
-    if (type === 'ziiui:ready') {
-      // Validate against requested identity (not pending)
-      if (e.data.nonce !== record.requestedNonce) {return;}
-      if (e.data.generation !== record.requestedGeneration) {return;}
-
-      // Promote requested identity to active
-      record.activeNonce = record.requestedNonce;
-      record.activeGeneration = record.requestedGeneration;
-      record.requestedGeneration = null;
-      record.requestedNonce = null;
-      return;
-    }
-
-    // --- Cleanup ACK handling requires pending operation ---
-    const pending = record.pending;
-    if (!pending || pending.settled) {return;}
-
-    // Nonce validation: must match the pending operation's nonce
-    if (e.data.nonce !== pending.nonce) {return;}
-
-    // Generation validation: must match the pending operation's generation
-    if (e.data.generation !== pending.generation) {return;}
-
-    if (type === 'ziiui:ack:cleanup') {
-      if (typeof e.data.nonce !== 'string') {return;}
-      settle(pending, { acknowledged: true, nonce: e.data.nonce });
-      record.pending = null;
-    }
-
-    // ziiui:error from iframe is just logged, not a cleanup ack
-    if (type === 'ziiui:error') {
+    if (accepted && e.data?.type === 'ziiui:error') {
       if (typeof e.data.message === 'string' && e.data.message.length <= 1000) {
         console.error('[ziiui:preview]', e.data.message);
         say(`Preview error: ${e.data.message}`);
@@ -405,7 +410,6 @@ export function installPreviewMessageHandler() {
     }
   });
 }
-
 /** Mark an iframe as removed/aborted. Call when iframe is detached from DOM.
  *
  * Settles any pending cleanup exactly once with { aborted: true }.

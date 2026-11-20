@@ -26,10 +26,11 @@ describe('effects registry', () => {
     expect(BY_ID.cursor3).toBeUndefined();
   });
 
-  it('registers Folder Footer in both Footer and Interactive categories', () => {
+  it('registers Folder Footer in both Footer and Interactive categories', async () => {
     expect(BY_ID.folderfooter.categories).toEqual(['Footer', 'Interactive']);
     expect(BY_ID.folderfooter.cat).toBe('Footer');
-    expect(BY_ID.folderfooter.code()).toContain('gsap@3.12.5');
+    const html = await BY_ID.folderfooter.codeAsync();
+    expect(html).toContain('gsap@3.12.5');
     expect(hasTemplate('folderfooter.html')).toBe(true);
     expect(hasTemplate('folderfooter.css')).toBe(true);
     expect(hasTemplate('folderfooter.js')).toBe(true);
@@ -49,20 +50,21 @@ describe('effects registry', () => {
   });
 });
 
-describe.each(EFFECTS.map((e) => [e.id, e]))('effect %s', (_id, effect) => {
-  const html = effect.opts ? effect.code('char', 'fade') : effect.code();
-
-  it('generates a complete standalone document', () => {
+describe('effect document generation', () => {
+  it.each(EFFECTS.map((e) => [e.id, e]))('generates a complete standalone document for %s', async (_id, effect) => {
+    const html = effect.opts ? await effect.codeAsync('char', 'fade') : await effect.codeAsync();
     expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
     expect(html).toContain('<style>');
     expect(html.trim().endsWith('</html>')).toBe(true);
   });
 
-  it('leaves no unfilled @@placeholders@@', () => {
+  it.each(EFFECTS.map((e) => [e.id, e]))('leaves no unfilled @@placeholders@@ for %s', async (_id, effect) => {
+    const html = effect.opts ? await effect.codeAsync('char', 'fade') : await effect.codeAsync();
     expect(html).not.toMatch(/@@\w+@@/);
   });
 
-  it('only contains syntactically valid inline JavaScript', () => {
+  it.each(EFFECTS.map((e) => [e.id, e]))('only contains syntactically valid inline JavaScript for %s', async (_id, effect) => {
+    const html = effect.opts ? await effect.codeAsync('char', 'fade') : await effect.codeAsync();
     for (const code of inlineScripts(html)) {
       expect(() => new Function(code)).not.toThrow();
     }
@@ -71,9 +73,9 @@ describe.each(EFFECTS.map((e) => [e.id, e]))('effect %s', (_id, effect) => {
 
 describe('text effect options', () => {
   const e = BY_ID.effect;
-  it.each(['char', 'word', 'line'])('builds for split=%s with every preset', (per) => {
+  it.each(['char', 'word', 'line'])('builds for split=%s with every preset', async (per) => {
     for (const preset of ['fade', 'blur', 'fade-in-blur', 'scale', 'slide']) {
-      const html = e.code(per, preset);
+      const html = await e.codeAsync(per, preset);
       expect(html).toContain('__TEXT__');
       inlineScripts(html).forEach((c) => expect(() => new Function(c)).not.toThrow());
     }
@@ -83,25 +85,25 @@ describe('text effect options', () => {
 describe('reduced-motion support', () => {
   const reducedMotionPilot = ['roll', 'wave', 'scramble', 'fancy', 'blockreveal'];
 
-  it.each(reducedMotionPilot)('includes prefers-reduced-motion CSS guard for %s', (id) => {
-    const html = BY_ID[id].code();
+  it.each(reducedMotionPilot)('includes prefers-reduced-motion CSS guard for %s', async (id) => {
+    const html = await BY_ID[id].codeAsync();
     expect(html).toMatch(/prefers-reduced-motion:\s*reduce/);
   });
 
-  it('roll CSS disables transitions under reduced motion', () => {
-    const html = BY_ID.roll.code();
+  it('roll CSS disables transitions under reduced motion', async () => {
+    const html = await BY_ID.roll.codeAsync();
     expect(html).toContain('@media (prefers-reduced-motion: reduce)');
     expect(html).toContain('transition: none !important');
   });
 
-  it('wave CSS disables animations under reduced motion', () => {
-    const html = BY_ID.wave.code();
+  it('wave CSS disables animations under reduced motion', async () => {
+    const html = await BY_ID.wave.codeAsync();
     expect(html).toContain('@media (prefers-reduced-motion: reduce)');
     expect(html).toContain('animation: none !important');
   });
 
-  it('scramble JS checks prefers-reduced-motion before starting interval', () => {
-    const html = BY_ID.scramble.code();
+  it('scramble JS checks prefers-reduced-motion before starting interval', async () => {
+    const html = await BY_ID.scramble.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     // The guard must appear before setInterval to prevent motion when preferred
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
@@ -110,8 +112,8 @@ describe('reduced-motion support', () => {
     expect(intervalPos).toBeGreaterThan(-1);
   });
 
-  it('fancy JS checks prefers-reduced-motion before calling animate()', () => {
-    const html = BY_ID.fancy.code();
+  it('fancy JS checks prefers-reduced-motion before calling animate()', async () => {
+    const html = await BY_ID.fancy.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const animatePos = html.indexOf('.animate(');
@@ -119,8 +121,8 @@ describe('reduced-motion support', () => {
     expect(animatePos).toBeGreaterThan(-1);
   });
 
-  it('blockreveal JS checks prefers-reduced-motion before GSAP animation', () => {
-    const html = BY_ID.blockreveal.code();
+  it('blockreveal JS checks prefers-reduced-motion before GSAP animation', async () => {
+    const html = await BY_ID.blockreveal.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const gsapPos = html.indexOf('gsap.fromTo');
@@ -128,9 +130,9 @@ describe('reduced-motion support', () => {
     expect(gsapPos).toBeGreaterThan(-1);
   });
 
-  it('pilot components still produce valid HTML with content visible', () => {
+  it('pilot components still produce valid HTML with content visible', async () => {
     for (const id of reducedMotionPilot) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
       expect(html.trim().endsWith('</html>')).toBe(true);
       // Must not have unfilled placeholders
@@ -138,9 +140,9 @@ describe('reduced-motion support', () => {
     }
   });
 
-  it('pilot components still produce syntactically valid inline JavaScript', () => {
+  it('pilot components still produce syntactically valid inline JavaScript', async () => {
     for (const id of reducedMotionPilot) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       for (const code of inlineScripts(html)) {
         expect(() => new Function(code)).not.toThrow();
       }
@@ -151,13 +153,13 @@ describe('reduced-motion support', () => {
 describe('Group B reduced-motion support', () => {
   const groupBComponents = ['microhover', 'snakehover', 'hoversection', 'imagetrail', 'revealmenu'];
 
-  it.each(groupBComponents)('includes prefers-reduced-motion JS guard for %s', (id) => {
-    const html = BY_ID[id].code();
+  it.each(groupBComponents)('includes prefers-reduced-motion JS guard for %s', async (id) => {
+    const html = await BY_ID[id].codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
   });
 
-  it('microhover JS skips burst animation when reduced motion', () => {
-    const html = BY_ID.microhover.code();
+  it('microhover JS skips burst animation when reduced motion', async () => {
+    const html = await BY_ID.microhover.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const playBurstPos = html.indexOf('playBurst');
@@ -165,8 +167,8 @@ describe('Group B reduced-motion support', () => {
     expect(playBurstPos).toBeGreaterThan(-1);
   });
 
-  it('snakehover JS skips SVG stroke animation when reduced motion', () => {
-    const html = BY_ID.snakehover.code();
+  it('snakehover JS skips SVG stroke animation when reduced motion', async () => {
+    const html = await BY_ID.snakehover.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const mouseenterPos = html.indexOf('onmouseenter');
@@ -174,8 +176,8 @@ describe('Group B reduced-motion support', () => {
     expect(mouseenterPos).toBeGreaterThan(-1);
   });
 
-  it('hoversection JS skips thumbnail sliding when reduced motion', () => {
-    const html = BY_ID.hoversection.code();
+  it('hoversection JS skips thumbnail sliding when reduced motion', async () => {
+    const html = await BY_ID.hoversection.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const mousemovePos = html.indexOf('mousemove');
@@ -183,8 +185,8 @@ describe('Group B reduced-motion support', () => {
     expect(mousemovePos).toBeGreaterThan(-1);
   });
 
-  it('imagetrail JS skips pointer-following when reduced motion', () => {
-    const html = BY_ID.imagetrail.code();
+  it('imagetrail JS skips pointer-following when reduced motion', async () => {
+    const html = await BY_ID.imagetrail.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const pointermovePos = html.indexOf('pointermove');
@@ -192,8 +194,8 @@ describe('Group B reduced-motion support', () => {
     expect(pointermovePos).toBeGreaterThan(-1);
   });
 
-  it('revealmenu JS skips SVG morph and stagger when reduced motion', () => {
-    const html = BY_ID.revealmenu.code();
+  it('revealmenu JS skips SVG morph and stagger when reduced motion', async () => {
+    const html = await BY_ID.revealmenu.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const toggleMenuPos = html.indexOf('toggleMenu');
@@ -201,9 +203,9 @@ describe('Group B reduced-motion support', () => {
     expect(toggleMenuPos).toBeGreaterThan(-1);
   });
 
-  it('Group B components still produce valid HTML with content visible', () => {
+  it('Group B components still produce valid HTML with content visible', async () => {
     for (const id of groupBComponents) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
       expect(html.trim().endsWith('</html>')).toBe(true);
       // Must not have unfilled placeholders
@@ -211,9 +213,9 @@ describe('Group B reduced-motion support', () => {
     }
   });
 
-  it('Group B components still produce syntactically valid inline JavaScript', () => {
+  it('Group B components still produce syntactically valid inline JavaScript', async () => {
     for (const id of groupBComponents) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       for (const code of inlineScripts(html)) {
         expect(() => new Function(code)).not.toThrow();
       }
@@ -224,13 +226,13 @@ describe('Group B reduced-motion support', () => {
 describe('Group C reduced-motion support', () => {
   const groupCComponents = ['splitsection', 'clipreveal', 'imageflow', 'listreveal', 'pinrotate', 'scrolldown', 'scrollmask'];
 
-  it.each(groupCComponents)('includes prefers-reduced-motion JS guard for %s', (id) => {
-    const html = BY_ID[id].code();
+  it.each(groupCComponents)('includes prefers-reduced-motion JS guard for %s', async (id) => {
+    const html = await BY_ID[id].codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
   });
 
-  it('splitsection JS skips scroll timeline and Lenis when reduced motion', () => {
-    const html = BY_ID.splitsection.code();
+  it('splitsection JS skips scroll timeline and Lenis when reduced motion', async () => {
+    const html = await BY_ID.splitsection.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -240,8 +242,8 @@ describe('Group C reduced-motion support', () => {
     expect(scrollTriggerPos).toBeGreaterThan(-1);
   });
 
-  it('clipreveal JS skips clip-path animation and Lenis when reduced motion', () => {
-    const html = BY_ID.clipreveal.code();
+  it('clipreveal JS skips clip-path animation and Lenis when reduced motion', async () => {
+    const html = await BY_ID.clipreveal.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -251,8 +253,8 @@ describe('Group C reduced-motion support', () => {
     expect(clipPathPos).toBeGreaterThan(-1);
   });
 
-  it('imageflow JS skips 3D transform animation and Lenis when reduced motion', () => {
-    const html = BY_ID.imageflow.code();
+  it('imageflow JS skips 3D transform animation and Lenis when reduced motion', async () => {
+    const html = await BY_ID.imageflow.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -262,8 +264,8 @@ describe('Group C reduced-motion support', () => {
     expect(interpolatePos).toBeGreaterThan(-1);
   });
 
-  it('listreveal JS skips pin animation and Lenis when reduced motion', () => {
-    const html = BY_ID.listreveal.code();
+  it('listreveal JS skips pin animation and Lenis when reduced motion', async () => {
+    const html = await BY_ID.listreveal.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -273,8 +275,8 @@ describe('Group C reduced-motion support', () => {
     expect(pinPos).toBeGreaterThan(-1);
   });
 
-  it('pinrotate JS skips rotation animation and Lenis when reduced motion', () => {
-    const html = BY_ID.pinrotate.code();
+  it('pinrotate JS skips rotation animation and Lenis when reduced motion', async () => {
+    const html = await BY_ID.pinrotate.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -284,8 +286,8 @@ describe('Group C reduced-motion support', () => {
     expect(rotatePos).toBeGreaterThan(-1);
   });
 
-  it('scrolldown JS skips card rotation and word animation when reduced motion', () => {
-    const html = BY_ID.scrolldown.code();
+  it('scrolldown JS skips card rotation and word animation when reduced motion', async () => {
+    const html = await BY_ID.scrolldown.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -295,8 +297,8 @@ describe('Group C reduced-motion support', () => {
     expect(cardStartPos).toBeGreaterThan(-1);
   });
 
-  it('scrollmask JS skips scale animation when reduced motion', () => {
-    const html = BY_ID.scrollmask.code();
+  it('scrollmask JS skips scale animation when reduced motion', async () => {
+    const html = await BY_ID.scrollmask.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const scalePos = html.indexOf('scale: 100');
@@ -304,9 +306,9 @@ describe('Group C reduced-motion support', () => {
     expect(scalePos).toBeGreaterThan(-1);
   });
 
-  it('Group C components still produce valid HTML with content visible', () => {
+  it('Group C components still produce valid HTML with content visible', async () => {
     for (const id of groupCComponents) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
       expect(html.trim().endsWith('</html>')).toBe(true);
       // Must not have unfilled placeholders
@@ -314,9 +316,9 @@ describe('Group C reduced-motion support', () => {
     }
   });
 
-  it('Group C components still produce syntactically valid inline JavaScript', () => {
+  it('Group C components still produce syntactically valid inline JavaScript', async () => {
     for (const id of groupCComponents) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       for (const code of inlineScripts(html)) {
         expect(() => new Function(code)).not.toThrow();
       }
@@ -327,13 +329,13 @@ describe('Group C reduced-motion support', () => {
 describe('Group D reduced-motion support', () => {
   const groupDComponents = ['noisypixel', 'mirror', 'maskdrag'];
 
-  it.each(groupDComponents)('includes prefers-reduced-motion JS guard for %s', (id) => {
-    const html = BY_ID[id].code();
+  it.each(groupDComponents)('includes prefers-reduced-motion JS guard for %s', async (id) => {
+    const html = await BY_ID[id].codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
   });
 
-  it('noisypixel JS skips Lenis and RAF loop when reduced motion', () => {
-    const html = BY_ID.noisypixel.code();
+  it('noisypixel JS skips Lenis and RAF loop when reduced motion', async () => {
+    const html = await BY_ID.noisypixel.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const lenisPos = html.indexOf('new Lenis');
@@ -343,8 +345,8 @@ describe('Group D reduced-motion support', () => {
     expect(rafPos).toBeGreaterThan(-1);
   });
 
-  it('mirror JS skips scroll-driven uniforms and uses one-time render when reduced motion', () => {
-    const html = BY_ID.mirror.code();
+  it('mirror JS skips scroll-driven uniforms and uses one-time render when reduced motion', async () => {
+    const html = await BY_ID.mirror.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const scrollPos = html.indexOf('window.addEventListener(\'scroll\'');
@@ -355,8 +357,8 @@ describe('Group D reduced-motion support', () => {
     expect(reducedBranch).not.toContain('requestAnimationFrame(rafReduced)');
   });
 
-  it('maskdrag JS skips RAF draw loop and disables drag when reduced motion', () => {
-    const html = BY_ID.maskdrag.code();
+  it('maskdrag JS skips RAF draw loop and disables drag when reduced motion', async () => {
+    const html = await BY_ID.maskdrag.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const rafPos = html.indexOf('requestAnimationFrame(draw)');
@@ -364,18 +366,18 @@ describe('Group D reduced-motion support', () => {
     expect(rafPos).toBeGreaterThan(-1);
   });
 
-  it('Group D components still produce valid HTML with content visible', () => {
+  it('Group D components still produce valid HTML with content visible', async () => {
     for (const id of groupDComponents) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
       expect(html.trim().endsWith('</html>')).toBe(true);
       expect(html).not.toMatch(/@@\w+@@/);
     }
   });
 
-  it('Group D components still produce syntactically valid inline JavaScript', () => {
+  it('Group D components still produce syntactically valid inline JavaScript', async () => {
     for (const id of groupDComponents) {
-      const html = BY_ID[id].code();
+      const html = await BY_ID[id].codeAsync();
       for (const code of inlineScripts(html)) {
         expect(() => new Function(code)).not.toThrow();
       }
@@ -391,8 +393,8 @@ describe('Group E reduced-motion support', () => {
     expect(html).toContain('prefers-reduced-motion: reduce');
   });
 
-  it('footer2 JS skips GSAP timeline and ScrollTrigger when reduced motion', () => {
-    const html = BY_ID.footer2.code();
+  it('footer2 JS skips GSAP timeline and ScrollTrigger when reduced motion', async () => {
+    const html = await BY_ID.footer2.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const gsapTimelinePos = html.indexOf('gsap.timeline');
@@ -402,8 +404,8 @@ describe('Group E reduced-motion support', () => {
     expect(scrollTriggerPos).toBeGreaterThan(-1);
   });
 
-  it('footer2 JS disables magnetic hover when reduced motion', () => {
-    const html = BY_ID.footer2.code();
+  it('footer2 JS disables magnetic hover when reduced motion', async () => {
+    const html = await BY_ID.footer2.codeAsync();
     expect(html).toContain('prefers-reduced-motion: reduce');
     const guardPos = html.indexOf('prefers-reduced-motion: reduce');
     const mousemovePos = html.indexOf('mousemove');
@@ -438,18 +440,18 @@ describe('Group E reduced-motion support', () => {
     }
   });
 
-  it('Group E components still produce valid HTML with content visible', () => {
+  it('Group E components still produce valid HTML with content visible', async () => {
     for (const id of groupEComponents) {
-      const html = id === 'effect' ? BY_ID[id].code('char', 'fade') : BY_ID[id].code();
+      const html = id === 'effect' ? await BY_ID[id].codeAsync('char', 'fade') : await BY_ID[id].codeAsync();
       expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
       expect(html.trim().endsWith('</html>')).toBe(true);
       expect(html).not.toMatch(/@@\w+@@/);
     }
   });
 
-  it('Group E components still produce syntactically valid inline JavaScript', () => {
+  it('Group E components still produce syntactically valid inline JavaScript', async () => {
     for (const id of groupEComponents) {
-      const html = id === 'effect' ? BY_ID[id].code('char', 'fade') : BY_ID[id].code();
+      const html = id === 'effect' ? await BY_ID[id].codeAsync('char', 'fade') : await BY_ID[id].codeAsync();
       for (const code of inlineScripts(html)) {
         expect(() => new Function(code)).not.toThrow();
       }

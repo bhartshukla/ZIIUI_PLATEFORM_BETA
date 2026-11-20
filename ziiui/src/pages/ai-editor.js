@@ -229,8 +229,8 @@ async function boot() {
       try {
         if (typeof found.codeAsync === 'function') {
           initialCode = await found.codeAsync();
-        } else if (typeof found.code === 'function') {
-          initialCode = found.code();
+        } else {
+          throw new Error('No async code generator available');
         }
       } catch (err) { report(err, 'initialCode'); }
       getOrCreateComponentState(found.id, found.name, found.cat, initialCode);

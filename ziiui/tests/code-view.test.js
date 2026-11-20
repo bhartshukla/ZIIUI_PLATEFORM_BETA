@@ -19,8 +19,8 @@ describe('component code tabs', () => {
     expect(sections.js).toContain('start();');
   });
 
-  it('correctly splits Block Reveal Animation and Reveal Menu code', () => {
-    const blockSections = splitComponentCode(BY_ID.blockreveal.code());
+  it('correctly splits Block Reveal Animation and Reveal Menu code', async () => {
+    const blockSections = splitComponentCode(await BY_ID.blockreveal.codeAsync());
     expect(blockSections.html).toContain('id="squareContainer"');
     expect(blockSections.html).toContain('class="menuContent"');
     expect(blockSections.css).toContain('.square');
@@ -28,7 +28,7 @@ describe('component code tabs', () => {
     expect(blockSections.js).toContain('initBlockReveal');
     expect(blockSections.js).toContain('gsap');
 
-    const revealSections = splitComponentCode(BY_ID.revealmenu.code());
+    const revealSections = splitComponentCode(await BY_ID.revealmenu.codeAsync());
     expect(revealSections.html).toContain('class="hamburger"');
     expect(revealSections.html).toContain('class="menu-items"');
     expect(revealSections.css).toContain('.hamburger');
@@ -37,8 +37,8 @@ describe('component code tabs', () => {
     expect(revealSections.js).toContain('paths');
   });
 
-  it('correctly splits Image Trail code', () => {
-    const trailSections = splitComponentCode(BY_ID.imagetrail.code());
+  it('correctly splits Image Trail code', async () => {
+    const trailSections = splitComponentCode(await BY_ID.imagetrail.codeAsync());
     expect(trailSections.html).toContain('Image Trail');
     expect(trailSections.html).toContain('Field Notes');
     expect(trailSections.css).toContain('cursor: crosshair');
@@ -50,7 +50,7 @@ describe('component code tabs', () => {
 describe('component dependency analysis', () => {
   it('detects GSAP, ScrollTrigger, Lenis, Google Fonts, and RemixIcon in splitsection', async () => {
     const { getComponentDependencies } = await import('../src/pages/library/viewer.js');
-    const deps = getComponentDependencies(BY_ID.splitsection.code());
+    const deps = getComponentDependencies(await BY_ID.splitsection.codeAsync());
     const ids = deps.map((d) => d.id);
     expect(ids).toContain('gsap');
     expect(ids).toContain('scrolltrigger');
@@ -61,16 +61,16 @@ describe('component dependency analysis', () => {
 
   it('detects Three.js (WebGL) in noisypixel and mirror', async () => {
     const { getComponentDependencies } = await import('../src/pages/library/viewer.js');
-    const noisyDeps = getComponentDependencies(BY_ID.noisypixel.code());
+    const noisyDeps = getComponentDependencies(await BY_ID.noisypixel.codeAsync());
     expect(noisyDeps.some((d) => d.id === 'three')).toBe(true);
 
-    const mirrorDeps = getComponentDependencies(BY_ID.mirror.code());
+    const mirrorDeps = getComponentDependencies(await BY_ID.mirror.codeAsync());
     expect(mirrorDeps.some((d) => d.id === 'three')).toBe(true);
   });
 
   it('returns empty dependencies list for vanilla components without external scripts or icon fonts', async () => {
     const { getComponentDependencies } = await import('../src/pages/library/viewer.js');
-    const maskdragDeps = getComponentDependencies(BY_ID.maskdrag.code());
+    const maskdragDeps = getComponentDependencies(await BY_ID.maskdrag.codeAsync());
     expect(maskdragDeps).toEqual([]);
   });
 
@@ -78,13 +78,13 @@ describe('component dependency analysis', () => {
     const { renderDependencies } = await import('../src/pages/library/viewer.js');
     document.body.innerHTML = '<div id="previewDeps"></div>';
 
-    renderDependencies(BY_ID.splitsection.code());
+    renderDependencies(await BY_ID.splitsection.codeAsync());
     const depsContainer = document.getElementById('previewDeps');
     expect(depsContainer.innerHTML).toContain('dep-chip');
     expect(depsContainer.textContent).toContain('GSAP');
     expect(depsContainer.textContent).toContain('ScrollTrigger');
 
-    renderDependencies(BY_ID.maskdrag.code());
+    renderDependencies(await BY_ID.maskdrag.codeAsync());
     expect(depsContainer.innerHTML).toContain('dep-chip-pure');
     expect(depsContainer.textContent).toContain('Vanilla (Zero dependencies)');
   });
