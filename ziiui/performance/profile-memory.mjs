@@ -45,17 +45,30 @@ async function main() {
 
   await (await snap('after-load'))();
 
-  const cards = page.locator('.component-card');
-  const count = await cards.count();
-
   // Repeated select + destroy cycle to detect retained growth.
+  // After each selection the page shows the detail view, so we return to
+  // discovery before selecting the next card. Preview readiness is detected
+  // via the frame's srcdoc attribute (contentDocument is null for srcdoc
+  // iframes in headless Chromium).
+  async function selectCard(index) {
+    const currentCards = page.locator('.component-card');
+    const c = await currentCards.count();
+    await currentCards.nth(index % c).click();
+    await page.waitForFunction(() => {
+      const f = document.getElementById('frame');
+      return !!(f && f.srcdoc && f.srcdoc.length > 50);
+    }, { timeout: 15000 });
+    await page.waitForTimeout(300);
+  }
+
   for (let round = 1; round <= 6; round++) {
+    const count = await (await page.locator('.component-card').count()) || 0;
     for (let i = 0; i < Math.min(8, count); i++) {
-      await cards.nth(i).click();
-      await page.waitForFunction(() => {
-        const f = document.getElementById('frame');
-        return f && f.contentDocument && f.contentDocument.body && f.contentDocument.body.children.length > 0;
-      }, { timeout: 15000 });
+      if (i > 0) {
+        await page.click('#backToComponents');
+        await page.waitForFunction(() => document.getElementById('catalogSection')?.hidden === false);
+      }
+      await selectCard(i);
     }
     await page.click('#backToComponents');
     await page.waitForFunction(() => document.getElementById('catalogSection')?.hidden === false);

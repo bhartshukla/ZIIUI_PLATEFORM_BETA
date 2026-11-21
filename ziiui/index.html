@@ -655,11 +655,28 @@
       font-size: 1.15rem;
       line-height: 1;
     }
+    .skip {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--acc);
+      color: #fff;
+      padding: .5rem 1rem;
+      border-radius: 0 0 8px 0;
+      z-index: 999;
+      font-weight: 600;
+      font-size: .85rem;
+    }
+    .skip:focus {
+      left: 0;
+    }
   </style>
   <link rel="stylesheet" href="/src/styles/style.css">
 </head>
 
 <body>
+
+  <a class="skip" href="#main">Skip to main content</a>
 
   <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false"
     aria-controls="sidePanel">
@@ -843,7 +860,7 @@
       <p class="catalog-empty" id="catalogEmpty" hidden>No components found. Try another search.</p>
     </aside>
 
-    <main>
+    <main id="main">
       <section class="catalog-section is-skeleton-loading" id="catalogSection" aria-labelledby="catalogTitle">
         <!-- Main Content Skeleton (Category Filter Chips + Component Cards Grid) -->
         <div class="catalog-skeleton" id="catalogSkeleton" aria-label="Loading components" aria-busy="true">

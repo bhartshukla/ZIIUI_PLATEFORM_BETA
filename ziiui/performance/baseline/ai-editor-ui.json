@@ -1,0 +1,17 @@
+{
+  "url": "http://localhost:5174/ai.html",
+  "dir": "baseline",
+  "collectedAt": "2026-11-20T16:06:48.710Z",
+  "samples": [],
+  "loadMs": 1110.5,
+  "selectExists": true,
+  "selectHidden": true,
+  "optionCount": 0,
+  "runBtnExists": false,
+  "previewFrameExists": true,
+  "previewHasContent": true,
+  "consoleErrors": [],
+  "pageErrors": [],
+  "consoleErrorCount": 0,
+  "pageErrorCount": 0
+}

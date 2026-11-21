@@ -1,0 +1,106 @@
+{
+  "url": "http://localhost:5174/",
+  "dir": "baseline",
+  "collectedAt": "2026-11-20T15:58:27.612Z",
+  "cycles": [
+    {
+      "cycle": 1,
+      "component": "nth-0",
+      "ms": 648.1
+    },
+    {
+      "cycle": 2,
+      "component": "nth-1",
+      "ms": 379.7
+    },
+    {
+      "cycle": 3,
+      "component": "nth-2",
+      "ms": 429.7
+    },
+    {
+      "cycle": 4,
+      "component": "nth-3",
+      "ms": 438
+    },
+    {
+      "cycle": 5,
+      "component": "nth-4",
+      "ms": 432
+    },
+    {
+      "cycle": 6,
+      "component": "nth-5",
+      "ms": 451
+    },
+    {
+      "cycle": 7,
+      "component": "nth-6",
+      "ms": 525.7
+    },
+    {
+      "cycle": 8,
+      "component": "nth-7",
+      "ms": 457.8
+    },
+    {
+      "cycle": 9,
+      "component": "nth-8",
+      "ms": 391.9
+    },
+    {
+      "cycle": 10,
+      "component": "nth-9",
+      "ms": 423.8
+    },
+    {
+      "cycle": 11,
+      "component": "nth-10",
+      "ms": 399.2
+    },
+    {
+      "cycle": 12,
+      "component": "nth-11",
+      "ms": 482.6
+    },
+    {
+      "cycle": 13,
+      "component": "nth-0",
+      "ms": 395.2
+    },
+    {
+      "cycle": 14,
+      "component": "nth-1",
+      "ms": 419.2
+    },
+    {
+      "cycle": 15,
+      "component": "nth-2",
+      "ms": 394.5
+    }
+  ],
+  "destroyMs": 132.3,
+  "consoleErrors": [
+    {
+      "text": "[ziiui:window] TypeError: J.entries is not a function or its return value is not iterable\n    at http://localhost:5174/assets/chat-view-Dfs4CTfJ.js:25:2511",
+      "location": {
+        "url": "http://localhost:5174/assets/storage-CDd4Igmh.js",
+        "line": 3,
+        "column": 223,
+        "lineNumber": 3,
+        "columnNumber": 223
+      }
+    }
+  ],
+  "pageErrors": [
+    {
+      "message": "gsap is not defined"
+    },
+    {
+      "message": "J.entries is not a function or its return value is not iterable"
+    }
+  ],
+  "consoleErrorCount": 1,
+  "pageErrorCount": 2,
+  "frameCleared": true
+}

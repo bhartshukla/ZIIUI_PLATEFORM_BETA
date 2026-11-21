@@ -222,6 +222,21 @@
       font-size: 1.1rem;
       line-height: 1;
     }
+    .skip {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--acc);
+      color: #fff;
+      padding: .5rem 1rem;
+      border-radius: 0 0 8px 0;
+      z-index: 999;
+      font-weight: 600;
+      font-size: .85rem;
+    }
+    .skip:focus {
+      left: 0;
+    }
   </style>
   <link rel="stylesheet" href="/src/styles/style.css">
   <link rel="stylesheet" href="/src/styles/ai-editor.css">
@@ -229,7 +244,9 @@
 
 <body>
 
-  <div class="ai-page">
+  <a class="skip" href="#main">Skip to main content</a>
+
+  <div class="ai-page" id="main">
     <header class="ai-page-head">
       <a class="logo ziiui-logo-wrap" href="index.html" aria-label="ziiui home">
         <img class="logo-mark ziiui-logo-img" src="/ziiui-logo.jpg" alt="ziiui" width="895" height="348" fetchpriority="high" decoding="async" onerror="this.style.display='none'">

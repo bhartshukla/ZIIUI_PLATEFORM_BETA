@@ -1,0 +1,261 @@
+{
+  "label": "index-load",
+  "url": "http://localhost:5174/",
+  "loadMs": 6778.0638,
+  "timing": {
+    "navigation": {
+      "name": "http://localhost:5174/",
+      "entryType": "navigation",
+      "startTime": 0,
+      "duration": 940.5,
+      "navigationId": 5178,
+      "initiatorType": "navigation",
+      "deliveryType": "",
+      "nextHopProtocol": "http/1.1",
+      "renderBlockingStatus": "non-blocking",
+      "contentType": "text/html",
+      "contentEncoding": "gzip",
+      "workerStart": 0,
+      "workerRouterEvaluationStart": 0,
+      "workerCacheLookupStart": 0,
+      "workerMatchedRouterSource": "",
+      "workerFinalRouterSource": "",
+      "workerMatchedSourceType": "",
+      "workerFinalSourceType": "",
+      "redirectStart": 0,
+      "redirectEnd": 0,
+      "fetchStart": 0.3999999910593033,
+      "domainLookupStart": 2.3999999910593033,
+      "domainLookupEnd": 4.5999999940395355,
+      "connectStart": 4.5999999940395355,
+      "secureConnectionStart": 0,
+      "connectEnd": 5.699999988079071,
+      "requestStart": 6,
+      "responseStart": 13.899999991059303,
+      "firstInterimResponseStart": 0,
+      "finalResponseHeadersStart": 13.899999991059303,
+      "responseEnd": 15.399999991059303,
+      "transferSize": 9841,
+      "encodedBodySize": 9541,
+      "decodedBodySize": 49290,
+      "responseStatus": 200,
+      "serverTiming": [],
+      "unloadEventStart": 0,
+      "unloadEventEnd": 0,
+      "domInteractive": 407.59999999403954,
+      "domContentLoadedEventStart": 478.3999999910593,
+      "domContentLoadedEventEnd": 478.5,
+      "domComplete": 899.3999999910593,
+      "loadEventStart": 899.5,
+      "loadEventEnd": 940.5,
+      "type": "navigate",
+      "redirectCount": 0,
+      "activationStart": 0,
+      "criticalCHRestart": 0,
+      "notRestoredReasons": null,
+      "confidence": {
+        "randomizedTriggerRate": 0.4994798,
+        "value": "high"
+      }
+    },
+    "resources": [
+      {
+        "name": "https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.woff2?t=1769486070745",
+        "type": "link",
+        "start": 23,
+        "end": 355,
+        "duration": 331,
+        "encodedBodySize": 189404,
+        "transferSize": 189704,
+        "decodedBodySize": 189404
+      },
+      {
+        "name": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap",
+        "type": "link",
+        "start": 24,
+        "end": 292,
+        "duration": 268,
+        "encodedBodySize": 814,
+        "transferSize": 1114,
+        "decodedBodySize": 14826
+      },
+      {
+        "name": "http://localhost:5174/assets/index-DPE5A1Zc.js",
+        "type": "script",
+        "start": 24,
+        "end": 47,
+        "duration": 23,
+        "encodedBodySize": 14037,
+        "transferSize": 14337,
+        "decodedBodySize": 46263
+      },
+      {
+        "name": "https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css",
+        "type": "link",
+        "start": 24,
+        "end": 315,
+        "duration": 291,
+        "encodedBodySize": 15625,
+        "transferSize": 15925,
+        "decodedBodySize": 157458
+      },
+      {
+        "name": "http://localhost:5174/assets/storage-CDd4Igmh.js",
+        "type": "other",
+        "start": 24,
+        "end": 49,
+        "duration": 25,
+        "encodedBodySize": 1384,
+        "transferSize": 1684,
+        "decodedBodySize": 2898
+      },
+      {
+        "name": "http://localhost:5174/assets/state-ChBP-Dpp.js",
+        "type": "other",
+        "start": 24,
+        "end": 50,
+        "duration": 26,
+        "encodedBodySize": 6920,
+        "transferSize": 7220,
+        "decodedBodySize": 20618
+      },
+      {
+        "name": "http://localhost:5174/assets/theme-CuwMvD4f.js",
+        "type": "other",
+        "start": 24,
+        "end": 48,
+        "duration": 24,
+        "encodedBodySize": 737,
+        "transferSize": 1037,
+        "decodedBodySize": 737
+      },
+      {
+        "name": "http://localhost:5174/assets/chat-view-4XDuJEOe.js",
+        "type": "other",
+        "start": 24,
+        "end": 62,
+        "duration": 38,
+        "encodedBodySize": 46978,
+        "transferSize": 47278,
+        "decodedBodySize": 193309
+      },
+      {
+        "name": "http://localhost:5174/assets/clipboard-DfYFTYYo.js",
+        "type": "other",
+        "start": 24,
+        "end": 55,
+        "duration": 31,
+        "encodedBodySize": 515,
+        "transferSize": 815,
+        "decodedBodySize": 515
+      },
+      {
+        "name": "http://localhost:5174/assets/chat-view-CQPEESkM.css",
+        "type": "link",
+        "start": 24,
+        "end": 58,
+        "duration": 34,
+        "encodedBodySize": 15609,
+        "transferSize": 15909,
+        "decodedBodySize": 84144
+      },
+      {
+        "name": "http://localhost:5174/ziiui-logo.jpg",
+        "type": "img",
+        "start": 24,
+        "end": 57,
+        "duration": 32,
+        "encodedBodySize": 17153,
+        "transferSize": 17453,
+        "decodedBodySize": 17153
+      },
+      {
+        "name": "http://localhost:5174/videos/Split%20Scroll.mp4",
+        "type": "video",
+        "start": 947,
+        "end": 1740,
+        "duration": 793,
+        "encodedBodySize": 10086290,
+        "transferSize": 10086590,
+        "decodedBodySize": 10086290
+      },
+      {
+        "name": "http://localhost:5174/videos/Draggable%20Mask.mp4",
+        "type": "video",
+        "start": 949,
+        "end": 1004,
+        "duration": 55,
+        "encodedBodySize": 49290,
+        "transferSize": 49590,
+        "decodedBodySize": 49290
+      }
+    ],
+    "memory": {
+      "jsHeapUsedSize": 10000000,
+      "jsHeapTotalSize": 10000000,
+      "jsHeapLimit": 3760000000
+    },
+    "vitals": {
+      "cls": 0.07471921051873101,
+      "lcp": 1216,
+      "longTasks": [
+        {
+          "name": "cross-origin-descendant",
+          "start": 339.19999998807907,
+          "duration": 50
+        },
+        {
+          "name": "self",
+          "start": 407.59999999403954,
+          "duration": 70
+        }
+      ]
+    },
+    "loadMs": 6778,
+    "status": 200,
+    "url": "http://localhost:5174/",
+    "label": "index-load"
+  },
+  "cdp": {
+    "perfMetrics": {
+      "Timestamp": 123927.124475,
+      "AudioHandlers": 0,
+      "AudioWorkletProcessors": 0,
+      "Documents": 3,
+      "Frames": 3,
+      "JSEventListeners": 178,
+      "LayoutObjects": 535,
+      "MediaKeySessions": 0,
+      "MediaKeys": 0,
+      "Nodes": 2723,
+      "Resources": 14,
+      "ContextLifecycleStateObservers": 33,
+      "V8PerContextDatas": 6,
+      "WorkerGlobalScopes": 0,
+      "UACSSResources": 0,
+      "RTCPeerConnections": 0,
+      "ResourceFetchers": 3,
+      "AdSubframes": 0,
+      "DetachedScriptStates": 0,
+      "ArrayBufferContents": 0,
+      "LayoutCount": 15,
+      "RecalcStyleCount": 20,
+      "LayoutDuration": 0.110922,
+      "RecalcStyleDuration": 0.02825,
+      "DevToolsCommandDuration": 0.052699,
+      "ScriptDuration": 0.037154,
+      "V8CompileDuration": 0.000177,
+      "TaskDuration": 0.433673,
+      "TaskOtherDuration": 0.204471,
+      "ThreadTime": 0.429223,
+      "ProcessTime": 2.769165,
+      "JSHeapUsedSize": 2325384,
+      "JSHeapTotalSize": 4194304,
+      "FirstMeaningfulPaint": 123918.673821,
+      "DomContentLoaded": 123918.648257,
+      "NavigationStart": 123918.169936
+    },
+    "processMemory": null
+  },
+  "collectedAt": "2026-11-21T15:08:48.971Z"
+}

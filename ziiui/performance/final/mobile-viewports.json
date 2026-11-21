@@ -1,0 +1,90 @@
+{
+  "dir": "final",
+  "collectedAt": "2026-11-21T15:11:10.761Z",
+  "viewports": [
+    {
+      "name": "iphone-se",
+      "width": 375,
+      "height": 812,
+      "overflow": false,
+      "sidebarOpenInitially": false,
+      "componentCount": 12,
+      "selectAndPreview": true,
+      "previewRendered": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0
+    },
+    {
+      "name": "iphone-12",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "sidebarOpenInitially": false,
+      "componentCount": 12,
+      "selectAndPreview": true,
+      "previewRendered": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0
+    },
+    {
+      "name": "ipad",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "sidebarOpenInitially": false,
+      "componentCount": 12,
+      "selectAndPreview": true,
+      "previewRendered": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0
+    },
+    {
+      "name": "desktop-small",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "sidebarOpenInitially": false,
+      "componentCount": 12,
+      "selectAndPreview": true,
+      "previewRendered": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0
+    },
+    {
+      "name": "desktop-hd",
+      "width": 1440,
+      "height": 900,
+      "overflow": false,
+      "sidebarOpenInitially": false,
+      "componentCount": 12,
+      "selectAndPreview": true,
+      "previewRendered": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0
+    },
+    {
+      "name": "desktop-fhd",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false,
+      "sidebarOpenInitially": false,
+      "componentCount": 12,
+      "selectAndPreview": true,
+      "previewRendered": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0
+    }
+  ]
+}

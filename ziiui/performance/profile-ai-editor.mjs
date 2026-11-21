@@ -5,8 +5,8 @@
 //   node performance/profile-ai-editor.mjs [--final]
 //
 // ai.html loads without an API key in this environment, so AI generation is
-// not exercised. We measure page load, component selection in the picker,
-// preview rendering and console errors (regression signal only).
+// not exercised. We measure page load, component picker state, preview
+// rendering and console errors (regression signal only).
 
 import { chromium } from 'playwright';
 import { writeJson, outPath } from './capture.mjs';
@@ -27,44 +27,43 @@ async function main() {
 
   const results = { url: URL, dir: DIR, collectedAt: new Date().toISOString(), samples: [] };
 
-  const sample = (name) => async (fn) => {
-    const t0 = process.hrtime.bigint();
-    await fn();
-    const ms = Math.round(Number(process.hrtime.bigint() - t0) / 1_000_000 * 10) / 10;
-    results.samples.push({ name, ms });
-    process.stdout.write(`  ${name}: ${ms} ms\n`);
-  };
-
+  const t0 = process.hrtime.bigint();
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 60000 });
+  const loadMs = Math.round(Number(process.hrtime.bigint() - t0) / 1_000_000 * 10) / 10;
+  results.loadMs = loadMs;
+  process.stdout.write(`  ai-page-load: ${loadMs} ms\n`);
+
   await page.waitForTimeout(1000);
-  await (await sample('ai-page-load'))(() => page.waitForSelector('#aiComponentSelect', { state: 'visible' }));
 
-  // Component picker: how many options render, and selection latency.
   const select = page.locator('#aiComponentSelect');
-  const options = select.locator('option');
-  results.optionCount = await options.count();
-  process.stdout.write(`  picker options: ${results.optionCount}\n`);
+  results.selectExists = (await select.count()) > 0;
+  results.selectHidden = await select.getAttribute('hidden') !== null;
+  if (results.selectExists) {
+    results.optionCount = await select.locator('option').count();
+  }
+  process.stdout.write(`  picker exists=${results.selectExists} hidden=${results.selectHidden} options=${results.optionCount || 0}\n`);
 
-  if (results.optionCount > 0) {
-    await (await sample('select-first-ai-component'))(() => select.selectOption({ index: 0 }));
-    await page.waitForTimeout(500);
-    results.previewHasContent = await page.evaluate(() => {
-      const f = document.getElementById('aiPreviewFrame');
-      return f ? !!(f.contentDocument && f.contentDocument.body) : false;
-    });
+  const runBtn = page.locator('#aiRun');
+  results.runBtnExists = (await runBtn.count()) > 0;
+  if (results.runBtnExists) {
+    const t1 = process.hrtime.bigint();
+    await runBtn.click();
+    await page.waitForTimeout(300);
+    results.runPreviewClickMs = Math.round(Number(process.hrtime.bigint() - t1) / 1_000_000 * 10) / 10;
+    process.stdout.write(`  run-preview-click: ${results.runPreviewClickMs} ms\n`);
   }
 
-  // Toggle auto-preview and run preview — UI-only, no AI call.
   const auto = page.locator('#aiAutoPreview');
   if ((await auto.count()) > 0) {
     await auto.click();
     await page.waitForTimeout(300);
   }
-  const runBtn = page.locator('#aiRun');
-  if ((await runBtn.count()) > 0) {
-    await (await sample('run-preview-click'))(() => runBtn.click());
-    await page.waitForTimeout(500);
-  }
+
+  results.previewFrameExists = (await page.locator('#aiPreviewFrame').count()) > 0;
+  results.previewHasContent = await page.evaluate(() => {
+    const f = document.getElementById('aiPreviewFrame');
+    return f ? !!(f.srcdoc && f.srcdoc.length > 50) : false;
+  });
 
   results.consoleErrors = consoleErrors.slice(0, 50);
   results.pageErrors = pageErrors.slice(0, 20);

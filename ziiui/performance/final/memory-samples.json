@@ -1,0 +1,74 @@
+{
+  "url": "http://localhost:5174/",
+  "dir": "final",
+  "collectedAt": "2026-11-21T15:10:21.007Z",
+  "samples": [
+    {
+      "name": "after-load",
+      "Documents": 3,
+      "Frames": 3,
+      "Nodes": 2723,
+      "JSHeapUsedSize": 1887464,
+      "JSHeapTotalSize": 4194304,
+      "ts": 1795273829187
+    },
+    {
+      "name": "after-round-1",
+      "Documents": 10,
+      "Frames": 6,
+      "Nodes": 6070,
+      "JSHeapUsedSize": 5620056,
+      "JSHeapTotalSize": 12460032,
+      "ts": 1795273833954
+    },
+    {
+      "name": "after-round-2",
+      "Documents": 9,
+      "Frames": 6,
+      "Nodes": 6065,
+      "JSHeapUsedSize": 5724404,
+      "JSHeapTotalSize": 10887168,
+      "ts": 1795273838516
+    },
+    {
+      "name": "after-round-3",
+      "Documents": 10,
+      "Frames": 6,
+      "Nodes": 7812,
+      "JSHeapUsedSize": 6157804,
+      "JSHeapTotalSize": 9838592,
+      "ts": 1795273843075
+    },
+    {
+      "name": "after-round-4",
+      "Documents": 16,
+      "Frames": 12,
+      "Nodes": 9602,
+      "JSHeapUsedSize": 7662608,
+      "JSHeapTotalSize": 11411456,
+      "ts": 1795273847707
+    },
+    {
+      "name": "after-round-5",
+      "Documents": 12,
+      "Frames": 7,
+      "Nodes": 8301,
+      "JSHeapUsedSize": 6823124,
+      "JSHeapTotalSize": 10625024,
+      "ts": 1795273852333
+    },
+    {
+      "name": "after-round-6",
+      "Documents": 27,
+      "Frames": 15,
+      "Nodes": 12580,
+      "JSHeapUsedSize": 8724416,
+      "JSHeapTotalSize": 12984320,
+      "ts": 1795273857022
+    }
+  ],
+  "delta": {
+    "jsHeapUsedSizeKb": 6677,
+    "nodes": 9857
+  }
+}

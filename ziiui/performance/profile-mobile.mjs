@@ -49,8 +49,10 @@ async function main() {
     await page.waitForTimeout(1000);
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
-    const nav = document.getElementById('sidePanel');
-    const sidebarOpenInitially = nav ? nav.classList.contains('open') : false;
+    const sidebarOpenInitially = await page.evaluate(() => {
+      const nav = document.getElementById('sidePanel');
+      return nav ? nav.classList.contains('open') : false;
+    });
     const cards = page.locator('.component-card');
     const count = await cards.count();
 
