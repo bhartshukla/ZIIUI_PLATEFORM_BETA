@@ -35,4 +35,16 @@ describe('handlePreviewMessage', () => {
     expect(handlePreviewMessage(rec, { data: { type: 'ziiui:ack:cleanup', nonce: 'n', generation: 2 } })).toBe(false);
     expect(rec.pending).toBe(pending);
   });
+
+  it('blocked link message is accepted', () => {
+    const rec = { aborted: false, pending: null };
+    const ok = handlePreviewMessage(rec, { data: { type: 'ziiui:blocked:link', nonce: 'n', generation: 1, href: '#' } });
+    expect(ok).toBe(true);
+  });
+
+  it('blocked link message with missing href is still accepted', () => {
+    const rec = { aborted: false, pending: null };
+    const ok = handlePreviewMessage(rec, { data: { type: 'ziiui:blocked:link', nonce: 'n', generation: 1 } });
+    expect(ok).toBe(true);
+  });
 });

@@ -78,6 +78,20 @@ window.addEventListener("message",function(e){
   try { window.__ziiuiCleanup(); } catch (_) {}
   try { parent.postMessage({type:"ziiui:ack:cleanup",nonce:window.__ziiuiNonce,generation:window.__ziiuiGeneration},"*"); } catch (_) {}
 });
+
+// Preview-only link blocking: prevent dead "#" / empty href navigation
+(function(){
+  function isDeadLink(a){return !a || a.tagName !== 'A' || !(a.getAttribute('href') === '#' || a.getAttribute('href') === '');}
+  function onLinkClick(e){
+    var a = e.target.closest ? e.target.closest('a') : null;
+    if (!a) { a = e.target.tagName === 'A' ? e.target : null; }
+    if (isDeadLink(a)) {return;}
+    e.preventDefault();
+    e.stopPropagation();
+    try{parent.postMessage({type:"ziiui:blocked:link",nonce:window.__ziiuiNonce,generation:window.__ziiuiGeneration,href:a.getAttribute('href')},"*");}catch(_){}
+  }
+  document.addEventListener('click',onLinkClick,true);
+})();
 </script>`;
 }
 
@@ -352,7 +366,7 @@ export function handlePreviewMessage(record, event) {
   if (!record || record.aborted) {return false;}
 
   const type = event?.data?.type;
-  if (type !== 'ziiui:ack:cleanup' && type !== 'ziiui:error' && type !== 'ziiui:ready') {
+  if (type !== 'ziiui:ack:cleanup' && type !== 'ziiui:error' && type !== 'ziiui:ready' && type !== 'ziiui:blocked:link') {
     return false;
   }
 
@@ -365,6 +379,10 @@ export function handlePreviewMessage(record, event) {
     record.requestedGeneration = null;
     record.requestedNonce = null;
     return true;
+  }
+
+  if (type === 'ziiui:blocked:link') {
+    return typeof event.data.nonce === 'string';
   }
 
   const pending = record.pending;
@@ -407,6 +425,10 @@ export function installPreviewMessageHandler() {
         console.error('[ziiui:preview]', e.data.message);
         say(`Preview error: ${e.data.message}`);
       }
+    }
+
+    if (accepted && e.data?.type === 'ziiui:blocked:link') {
+      console.warn('[ziiui:preview] blocked dead link:', e.data.href);
     }
   });
 }

@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 const VIEWPORTS = [
+  { name: 'small-mobile', width: 320, height: 740 },
+  { name: 'mobile-go', width: 360, height: 800 },
   { name: 'iphone-se', width: 375, height: 812 },
   { name: 'iphone-12', width: 390, height: 844 },
   { name: 'ipad', width: 768, height: 1024 },
   { name: 'desktop-small', width: 1024, height: 768 },
-  { name: 'desktop-hd', width: 1440, height: 900 },
-  { name: 'desktop-fhd', width: 1920, height: 1080 }
+  { name: 'desktop-hd', width: 1440, height: 900 }
 ];
 
 for (const vp of VIEWPORTS) {

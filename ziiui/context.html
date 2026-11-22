@@ -8,6 +8,18 @@
   <meta name="description"
     content="Search, inspect, and manage component memory in the ZiiUI AI Context Command Center.">
   <meta name="theme-color" content="#000000">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://bhartshukla.github.io/ZIIUI_PLATEFORM_BETA/ziiui/context.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ziiui — AI Context Command Center">
+  <meta property="og:description" content="Search, inspect, and manage component memory in the ZiiUI AI Context Command Center.">
+  <meta property="og:url" content="https://bhartshukla.github.io/ZIIUI_PLATEFORM_BETA/ziiui/context.html">
+  <meta property="og:site_name" content="ZiiUI">
+  <meta property="og:image" content="/ziiui-logo.jpg">
+  <meta property="og:image:alt" content="ZiiUI logo">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ziiui — AI Context Command Center">
+  <meta name="twitter:description" content="Search, inspect, and manage component memory in the ZiiUI AI Context Command Center.">
   <link rel="icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -378,11 +390,28 @@
       z-index: 200;
       box-shadow: var(--shadow, 0 8px 24px rgba(0,0,0,.25));
     }
+    .skip {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--acc);
+      color: #fff;
+      padding: .5rem 1rem;
+      border-radius: 0 0 8px 0;
+      z-index: 999;
+      font-weight: 600;
+      font-size: .85rem;
+    }
+    .skip:focus {
+      left: 0;
+    }
   </style>
   <link rel="stylesheet" href="/src/styles/context.css">
 </head>
 
 <body>
+
+  <a class="skip" href="#main">Skip to main content</a>
 
   <header class="cmd-header">
     <div class="brand-group">
@@ -402,7 +431,7 @@
     </nav>
   </header>
 
-  <main class="cmd-main">
+    <main class="cmd-main" id="main">
     <!-- Command Center Hero Section -->
     <section class="cmd-hero" aria-labelledby="cmdHeroTitle">
 

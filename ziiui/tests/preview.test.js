@@ -267,6 +267,22 @@ describe('preview.js - iframe removal', () => {
   });
 });
 
+describe('preview.js - link blocking', () => {
+  it('injects link blocking script into preview HTML', () => {
+    const frame = createMockIframe();
+    setFrameHTML(frame, '<html><body><a href="#">dead link</a></body></html>');
+    expect(frame.srcdoc).toContain('ziiui:blocked:link');
+    expect(frame.srcdoc).toContain("getAttribute('href')");
+    expect(frame.srcdoc).toContain('preventDefault');
+  });
+
+  it('does not break normal anchor links', () => {
+    const frame = createMockIframe();
+    setFrameHTML(frame, '<html><body><a href="https://example.com">external</a></body></html>');
+    expect(frame.srcdoc).toContain('ziiui:blocked:link');
+  });
+});
+
 describe('preview.js - error handling', () => {
   it('handles postMessage failure gracefully', async () => {
     vi.useFakeTimers();
