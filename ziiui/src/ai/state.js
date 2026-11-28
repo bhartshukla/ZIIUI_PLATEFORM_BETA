@@ -359,9 +359,8 @@ export function getComponents() {
 }
 
 /**
- * Ensure a component exists. The originalCode is written exactly once (on
- * creation) and is never overwritten by later calls — it is the immutable
- * preservation reference for AI editing.
+ * Ensure a component exists. The originalCode is immutable after initialization;
+ * a missing legacy baseline may be restored from the canonical component code.
  */
 export function getOrCreateComponent(id, name, category, originalCode) {
   if (!aiState.components[id]) {
@@ -376,6 +375,12 @@ export function getOrCreateComponent(id, name, category, originalCode) {
   const c = aiState.components[id];
   if (name) { c.name = name; }
   if (category) { c.category = category; }
+  if (!c.originalCode && originalCode) {
+    c.originalCode = originalCode;
+    c.originalHash = hashString(originalCode);
+    c.lastUpdated = Date.now();
+    schedulePersist();
+  }
   return c;
 }
 

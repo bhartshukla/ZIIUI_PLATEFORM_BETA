@@ -1,6 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EFFECTS, CATEGORIES, BY_ID } from '../src/effects/registry.js';
 import { hasTemplate } from '../src/effects/templates.js';
+import {
+  getComponentVideoSource, getComponentVideo, getComponentVideoStatus,
+  getVideoAssetAudit, VIDEO_REGISTRY, VIDEO_STATUS
+} from '../src/effects/videos.js';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { scanVideoAssets } from '../scripts/video-assets.js';
 
 /** Pull every inline <script>…</script> body out of a generated document. */
 function inlineScripts(html) {
@@ -8,8 +16,8 @@ function inlineScripts(html) {
 }
 
 describe('effects registry', () => {
-  it('has 27 uniquely-identified effects', () => {
-    expect(EFFECTS).toHaveLength(27);
+  it('has 28 uniquely-identified effects', () => {
+    expect(EFFECTS).toHaveLength(28);
     expect(new Set(EFFECTS.map((e) => e.id)).size).toBe(EFFECTS.length);
     expect(CATEGORIES).not.toContain('Cursor');
     expect(BY_ID.pinrotate).toBeTruthy();
@@ -460,17 +468,90 @@ describe('Group E reduced-motion support', () => {
 });
 
 describe('component video system', async () => {
-  const { getComponentVideoSource } = await import('../src/effects/videos.js');
+  it('pre-registers one standardized expected path for every effect ID', () => {
+    expect(Object.keys(VIDEO_REGISTRY)).toEqual(EFFECTS.map((effect) => effect.id));
+    expect(Object.values(VIDEO_REGISTRY)).toEqual(
+      EFFECTS.map((effect) => `./assets/videos/${effect.id}.mp4`)
+    );
+    expect(new Set(Object.values(VIDEO_REGISTRY)).size).toBe(EFFECTS.length);
+  });
 
-  it('maps each component to its component-specific video filename', () => {
-    expect(getComponentVideoSource('Split Scroll')).toContain('Split%20Scroll.mp4');
-    expect(getComponentVideoSource('Micro Hover')).toContain('Micro%20Hover.mp4');
-    expect(getComponentVideoSource('Draggable Mask')).toContain('Draggable%20Mask.mp4');
-    expect(getComponentVideoSource('Sticky Footer')).toContain('Sticky%20Footer.mp4');
+  it('reports available and pending assets without returning broken URLs', () => {
+    expect(getComponentVideo('splitsection')).toBe('./assets/videos/splitsection.mp4');
+    expect(getComponentVideo('blockreveal')).toBe('./assets/videos/blockreveal.mp4');
+    expect(getComponentVideo('maskdrag')).toBe('./assets/videos/maskdrag.mp4');
+    expect(getComponentVideoStatus('splitsection')).toBe(VIDEO_STATUS.AVAILABLE);
+    expect(getComponentVideoStatus('revealmenu')).toBe(VIDEO_STATUS.PENDING);
+    expect(getComponentVideo('revealmenu')).toBeNull();
+    expect(getComponentVideo('not-registered')).toBeNull();
+    expect(getComponentVideoStatus('not-registered')).toBe(VIDEO_STATUS.UNMAPPED);
+    expect(getComponentVideoSource(BY_ID.splitsection)).toBe(getComponentVideo('splitsection'));
+    expect(getComponentVideoSource('Split Scroll')).toBe(getComponentVideo('splitsection'));
+    expect(getComponentVideoSource({ id: 'incorrect-id', name: 'Split Scroll' })).toBeNull();
+    expect(getVideoAssetAudit().statuses).toHaveProperty('hero-section', VIDEO_STATUS.PENDING);
+    expect(getVideoAssetAudit().unmappedFiles).toEqual([]);
+    expect(getVideoAssetAudit().invalidFiles).toEqual([]);
   });
 
   it('returns null and NO fake/default video when a component is not mapped or null', () => {
     expect(getComponentVideoSource(null)).toBeNull();
     expect(getComponentVideoSource('Nonexistent Effect')).toBeNull();
+  });
+
+  it('detects an added ID-named asset and returns to pending when it is removed', () => {
+    const root = mkdtempSync(join(tmpdir(), 'ziiui-video-audit-'));
+    const videoDirectory = join(root, 'videos');
+    const registryPath = join(root, 'registry.js');
+    mkdirSync(videoDirectory);
+    writeFileSync(registryPath, "export const EFFECTS = [{ id: 'sample-effect', name: 'Sample Effect' }];");
+    try {
+      expect(scanVideoAssets({ registryPath, videoDirectory }).pendingIds).toEqual(['sample-effect']);
+      writeFileSync(join(videoDirectory, 'sample-effect.mp4'), '');
+      expect(scanVideoAssets({ registryPath, videoDirectory }).available).toEqual({
+        'sample-effect': './assets/videos/sample-effect.mp4'
+      });
+      rmSync(join(videoDirectory, 'sample-effect.mp4'));
+      expect(scanVideoAssets({ registryPath, videoDirectory }).pendingIds).toEqual(['sample-effect']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('reports unmapped and unsupported files in the centralized directory', () => {
+    const root = mkdtempSync(join(tmpdir(), 'ziiui-video-audit-'));
+    const videoDirectory = join(root, 'videos');
+    const registryPath = join(root, 'registry.js');
+    mkdirSync(videoDirectory);
+    writeFileSync(registryPath, "export const EFFECTS = [{ id: 'sample-effect', name: 'Sample Effect' }];");
+    writeFileSync(join(videoDirectory, 'other-component.mp4'), '');
+    writeFileSync(join(videoDirectory, 'sample-effect.webm'), '');
+    writeFileSync(join(videoDirectory, 'Sample Effect.mp4'), '');
+    try {
+      const audit = scanVideoAssets({ registryPath, videoDirectory });
+      expect(audit.unmappedFiles.sort()).toEqual(['Sample Effect.mp4', 'other-component.mp4']);
+      expect(audit.invalidFiles).toEqual(['sample-effect.webm']);
+      expect(audit.filenameMismatches).toEqual([{
+        filename: 'Sample Effect.mp4',
+        componentId: 'sample-effect',
+        expectedFilename: 'sample-effect.mp4'
+      }]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('detects duplicate IDs and conflicting expected filenames', () => {
+    const root = mkdtempSync(join(tmpdir(), 'ziiui-video-audit-'));
+    const videoDirectory = join(root, 'videos');
+    const registryPath = join(root, 'registry.js');
+    mkdirSync(videoDirectory);
+    writeFileSync(registryPath, "export const EFFECTS = [{ id: 'repeat', name: 'First' }, { id: 'repeat', name: 'Second' }];");
+    try {
+      const audit = scanVideoAssets({ registryPath, videoDirectory });
+      expect(audit.duplicateIds).toEqual(['repeat']);
+      expect(audit.duplicateMappings).toEqual(['repeat.mp4']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

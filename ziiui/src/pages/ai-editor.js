@@ -222,6 +222,14 @@ async function boot() {
   const saved = paramId || getActiveComponentId();
   let startId = saved && getComponent(saved) ? saved : null;
 
+  if (startId && !getComponent(startId).originalCode && BY_ID[startId]) {
+    const found = BY_ID[startId];
+    try {
+      const initialCode = await found.codeAsync();
+      getOrCreateComponentState(found.id, found.name, found.cat, initialCode);
+    } catch (err) { report(err, 'initialCodeRecovery'); }
+  }
+
   if (!startId && paramId) {
     const found = BY_ID[paramId] || EFFECTS.find((e) => e.name.toLowerCase() === paramId.toLowerCase());
     if (found) {

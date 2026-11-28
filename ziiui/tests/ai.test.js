@@ -121,6 +121,18 @@ describe('AI state schema v4', () => {
     expect(s.id).toBeTruthy();
     expect(s.workspaceId).toBeTruthy();
   });
+
+  it('restores a missing legacy original-code baseline without overwriting a valid one', () => {
+    getOrCreateComponentState('legacy', 'Legacy', 'Text', '');
+    const session = getOrCreateComponentState('legacy', 'Legacy', 'Text', '<p>Canonical</p>');
+
+    expect(getComponent('legacy').originalCode).toBe('<p>Canonical</p>');
+    expect(getComponent('legacy').originalHash).toBe(hashString('<p>Canonical</p>'));
+    expect(session.currentCode).toBe('');
+    flushPersist();
+    expect(JSON.parse(localStorage.getItem(AI_STATE_KEY)).components.legacy.originalCode)
+      .toBe('<p>Canonical</p>');
+  });
 });
 
 describe('Component isolation (original layer immutable)', () => {

@@ -768,6 +768,18 @@ nav.locked button[data-id] {
   pointer-events: none;
 }
 
+.component-motion-preview video {
+  display: block;
+  width: 100%;
+  max-height: min(70vh, 640px);
+  background: var(--page-bg);
+  object-fit: contain;
+}
+
+.component-motion-preview video[hidden] {
+  display: none;
+}
+
 .component-card-fallback {
   position: absolute;
   inset: 0;

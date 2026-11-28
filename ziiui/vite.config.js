@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
+import { videoAssetsPlugin } from './scripts/video-assets-plugin.js';
 
 export default defineConfig({
+  plugins: [videoAssetsPlugin(__dirname)],
   // Relative asset URLs, so the build works from any sub-path (GitHub Pages, etc.)
   base: './',
   build: {

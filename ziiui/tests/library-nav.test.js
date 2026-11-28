@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EFFECTS } from '../src/effects/registry.js';
+import { getComponentVideoSource, getComponentVideoStatus, VIDEO_STATUS } from '../src/effects/videos.js';
 
 let buildNav;
 let applySearch;
@@ -191,7 +192,8 @@ describe('component library navigation', () => {
     expect(categoryNames).toContain('Menus');
     const webIndex = categoryNames.indexOf('Web');
     const menusIndex = categoryNames.indexOf('Menus');
-    expect(menusIndex).toBe(webIndex + 1);
+    expect(menusIndex).toBe(webIndex + 2);
+    expect(categoryNames[webIndex + 1]).toBe('Hero Section');
 
     const menusFilter = document.querySelector('#categoryFilters [data-category="Menus"]');
     menusFilter.click();
@@ -202,6 +204,34 @@ describe('component library navigation', () => {
     const sidebarGroup = document.querySelector('.component-group[data-category="Menus"]');
     expect(sidebarGroup).not.toBeNull();
     expect(sidebarGroup.querySelectorAll('.component-link')).toHaveLength(2);
+  });
+
+  it('renders only the mapped video on its matching gallery card and category', () => {
+    document.querySelector('#seeMore').click();
+    document.querySelector('#seeMore').click();
+
+    for (const effect of EFFECTS) {
+      const card = document.querySelector(`.component-card[data-id="${effect.id}"]`);
+      const video = card.querySelector('.component-card-video');
+      const source = getComponentVideoSource(effect);
+      expect(card.dataset.videoStatus).toBe(getComponentVideoStatus(effect.id));
+      if (source) {
+        expect(video.dataset.src).toBe(source);
+        expect(card.dataset.videoStatus).toBe(VIDEO_STATUS.AVAILABLE);
+      } else {
+        expect(video).toBeNull();
+        expect(card.dataset.videoStatus).toBe(VIDEO_STATUS.PENDING);
+      }
+    }
+
+    document.querySelector('#categoryFilters [data-category="Menus"]').click();
+    expect(document.querySelector('.component-card[data-id="blockreveal"] .component-card-video').dataset.src)
+      .toBe('./assets/videos/blockreveal.mp4');
+    expect(document.querySelector('.component-card[data-id="revealmenu"] .component-card-video')).toBeNull();
+
+    document.querySelector('#categoryFilters [data-category="Interactive"]').click();
+    expect(document.querySelector('.component-card[data-id="maskdrag"] .component-card-video').dataset.src)
+      .toBe('./assets/videos/maskdrag.mp4');
   });
 
   it('supports multi-token searches across category and component name', () => {

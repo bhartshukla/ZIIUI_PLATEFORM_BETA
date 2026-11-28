@@ -3,6 +3,10 @@ import { $, esc, norm, say, report } from '../../lib/dom.js';
 import { copyText } from '../../lib/clipboard.js';
 import { setFrameHTML, clearFrameHTML, errorDoc } from '../../lib/preview.js';
 import { FIELD_LABELS } from '../../effects/registry.js';
+import {
+  getComponentVideo, getComponentVideoStatus, markComponentVideoError,
+  VIDEO_DIRECTORY, VIDEO_REGISTRY, VIDEO_STATUS
+} from '../../effects/videos.js';
 import { isBusy } from '../../ai/request.js';
 import { store, hooks, activeCode } from './store.js';
 import { markCurrent, closeSidebar, showAllComponents } from './nav.js';
@@ -360,6 +364,49 @@ function setDetailView(effect) {
   document.title = `${effect.name} — ziiui Components`;
 }
 
+function updateComponentVideo(effect) {
+  const panel = $('componentVideoPanel');
+  const status = $('componentVideoStatus');
+  const video = $('componentMotionVideo');
+  if (!panel || !status || !video) {return;}
+
+  const id = effect.id;
+  const source = getComponentVideo(id);
+  const state = getComponentVideoStatus(id);
+  panel.hidden = false;
+  video.pause();
+  video.removeAttribute('src');
+  video.dataset.componentId = id;
+  video.hidden = state !== VIDEO_STATUS.AVAILABLE;
+
+  if (state === VIDEO_STATUS.AVAILABLE && source) {
+    status.textContent = '';
+    video.src = source;
+    video.load();
+    video.play().catch((error) => {
+      status.textContent = error.name === 'NotAllowedError'
+        ? 'Video is ready. Press play to start.'
+        : 'Video could not autoplay. Use the player controls to retry.';
+    });
+  } else if (state === VIDEO_STATUS.ERROR) {
+    status.textContent = 'This video asset could not be loaded.';
+  } else {
+    const expectedFilename = VIDEO_REGISTRY[id].slice(VIDEO_DIRECTORY.length);
+    status.textContent = `Video pending — add ${expectedFilename} to public${VIDEO_DIRECTORY}.`;
+  }
+}
+
+const componentMotionVideo = $('componentMotionVideo');
+if (componentMotionVideo) {
+  componentMotionVideo.addEventListener('error', () => {
+    const id = componentMotionVideo.dataset.componentId;
+    markComponentVideoError(id);
+    componentMotionVideo.hidden = true;
+    const status = $('componentVideoStatus');
+    if (status) {status.textContent = 'This video asset could not be loaded.';}
+  });
+}
+
 export function selectEffect(e, fromUser, options = {}) {
   if (isBusy()) { say('AI is working… Component selection is temporarily locked.'); return; }
   if (!e) {return;}
@@ -371,6 +418,7 @@ export function selectEffect(e, fromUser, options = {}) {
   store.cur = e;
   store.dirty = false;
   setDetailView(e);
+  updateComponentVideo(e);
   const ta = $('text');
   if (e.field !== 'none' && ta) {ta.value = e.text || '';}
   const opts = $('opts');
@@ -416,6 +464,14 @@ export function showDiscovery(category = 'All', options = {}) {
   updateFullscreenUI(false);
   hidePreviewLoading();
   clearFrameHTML($('frame'));
+  const componentMotionVideo = $('componentMotionVideo');
+  if (componentMotionVideo) {
+    componentMotionVideo.pause();
+    componentMotionVideo.removeAttribute('src');
+    componentMotionVideo.load();
+  }
+  const componentVideoPanel = $('componentVideoPanel');
+  if (componentVideoPanel) {componentVideoPanel.hidden = true;}
   store.cur = null;
   store.html = '';
   store.edited = '';

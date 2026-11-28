@@ -44,9 +44,23 @@ npm run dev      # start the development server
 npm run build    # create a production build in dist/
 npm run preview  # preview the production build locally
 npm test         # run the project test suite
+npm run audit:videos # report available, pending, and invalid component videos
 ```
 
 > The app must be loaded over `http://` or `https://`. Opening the HTML directly from disk via `file://` is not supported for the interactive preview flow.
+
+## Component video previews
+
+The effect IDs in `src/effects/registry.js` are the source of truth for video
+filenames. Add a clip as `public/assets/videos/<component-id>.mp4`; the mapping
+is generated automatically, and the development server refreshes when clips
+are added or removed. New components also receive a predefined expected path
+from their registry ID.
+
+`npm run audit:videos` reports `AVAILABLE` and `PENDING` components, plus
+unmapped files, filename mismatches, invalid extensions, and duplicate IDs or
+mappings. Pending videos are intentional and are not returned as broken URLs.
+The same asset scan runs during development startup and production builds.
 
 ## Pages
 

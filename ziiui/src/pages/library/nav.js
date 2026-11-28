@@ -1,11 +1,14 @@
 /* Category navigation, searchable component list, and mobile drawer. */
 import { $ } from '../../lib/dom.js';
 import { EFFECTS, CATEGORIES } from '../../effects/registry.js';
-import { getComponentVideoSource } from '../../effects/videos.js';
+import {
+  getComponentVideoSource, getComponentVideoStatus, markComponentVideoError
+} from '../../effects/videos.js';
 
 const CATEGORY_ICONS = {
   All: 'ri-apps-2-line',
   Web: 'ri-layout-4-line',
+  'Hero Section': 'ri-layout-2-line',
   Menus: 'ri-menu-line',
   Interactive: 'ri-cursor-line',
   Footer: 'ri-layout-bottom-line',
@@ -361,6 +364,9 @@ function bindCardVideo(card, video) {
   // If video is missing or fails to load, remove it cleanly without fake/default video.
   video.addEventListener('error', () => {
     video.dataset.failed = 'true';
+    const componentId = card.dataset.id;
+    card.dataset.videoStatus = 'ERROR';
+    markComponentVideoError(componentId);
     pauseCardVideo(card, video);
     video.remove();
   });
@@ -423,6 +429,7 @@ function renderCards(effects) {
 
     card.className = 'component-card';
     card.dataset.id = effect.id;
+    card.dataset.videoStatus = getComponentVideoStatus(effect.id);
     card.tabIndex = 0;
     card.setAttribute('role', 'region');
     card.setAttribute('aria-label', `${effect.name} component card`);
@@ -477,6 +484,11 @@ function renderCards(effects) {
 
       media.append(video);
       bindCardVideo(card, video);
+      card.addEventListener('mouseenter', () => {
+        if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+          playCardVideo(card, video);
+        }
+      });
       if (cardObserver) {
         cardObserver.observe(card);
       } else if (!prefersReducedMotion() && !(typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent || ''))) {
@@ -529,6 +541,14 @@ function renderCards(effects) {
 
     card.addEventListener('click', (event) => {
       if (event.target.closest('.card-action-btn')) {return;}
+      const touchPreview = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+      if (touchPreview && event.target.closest('.component-card-art')) {
+        const video = card.querySelector('.component-card-video');
+        if (video) {
+          playCardVideo(card, video);
+          return;
+        }
+      }
       triggerPreview();
     });
 

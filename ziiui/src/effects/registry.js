@@ -30,6 +30,15 @@ export const EFFECTS = [
       js(GSAP), js(SCROLLTRIGGER), js(LENIS)
     ])
   },
+  {
+    id: 'hero-section', name: 'Hero Section', cat: 'Web', categories: ['Web', 'Hero Section'],
+    field: 'none', previewSize: 'large',
+    note: 'Scroll-driven hero portal with splitting panels and a shifting wordmark', text: '',
+    code: full('hero-section', [
+      ...fontPreconnect(),
+      css('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=Syne:wght@600;700;800&display=swap')
+    ])
+  },
 
   /* ----- Menus ----- */
   {
@@ -84,7 +93,7 @@ export const EFFECTS = [
   {
     id: 'imagetrail', name: 'Image Trail', cat: 'Interactive', field: 'none', previewSize: 'large',
     note: 'Dynamic cursor image trail on pointer move', text: '',
-    code: full('imagetrail', [js(GSAP)])
+    code: full('imagetrail', [js(GSAP)]),
   },
 
 
@@ -217,7 +226,7 @@ export const EFFECTS = [
 ];
 
 /** Sidebar group order. */
-export const CATEGORIES = ['Web', 'Menus', 'Interactive', 'Scroll', 'Shader', 'Footer', 'Text'];
+export const CATEGORIES = ['Web', 'Hero Section', 'Menus', 'Interactive', 'Scroll', 'Shader', 'Footer', 'Text'];
 
 /** Custom label for the editable text field of specific effects. */
 export const FIELD_LABELS = {};
